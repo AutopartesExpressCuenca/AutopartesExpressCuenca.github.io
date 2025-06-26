@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repuestos Express Ecuador</title>
+  <link rel="icon" href="reeccaja.png" type="image/png">
+  <style>
+    :root {
+      --color-background: #1a1a1a; --color-surface: #2c2c2c; --color-border: #444;
+      --color-text-primary: #e5e5e5; --color-text-secondary: #a0a0a0;
+      --color-accent: #FFC800; --color-accent-dark: #e0b000;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family); background-color: var(--color-background);
+      color: var(--color-text-primary); line-height: 1.6; overflow-x: hidden;
+      background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23333333' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .video-container video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.35; filter: saturate(0.8); }
+    .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, var(--color-background) 90%); z-index: -1; }
+    
+    header { background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+    .logo { height: 45px; cursor: pointer; }
+    .header-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: 0.5px;
+    }
+    .btn-whatsapp-header { background-color: var(--color-accent); color: #1a1a1a; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; border: none; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-whatsapp-header:hover { background-color: var(--color-accent-dark); transform: translateY(-2px); }
+    .btn-whatsapp-header svg { width: 24px; height: 24px; }
+    
+    .hero { text-align: center; padding: 5rem 2rem 4rem; }
+    .hero-logo { height: 160px; margin-bottom: 1.5rem; }
+    .hero h1 { font-size: clamp(2.5rem, 5vw, 3.5rem); margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; }
+    .hero p { font-size: 2rem; color: #ccc; max-width: 700px; margin: auto; }
+
+    main { position: relative; max-width: 1400px; margin: 2rem auto; padding: 0 2rem; z-index: 2; }
+    .form-container { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: flex-start; }
+    #sparePartsForm { background: var(--color-surface); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--color-border); }
+    .progress-bar { display: flex; gap: 1rem; align-items: center; margin-bottom: 2.5rem; }
+    .progress-step { flex: 1; height: 6px; background-color: var(--color-border); border-radius: 3px; transition: background-color 0.4s ease; }
+    .progress-step.active { background-color: var(--color-accent); }
+    .form-step { display: none; animation: fadeIn 0.5s ease; }
+    .form-step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    h2.step-title { font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 700; color: white; text-transform: uppercase; }
+    p.step-subtitle { color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 400; }
+    label { display: block; margin-top: 1.5rem; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+    input, select, textarea { width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-background); color: var(--color-text-primary); font-size: 1rem; font-family: var(--font-family); transition: all 0.3s ease; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(255, 200, 0, 0.2); }
+    
+    #logos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 1rem; padding: 1.5rem 0; }
+    .logo-wrapper { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 0.75rem; border-radius: 12px; background: var(--color-background); border: 2px solid var(--color-border); height: 110px; }
+    .logo-wrapper:hover { transform: translateY(-5px); border-color: var(--color-accent); }
+    .logo-wrapper img { width: 100%; max-width: 60px; height: 50px; object-fit: contain; transition: all 0.3s ease; z-index: 5; filter: grayscale(1); opacity: 0.6; }
+    .logo-wrapper.selected img { filter: none; opacity: 1; transform: scale(1.5); }
+    .logo-wrapper span { font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 500; }
+    .logo-wrapper.selected { border-color: var(--color-accent); box-shadow: 0 0 25px rgba(255, 255, 255, 0.2); }
+    .logo-wrapper::after { content: ''; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 70%; background-image: var(--logo-glow-url); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(10px) brightness(10); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
+    .logo-wrapper.selected::after { opacity: 1; }
+    
+    #selected-brand-display { background-color: var(--color-surface); border-radius: 16px; padding: 2rem; position: sticky; top: 120px; opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.4s ease; border: 2px solid transparent; text-align: center; }
+    #selected-brand-display.visible { opacity: 1; transform: translateY(0); pointer-events: auto; border-color: var(--color-accent); box-shadow: 0 0 30px rgba(255, 255, 255, 0.15); }
+    .display-logo-container { position: relative; height: 120px; margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; }
+    #selected-brand-display-logo { width: 100%; height: 100%; object-fit: contain; z-index: 5; }
+    .display-logo-container::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background-image: var(--logo-glow-url-display); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(15px) brightness(10); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
+    #selected-brand-display.visible .display-logo-container::after { opacity: 1; }
+    #selected-brand-display h3 { font-size: 1.5rem; color: white; text-transform: uppercase; }
+    #live-data-display { margin-top: 1.5rem; text-align: center; color: var(--color-text-secondary); }
+    #live-data-display p { margin-bottom: 0.5rem; font-size: 0.9rem; word-break: break-word; }
+    #live-data-display span { color: var(--color-text-primary); font-weight: 500; }
+    #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    .otro-input-container { display: none; margin-top: 1rem; }
+    .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
+    .btn { background: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.8rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; }
+    .btn-next, .btn-submit { background: var(--color-accent); color: #1a1a1a; border: none; }
+    .btn:hover { transform: translateY(-3px); }
+
+    #map-container { margin-top: 2rem; }
+    #map-container iframe { width: 100%; height: 200px; border-radius: 8px; border: 1px solid var(--color-border); filter: invert(1) grayscale(1) contrast(0.9); }
+    
+    .content-section { max-width: 1400px; margin: 4rem auto; padding: 4rem 2rem; border-top: 1px solid var(--color-border); }
+    .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+    .content-item { background: var(--color-surface); padding: 2rem; border-radius: 16px; }
+    .content-item h3 { font-size: 1.5rem; color: var(--color-accent); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;}
+    .content-item svg { width: 28px; height: 28px; }
+    .content-item p, .content-item li { color: var(--color-text-secondary); }
+    .content-item ul { list-style-position: inside; padding-left: 0.5rem; }
+
+    footer { margin-top: 4rem; text-align: center; padding: 3rem 2rem; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); padding-bottom: 120px; }
+    .social-icons { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .social-icons a { color: var(--color-text-secondary); transition: all 0.3s ease; }
+    .social-icons a:hover { color: var(--color-accent); transform: translateY(-3px); }
+    .social-icons svg { width: 28px; height: 28px; }
+    .footer-email a { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
+    .footer-email a:hover { color: var(--color-accent); }
+    
+    .scrolling-banner { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; overflow: hidden; border-top: 2px solid var(--color-accent); padding: 7px 0; }
+    .scrolling-banner .banner-track { display: flex; width: max-content; animation: scrollLeft 40s linear infinite; }
+    .scrolling-banner .banner-track img { height: 42px; margin: 0 25px; transition: transform 0.3s ease; filter: grayscale(1) opacity(0.7); }
+    .scrolling-banner .banner-track:hover { animation-play-state: paused; }
+    .scrolling-banner .banner-track img:hover { transform: scale(1.2); filter: none; }
+    
+    .brands-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+      overflow: hidden;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    .brands-banner .banner-track {
+      display: flex;
+      width: max-content;
+      animation: scrollRight 190s linear infinite;
+    }
+    .brands-banner .banner-track img {
+      height: 200px;
+      filter: none;
+      opacity: 0.1;
+      margin: 0 25px;
+      object-fit: contain;
+    }
+    
+    @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    @keyframes scrollRight {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    .validation-popup { position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background-color: var(--color-accent); color: #1a1a1a; padding: 1rem 1.5rem; border-radius: 8px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: top 0.5s ease; }
+    .validation-popup.show { top: 2rem; }
+    .validation-popup h4 { margin-bottom: 0.5rem; text-transform: uppercase; font-size: 1rem; }
+    .validation-popup ul { list-style-type: none; padding-left: 0; }
+    .validation-popup li { font-weight: 500; }
+  </style>
+</head>
+<body>
+  
+  <div class="video-container"><video id="bg-video" autoplay muted playsinline><source src="images/videos/1.mp4" type="video/mp4"></video></div>
+  <div class="video-overlay"></div>
+  <div id="validation-popup" class="validation-popup"><h4>Por favor, completa los siguientes campos:</h4><ul id="error-list"></ul></div>
+
+  <header>
+    <a href="#" class="logo-container">
+      <img src="reeccaja.png" alt="Repuestos Express Ecuador Logo" class="logo" />
+      <span class="header-title">RepuestosExpress - Ecuador</span>
+    </a>
+    <a href="https://wa.me/593999115626" class="btn-whatsapp-header" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 12A9.6 9.6 0 0 0 12 2.4a9.6 9.6 0 0 0-9.6 9.6c0 1.94.58 3.75 1.59 5.3L2.4 21.6l4.3-1.59c1.55 1.01 3.36 1.59 5.3 1.59h.01c5.3 0 9.6-4.3 9.6-9.6zM12 20.1c-1.74 0-3.38-.56-4.74-1.54l-.34-.2-.3-.04-3.51.92.94-3.42-.22-.36A8.1 8.1 0 0 1 3.9 12a8.1 8.1 0 0 1 8.1-8.1 8.1 8.1 0 0 1 8.1 8.1c0 4.48-3.63 8.1-8.1 8.1zm2.81-5.46c-.22-.11-1.3-.64-1.5-1.04-.2-.4-.48-.93-.16-1.23.32-.3.67-.37.88-.16.21.21.36.48.48.64.12.16.24.28.12.48-.12.2-.24.32-.48.56-.24.24-.48.48-.73.36-.24-.12-.89-.4-1.69-.92-.63-.39-1.04-.89-1.16-1.29-.12-.4 0-.61.16-.77.15-.15.32-.36.48-.52.16-.16.24-.32.36-.52s0-.32-.12-.44c-.12-.12-.48-.6-.64-1.2-.16-.6-.32-.52-.44-.52-.12 0-.24 0-.36 0s-.48.08-.73.48c-.24.4-.93 1.08-.93 2.64s.93 3.08 1.04 3.28c.12.2 1.86 2.89 4.5 3.97 2.64 1.08 2.64.72 3.12.68.48-.04 1.5-.61 1.74-1.2.24-.59.24-1.08.16-1.2z M19.46 8.37l-2.09-2.09a.4.4 0 0 0-.57 0l-.88.88a.4.4 0 0 0 0 .57l2.09 2.09a.4.4 0 0 0 .57 0l.88-.88a.4.4 0 0 0 0-.57zm-4.73 3.36l-2.31-2.31a.4.4 0 0 0-.57 0l-4.5 4.5V16h1.93l4.5-4.5a.4.4 0 0 0 0-.57zM4.54 15.63l2.09-2.09a.4.4 0 0 0-.57-.57l-2.09 2.09a.4.4 0 0 0 0 .57l.88.88a.4.4 0 0 0 .57 0l-.88-.88z"/></svg>
+      <span>WhatsApp</span>
+    </a>
+  </header>
+
+  <section class="hero">
+    <img src="reecwhite.png" alt="Repuestos Express Ecuador Icon" class="hero-logo" />
+    <h1>Importamos repuestos. Entregamos soluciones.</h1>
+    <p>Somos el mejor soporte para el usuario y el taller.</p>
+  </section>
+
+  <main>
+    <div class="brands-banner">
+        <div class="banner-track" id="brands-banner-track"></div>
+    </div>
+    <div class="form-container">
+      <form id="sparePartsForm" novalidate>
+        <div class="progress-bar"><div class="progress-step active"></div><div class="progress-step"></div><div class="progress-step"></div></div>
+        <div class="form-step active">
+          <h2 class="step-title">PASO 1: VEHÍCULO</h2>
+          <p class="step-subtitle">Lo que no hay aquí, lo traemos por ti.</p>
+          <label>MARCA:</label>
+          <div id="logos-container"></div>
+          <input type="hidden" id="marca" name="marca" required>
+          <div id="otra-marca-container" class="otro-input-container"><label for="otra-marca">Por favor, especifica la marca:</label><input type="text" id="otra-marca" name="otra-marca" required></div>
+          <label for="modelo">MODELO:</label>
+          <select id="modelo" name="modelo" required disabled><option value="">Primero selecciona una marca</option></select>
+          <div id="otro-modelo-container" class="otro-input-container"><label for="otro-modelo">Por favor, especifica el modelo:</label><input type="text" id="otro-modelo" name="otro-modelo" required></div>
+          <label for="anio">AÑO:</label>
+          <select id="anio" name="anio" required disabled><option value="">Primero selecciona un modelo</option></select>
+          <div id="otro-anio-container" class="otro-input-container"><label for="otro-anio">Por favor, especifica el año:</label><input type="text" id="otro-anio" name="otro-anio" required></div>
+          <div class="form-navigation"><div></div><button type="button" class="btn btn-next">Siguiente</button></div>
+        </div>
+        <div class="form-step">
+          <h2 class="step-title">PASO 2: REPUESTO</h2>
+          <p class="step-subtitle">Repuestos originales y alternativos de cualquier parte del mundo.</p>
+          <label for="descripcion">DESCRIPCIÓN DEL REPUESTO & OBSERV:</label>
+          <textarea id="descripcion" name="descripcion" required rows="5" placeholder="Ej: Amortiguadores delanteros, pastillas de freno cerámicas..."></textarea>
+          <label for="vin">VIN (RECOMENDADO):</label>
+          <input type="text" id="vin" name="vin" placeholder="Número de 17 dígitos en tu matrícula" />
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="button" class="btn btn-next">Siguiente</button></div>
+        </div>
+        <div class="form-step">
+          <h2 class="step-title">PASO 3: CONTACTO</h2>
+          <p class="step-subtitle">Tu confianza, nuestro mayor valor.</p>
+          <label for="nombre">NOMBRE COMPLETO:</label>
+          <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre y apellido" />
+          <label for="telefono">NÚMERO DE WHATSAPP:</label>
+          <input type="tel" id="telefono" name="telefono" required placeholder="0991234567" />
+          <label for="ubicacion">CIUDAD / DIRECCIÓN (OPCIONAL):</label>
+          <input type="text" id="ubicacion" name="ubicacion" placeholder="Cuenca, Ecuador">
+          <div id="map-container"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127598.7487053597!2d-79.0772740972656!3d-2.900549999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd181216936357%3A0x3a33959321c6bff3!2sCuenca!5e0!3m2!1ses-419!2sec!4v1680000000000!5m2!1ses-419!2sec" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">ENVIAR SOLICITUD</button></div>
+        </div>
+      </form>
+      <div id="selected-brand-display">
+        <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
+        <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
+        <div id="live-data-display">
+            <p id="display-modelo" style="display:none;">Modelo: <span></span></p>
+            <p id="display-anio" style="display:none;">Año: <span></span></p>
+            <p id="display-vin" style="display:none;">VIN: <span></span></p>
+            <p id="display-descripcion" style="display:none;">Repuesto: <span></span></p>
+            <p id="display-nombre" style="display:none;">Cliente: <span></span></p>
+            <p id="display-telefono" style="display:none;">Teléfono: <span></span></p>
+        </div>
+        <p id="send-prompt">¡Listo para Enviar!</p>
+      </div>
+    </div>
+    <div class="content-section">
+      <div class="content-grid">
+          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Acerca de Nosotros</h3><p>Somos una empresa ecuatoriana dedicada a la importación bajo pedido de repuestos, autos y motos. Conseguimos repuestos originales y alternativos para todas las marcas, gracias a nuestros contactos de confianza en Estados Unidos, China, India, Alemania, Inglaterra, Brasil y México. Atención humana, trato directo y soluciones reales.</p></div>
+          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/></svg>Nuestro Objetivo</h3><p>Facilitar la importación de repuestos y vehículos, con confianza, seguridad y compromiso, para que tú solo te preocupes por conducir.</p></div>
+      </div>
+    </div>
+    <div class="content-section">
+        <div class="content-item" style="grid-column: 1 / -1;"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>Términos de Venta</h3><ul><li>Todos los pedidos requieren reserva con anticipo.</li><li>El tiempo de entrega es de 10 a 20 días hábiles, según el país de origen.</li><li>Importamos repuestos originales de casa matriz y alternativos de calidad.</li><li>Contactos directos con proveedores internacionales confiables.</li><li>Atención personalizada, seguimiento constante y comunicación directa.</li></ul></div>
+    </div>
+  </main>
+  <div class="scrolling-banner"><div class="banner-track"></div></div>
+  <footer>
+    <p>Más que repuestos, compromiso contigo.</p>
+    <div class="social-icons">
+      <a href="https://facebook.com" target="_blank" aria-label="Facebook"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
+      <a href="https://instagram.com" target="_blank" aria-label="Instagram"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.7 2 8.3 2.02 7.1 2.07c-1.2.05-2.1.27-2.9.58-.8.3-1.5.7-2.2 1.4-.7.7-1.1 1.4-1.4 2.2-.3.8-.5 1.7-.58 2.9C2.02 8.3 2 8.7 2 12s.02 3.7.07 4.9c.05 1.2.27 2.1.58 2.9.3.8.7 1.5 1.4 2.2.7.7 1.4 1.1 2.2 1.4.8.3 1.7.5 2.9.58 1.2.05 1.6.07 4.9.07s3.7-.02 4.9-.07c1.2-.05 2.1-.27 2.9-.58.8-.3 1.5-.7 2.2-1.4.7-.7-1.1-1.4 1.4-2.2.3-.8.5-1.7.58 2.9.05-1.2.07-1.6.07-4.9s-.02-3.7-.07-4.9c-.05-1.2-.27-2.1-.58-2.9-.3-.8-.7-1.5-1.4-2.2-.7-.7-1.4-1.1-2.2-1.4-.8-.3-1.7-.5-2.9-.58C15.7 2.02 15.3 2 12 2zm0 1.8c3.2 0 3.6 0 4.8.07 1.1.05 1.8.25 2.2.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.15.4.35 1.1.4 2.2.07 1.2.07 1.6.07 4.8s0 3.6-.07 4.8c-.05 1.1-.25 1.8-.4 2.2-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.15-1.1.35-2.2.4-1.2.07-1.6.07-4.8.07s-3.6 0-4.8-.07c-1.1-.05-1.8-.25-2.2-.4-.5-.2-.9-.45-1.3-.85-.4-.4-.8-.65-.85-1.3-.15-.4-.35-1.1-.4-2.2C4.02 15.6 4 15.2 4 12s0-3.6.07-4.8c.05-1.1.25 1.8.4-2.2.2-.5.45.9.85-1.3.4-.4.8-.65 1.3-.85.4-.15 1.1-.35 2.2-.4C8.4 4.02 8.8 4 12 4zm0 2.9c-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.1-2.3 5.1-5.1-2.3-5.1-5.1-5.1zm0 8.4c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3 3.3 1.5 3.3 3.3-1.5 3.3-3.3 3.3zm6.2-8.5c-.7 0-1.3.6-1.3 1.3s.6 1.3 1.3 1.3 1.3-.6 1.3-1.3-.6-1.3-1.3-1.3z"/></svg></a>
+      <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.53.02C13.84 0 15.14.01 16.44 0a.08.08 0 0 1 .09.08V12.9a.08.08 0 0 1-.09.08h-2.95a.08.08 0 0 1-.09-.08V6.65c0-1.81.01-3.62 0-5.43A.08.08 0 0 0 13.32 1.2a1 1 0 0 0-.25-.32A.08.08 0 0 1 13 1.15c-.44-.28-.9-.55-1.36-.82a1 1 0 0 0-.44-.11.08.08 0 0 1-.08-.09V.08a.08.08 0 0 1 .08-.06z M6.05 6.44C6.05 2.93 8.9 0 12.44 0v2.95c-1.88 0-3.4 1.52-3.4 3.4s1.52 3.4 3.4 3.4v2.95C8.9 12.74 6.05 9.95 6.05 6.44z M13.36 14.86c-2.58 0-4.68 2.1-4.68 4.68s2.1 4.68 4.68 4.68c2.58 0 4.68-2.1 4.68-4.68s-2.1-4.68-4.68-4.68z"/></svg></a>
+      <a href="https://m.me/YOUR_MESSENGER_USERNAME" target="_blank" aria-label="Messenger"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.79 2 10.33c0 2.47 1.31 4.69 3.32 6.04-.3.9-.84 2.4-1.32 3.61.02-.01.05-.02.08-.03a.5.5 0 0 1 .39-.08c.57-.18 1.12-.41 1.63-.69.46-.25.89-.53 1.3-.84.86.3 1.77.47 2.7.47 5.52 0 10-3.79 10-8.33S17.52 2 12 2zm1.22 9.54l-2.07 2.07c-.49.49-1.28.49-1.77 0l-1.15-1.15c-.49-.49-.49-1.28 0-1.77l5.96-5.96c.24-.24.64-.24.88 0l1.15 1.15c.24.24.24.64 0 .88L13.22 8.46l-2.07 2.07c-.24.24-.24.64 0 .88.24.24.64.24.88 0l2.07-2.07c.49-.49 1.28-.49 1.77 0l1.15 1.15c.49.49.49 1.28 0 1.77l-5.96 5.96c-.24.24-.64.24-.88 0l-1.15-1.15c-.24-.24-.24-.64 0-.88l2.07-2.07.01.01z"/></svg></a>
+    </div>
+    <div class="footer-email"><a href="mailto:p.cordero.ec@gmail.com">p.cordero.ec@gmail.com</a></div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements
+      const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list');
+
+      let currentStep = 0, popupTimeout;
+      
+      const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
+      
+      // --- INICIO DE LA ACTUALIZACIÓN: LISTA DE MODELOS COMPLETA Y CORREGIDA ---
+      const marcasFullList = {
+        "Chevrolet": ["Onix", "Onix RS", "Onix Turbo Sedán", "Joy HB", "Joy Sedán", "Aveo", "Spark GT", "Spark Life", "Beat", "Sail", "Cavalier", "Cruze", "Bolt", "Bolt-EUV", "Groove", "Tracker", "Captiva", "Captiva XL", "Equinox-EV", "Blazer-RS-EV", "Tahoe", "Trailblazer", "Montana", "D-Max (varias gen.)", "Colorado", "Silverado", "Blazer (hist.)", "Trooper", "LUV", "Luv-D-Max", "Rodeo", "Gemini", "Corsa", "Esteem", "Forsa", "Vitara (3 puertas)", "Vitara (5 puertas)", "Grand Vitara", "Blue-Bird", "chasis MR-buses"],
+        "Kia": ["Picanto", "Rio", "Rio-5", "Soluto", "Cerato", "K3", "Carens", "Carnival", "Stonic", "Stonic Hybrid", "Seltos", "Sonet", "Sportage", "Sorento", "Niro", "Niro-EV", "EV6", "EV5", "EV9", "Soul-EV"],
+        "Toyota": ["Agya", "Yaris", "Yaris Sport", "Yaris Cross", "Corolla", "Corolla Híbrido", "Corolla Cross Híbrido", "C-HR", "Raize", "RAV4", "Rush", "Prius", "Prius-C", "Innova", "Hilux", "Tacoma", "Fortuner", "Land Cruiser Prado", "Land Cruiser 200", "Land Cruiser 300", "4Runner", "FJ Cruiser", "Starlet", "Tercel", "Celica"],
+        "Hyundai": ["Accent", "Grand i10", "Elantra", "Sonata", "Venue", "Kona", "Kona Hybrid", "Tucson", "Santa Fe", "Creta", "Staria"],
+        "Chery": ["QQ3", "QQ6", "Nice-A1", "Van-Pass", "XCross", "Arrizo-3", "Arrizo-5", "Tiggo", "Tiggo-2", "Tiggo-2 Pro", "Tiggo-3", "Tiggo-4", "Tiggo-5", "Tiggo-7", "Tiggo-7 Pro", "Tiggo-8", "Tiggo-8 Pro"],
+        "Suzuki": ["Swift", "Baleno", "Celerio", "Ignis", "Vitara", "Grand Vitara", "Jimny", "XL7", "Ertiga", "S-Cross", "SX4"],
+        "Renault": ["Kwid", "Sandero", "Logan", "Stepway", "Duster", "Captur", "Koleos", "Oroch", "Kangoo", "Symbol", "Megane", "Fluence"],
+        "Great Wall": ["Wingle-1", "Wingle-2", "Wingle-3", "Poer", "Haval H2", "Haval H6", "Haval H9", "Haval Jolion", "Haval F7", "M4", "ORA Good-Cat", "Tank-300"],
+        "JAC": ["J2", "J4", "J5", "S2", "S3", "S5", "S7", "T40", "T60", "V7", "HFC-1037"],
+        "DFSK": ["Glory-500", "Glory-560", "Glory-580", "F5", "Mini Truck", "C31", "C52", "EC35", "K05", "K07"],
+        "Volkswagen": ["Gol", "Escarabajo (Tipo-1)", "Voyage", "Polo", "Virtus", "T-Cross", "Tiguan", "Taigo", "Jetta", "Passat", "Amarok"],
+        "Nissan": ["March", "Versa", "Sentra", "Kicks", "X-Trail", "Frontier", "NV350", "Pathfinder", "Note", "Micra"],
+        "Mazda": ["Mazda2", "Mazda3", "Mazda6", "CX-3", "CX-30", "CX-5", "CX-9", "CX-50", "CX-90", "BT-50"],
+        "Dongfeng": ["Rich-6", "Rich-7", "Rich-12", "S30", "Husky", "EQ2030", "EQ2050", "580", "580 Pro", "mini-van Q30"],
+        "Sinotruk": ["Howo-7", "Howo-9", "A7", "G7", "T5G", "ZZ1257", "ZZ1325", "ZZ1507", "ZZ3317", "ZZ4251"],
+        "Jetour": ["X70", "X90", "X95", "T1", "T5", "T8", "Dasheng", "Cruiser", "XC", "Cooler"],
+        "Ford": ["Fiesta", "EcoSport", "Ranger", "Explorer", "Mustang", "Transit", "Everest", "Bronco", "F-150", "Edge"],
+        "Changan": ["CS35", "CS55", "CS75", "CS85", "Alsvin", "UNI-T", "Eado", "Eado Xt", "Benni", "CS15"],
+        "BYD": ["Atto-3", "Dolphin", "Seal", "Song-Plus", "Tang", "Yuan-EV", "Qin", "e1", "e2", "Han"],
+        "Subaru": ["Impreza", "XV", "Forester", "Outback", "WRX", "Crosstrek", "Legacy", "BRZ", "Solterra", "Ascent"],
+        "Citroen": ["C3", "C3 Aircross", "C4", "C5 Aircross", "Berlingo", "C-Elysée", "C4 Cactus", "Spacetourer", "Jumpy", "Jumper"],
+        "Fiat": ["500", "Panda", "Punto", "Tipo", "Toro", "Strada", "Argo", "Uno", "Ducato", "Fiorino"],
+        "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler", "Gladiator", "Avenger", "Commander", "Wagoneer", "Patriot"],
+        "Honda": ["Fit", "City", "Civic", "Accord", "CR-V", "HR-V", "Pilot", "BR-V", "Ridgeline", "Insight"],
+        "BMW": ["Serie 1", "Serie 2", "Serie 3", "Serie 4", "Serie 5", "Serie 7", "X1", "X3", "X5", "Z4"],
+        "Audi": ["A3", "A4", "A6", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT"],
+        "Mercedes-Benz": ["A-Class", "C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "GLS", "CLA", "G-Class"],
+        "Porsche": ["911", "Cayman", "Boxster", "Macan", "Cayenne", "Taycan", "Panamera", "718", "924", "928"]
+      };
+      // --- FIN DE LA ACTUALIZACIÓN ---
+
+      const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
+      const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
+      
+      const updateFormSteps = () => { formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep)); progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep)); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+      
+      const checkAllFields = () => {
+        let allValid = true;
+        form.querySelectorAll('[required]:not([type=hidden])').forEach(input => {
+          let container = input.closest('.otro-input-container');
+          if (!container || container.style.display === 'block') { if (!input.value) allValid = false; }
+        });
+        sendPrompt.style.display = allValid ? 'block' : 'none';
+      };
+
+      const validateStep = (stepIndex) => {
+        let errors = [];
+        formSteps[stepIndex].querySelectorAll('[required]').forEach(input => {
+          let fieldLabel = document.querySelector(`label[for='${input.id}']`);
+          if (input.offsetWidth > 0 || input.type === 'hidden') {
+            const container = input.closest('.otro-input-container');
+            if (!container || container.style.display === 'block') { if (!input.value) { errors.push(fieldLabel ? fieldLabel.textContent.replace(/:/g, '') : 'Campo requerido'); } }
+          }
+        });
+        if (errors.length > 0) {
+          errorList.innerHTML = '';
+          errors.forEach(err => { const li = document.createElement('li'); li.textContent = `• ${err}`; errorList.appendChild(li); });
+          validationPopup.classList.add('show');
+          clearTimeout(popupTimeout);
+          popupTimeout = setTimeout(() => { validationPopup.classList.remove('show'); }, 4000);
+          return false;
+        }
+        return true;
+      };
+
+      const populateAnios = () => { anioSelect.innerHTML = '<option value="">Selecciona el año</option>'; for (let y = new Date().getFullYear() + 1; y >= 1990; y--) anioSelect.add(new Option(y, y)); anioSelect.add(new Option("Otro", "Otro")); };
+      
+      const updateLiveData = (field, value) => {
+        const displayElement = document.getElementById(`display-${field}`);
+        if(!displayElement) return;
+        const span = displayElement.querySelector('span');
+        if (value) { span.textContent = value; displayElement.style.display = 'block'; } 
+        else { displayElement.style.display = 'none'; }
+        checkAllFields();
+      };
+
+      const handleMarcaSelection = (marca, wrapper) => {
+        brandDisplay.classList.add('visible');
+        const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
+        brandDisplayLogo.src = logoSrc;
+        brandDisplayName.textContent = marca;
+        modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>'; anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>'; anioSelect.disabled = true;
+        otroMarcaContainer.style.display = 'none'; otraMarcaInput.required = false;
+        otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
+        
+        wrapper.style.setProperty('--logo-glow-url', `url(${logoSrc})`);
+        brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
+
+        updateLiveData('modelo', ''); updateLiveData('anio', '');
+
+        if (marca === "Otro") {
+          marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios(); modeloSelect.disabled = false;
+          modeloSelect.innerHTML = '<option value="Otro" selected>Otro (Especifique)</option>';
+          otroMarcaContainer.style.display = 'block'; otraMarcaInput.required = true;
+          otroModeloContainer.style.display = 'block'; otroModeloInput.required = true;
+        } else {
+          marcaInput.value = marca;
+          if (marcasFullList[marca]) { marcasFullList[marca].forEach(modelo => modeloSelect.add(new Option(modelo, modelo))); }
+          modeloSelect.add(new Option("Otro", "Otro"));
+          modeloSelect.disabled = false;
+        }
+        checkAllFields();
+        
+        // --- INICIO DE LA SOLUCIÓN: Scroll suave al campo de modelo ---
+        setTimeout(() => {
+            modeloSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        // --- FIN DE LA SOLUCIÓN ---
+      };
+      
+      const populateLogos = () => {
+        marcasOrdenadas.forEach(marca => {
+          const wrapper = document.createElement('div'); wrapper.className = 'logo-wrapper';
+          const img = document.createElement('img'); const span = document.createElement('span');
+          const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
+          img.src = `images/logos/${fileName}.png`; img.alt = marca;
+          wrapper.appendChild(img); span.textContent = marca; wrapper.appendChild(span);
+          logosContainer.appendChild(wrapper);
+          wrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); wrapper.classList.add('selected'); handleMarcaSelection(marca, wrapper); };
+        });
+        const otroWrapper = document.createElement('div'); otroWrapper.className = 'logo-wrapper';
+        otroWrapper.innerHTML = '<img src="images/logos/otra.png" alt="Otra Marca"><span>Otra</span>';
+        logosContainer.appendChild(otroWrapper);
+        otroWrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); otroWrapper.classList.add('selected'); handleMarcaSelection("Otro", otroWrapper); };
+      };
+
+      const publiBannerTrack = document.querySelector('.scrolling-banner .banner-track');
+      const publiImageFiles = ['publi.png', 'publi2.png', 'publi3.png', 'publi4.png', 'publi5.png', 'publi6.png'];
+      
+      const fragment = document.createDocumentFragment();
+      publiImageFiles.forEach(file => {
+          const img = new Image();
+          img.src = `images/publi/${file}`;
+          fragment.appendChild(img);
+      });
+      publiBannerTrack.appendChild(fragment);
+      
+      setTimeout(() => {
+        const initialImages = publiBannerTrack.querySelectorAll('img');
+        if (initialImages.length > 0) {
+            initialImages.forEach(img => {
+                publiBannerTrack.appendChild(img.cloneNode(true));
+            });
+        }
+      }, 100);
+
+      const brandsBannerTrack = document.getElementById('brands-banner-track');
+      let brandsImagesToLoad = marcasOrdenadas.length;
+
+      marcasOrdenadas.forEach(marca => {
+          const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
+          const img = new Image(); img.src = `images/logos/${fileName}.png`;
+          img.onload = () => {
+            brandsBannerTrack.appendChild(img);
+            brandsImagesToLoad--;
+            if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
+              Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
+            }
+          };
+          img.onerror = () => {
+            brandsImagesToLoad--;
+            if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
+              Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
+            }
+          };
+      });
+
+      // Event Listeners and Initializations
+      nextBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (validateStep(currentStep)) {
+            currentStep++;
+            updateFormSteps();
+          }
+        });
+      });
+
+      prevBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentStep--;
+          updateFormSteps();
+        });
+      });
+
+      populateLogos();
+      populateAnios();
+      checkAllFields();
+
+      // Live data display updates
+      modeloSelect.addEventListener('change', () => {
+        if (modeloSelect.value === "Otro") {
+          otroModeloContainer.style.display = 'block';
+          otroModeloInput.required = true;
+          updateLiveData('modelo', otroModeloInput.value);
+        } else {
+          otroModeloContainer.style.display = 'none';
+          otroModeloInput.required = false;
+          updateLiveData('modelo', modeloSelect.value);
+        }
+        anioSelect.disabled = false;
+        populateAnios();
+      });
+
+      anioSelect.addEventListener('change', () => {
+        if (anioSelect.value === "Otro") {
+          otroAnioContainer.style.display = 'block';
+          otroAnioInput.required = true;
+          updateLiveData('anio', otroAnioInput.value);
+        } else {
+          otroAnioContainer.style.display = 'none';
+          otroAnioInput.required = false;
+          updateLiveData('anio', anioSelect.value);
+        }
+      });
+
+      otraMarcaInput.addEventListener('input', () => { 
+        brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; 
+      });
+      
+      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); });
+      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); });
+      descripcionTextarea.addEventListener('input', () => { updateLiveData('descripcion', descripcionTextarea.value); });
+      vinInput.addEventListener('input', () => { updateLiveData('vin', vinInput.value); });
+      nombreInput.addEventListener('input', () => { updateLiveData('nombre', nombreInput.value); });
+      telefonoInput.addEventListener('input', () => { updateLiveData('telefono', telefonoInput.value); });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validateStep(currentStep)) {
+          const formData = new FormData(form);
+          let message = `*SOLICITUD DE REPUESTO*\n\n`;
+          message += `*VEHÍCULO:*\n`;
+          message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
+          message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
+          message += `Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
+          message += `*REPUESTO:*\n`;
+          message += `Descripción: ${formData.get('descripcion')}\n`;
+          message += `VIN: ${formData.get('vin') || 'No proporcionado'}\n\n`;
+          message += `*CONTACTO:*\n`;
+          message += `Nombre: ${formData.get('nombre')}\n`;
+          message += `Teléfono: ${formData.get('telefono')}\n`;
+          message += `Ubicación: ${formData.get('ubicacion') || 'No proporcionado'}\n`;
+
+          const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
+          window.open(whatsappURL, '_blank');
+        }
+      });
+
+      if (bgVideo) {
+          const videos = [
+              'images/videos/1.mp4',
+              'images/videos/2.mp4',
+              'images/videos/3.mp4',
+              'images/videos/4.mp4'
+          ];
+          let currentVideoIndex = 0;
+          
+          bgVideo.playbackRate = 0.7;
+
+          const playNextVideo = () => {
+              currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+              const videoSource = bgVideo.querySelector('source');
+              videoSource.src = videos[currentVideoIndex];
+              bgVideo.load();
+              bgVideo.play().catch(error => console.log('Autoplay para el siguiente video fue prevenido:', error));
+          };
+
+          bgVideo.addEventListener('ended', playNextVideo);
+
+          document.body.addEventListener('click', () => {
+              if (bgVideo.paused) {
+                  bgVideo.play().catch(error => {
+                      console.log('Autoplay inicial fue prevenido:', error);
+                  });
+              }
+          }, { once: true });
+      }
+    });
+  </script>
+</body>
+</html>
