@@ -84,32 +84,15 @@
     #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* INICIO: Estilos para el botón de referencia de imagen */
+    /* Estilos del botón que abrirá el popup */
     #image-ref-button {
-      display: none; /* Oculto por defecto */
-      background-color: var(--color-background);
-      border: 1px solid var(--color-border);
-      color: var(--color-text-secondary);
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      margin-top: 1rem;
-      margin-bottom: 1.5rem;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      font-family: var(--font-family);
-      font-size: 0.9rem;
+      display: none; background-color: var(--color-background); border: 1px solid var(--color-border);
+      color: var(--color-text-secondary); padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none;
+      font-weight: 600; margin-top: 1rem; margin-bottom: 1.5rem; transition: all 0.3s ease; cursor: pointer;
+      font-family: var(--font-family); font-size: 0.9rem;
     }
-    #image-ref-button:hover {
-      background-color: var(--color-accent);
-      color: #1a1a1a;
-      border-color: var(--color-accent);
-    }
-    #image-ref-button.visible {
-      display: inline-block; /* Se muestra cuando es aplicable */
-    }
-    /* FIN: Estilos para el botón de referencia de imagen */
+    #image-ref-button:hover { background-color: var(--color-accent); color: #1a1a1a; border-color: var(--color-accent); }
+    #image-ref-button.visible { display: inline-block; }
     
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
@@ -246,7 +229,7 @@
       <div id="selected-brand-display">
         <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
         <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
-        <a id="image-ref-link" href="#" target="_blank">Ver imágenes de referencia</a>
+        <button type="button" id="image-ref-button">Ver imágenes de referencia</button>
         <div id="live-data-display">
             <p id="display-modelo" style="display:none;">Modelo: <span></span></p>
             <p id="display-anio" style="display:none;">Año: <span></span></p>
@@ -282,11 +265,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // --- INICIO: Lógica Unificada de la Página ---
-
-      // 1. Selección de Elementos del DOM
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
-      imageRefLink = document.getElementById('image-ref-link');
+      imageRefButton = document.getElementById('image-ref-button');
       
       let currentStep = 0, popupTimeout;
       
@@ -332,14 +312,9 @@
         const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
         
         if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
-          const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
-          const searchTerm = `${year} ${brand} ${cleanModel}`;
-          const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
-          
-          imageRefLink.href = googleImagesUrl;
-          imageRefLink.classList.add('visible');
+          imageRefButton.classList.add('visible');
         } else {
-          imageRefLink.classList.remove('visible');
+          imageRefButton.classList.remove('visible');
         }
       };
       
@@ -508,6 +483,28 @@
       vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
       nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
       telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
+      
+      // --- INICIO: LÓGICA DEL POPUP ---
+      imageRefButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          const brand = marcaInput.value;
+          const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+          const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+          const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+          const searchTerm = `${year} ${brand} ${cleanModel}`;
+          
+          // Usaremos Google por defecto por ser más completo, pero podrías cambiar a duckduckgo.com/?q=...&iax=images&ia=images
+          const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+
+          const popupWidth = 800;
+          const popupHeight = 600;
+          const left = (screen.width / 2) - (popupWidth / 2);
+          const top = (screen.height / 2) - (popupHeight / 2);
+          const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes`;
+
+          window.open(searchUrl, 'imagePopup', popupFeatures);
+      });
+      // --- FIN: LÓGICA DEL POPUP ---
       
       form.addEventListener('submit', function(e) {
         e.preventDefault();
