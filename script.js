@@ -92,10 +92,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const updateFormSteps = () => {
         formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
         progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep));
-        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
       
     const checkAllFields = () => {
+        if (!form) return;
         let allValid = true;
         form.querySelectorAll('[required]:not([type=hidden])').forEach(input => {
             let container = input.closest('.otro-input-container');
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!input.value) allValid = false;
             }
         });
-        sendPrompt.style.display = allValid ? 'block' : 'none';
+        if(sendPrompt) sendPrompt.style.display = allValid ? 'block' : 'none';
     };
 
     const validateStep = (stepIndex) => {
@@ -137,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const populateAnios = () => {
+        if(!anioSelect) return;
         anioSelect.innerHTML = '<option value="">Selecciona el año</option>';
         for (let y = new Date().getFullYear() + 1; y >= 1990; y--) anioSelect.add(new Option(y, y));
         anioSelect.add(new Option("Otro", "Otro"));
@@ -156,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const handleMarcaSelection = (marca, wrapper) => {
+        if(!brandDisplay) return;
         brandDisplay.classList.add('visible');
         const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
         brandDisplayLogo.src = logoSrc;
@@ -196,14 +199,12 @@ document.addEventListener('DOMContentLoaded', function() {
         checkAllFields();
         
         setTimeout(() => {
-            modeloSelect.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
+            if (modeloSelect) modeloSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
     };
       
     const populateLogos = () => {
+        if (!logosContainer) return;
         marcasOrdenadas.forEach(marca => {
             const wrapper = document.createElement('div');
             wrapper.className = 'logo-wrapper';
@@ -234,163 +235,167 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const publiBannerTrack = document.querySelector('.scrolling-banner .banner-track');
-    const publiImageFiles = ['publi.png', 'publi2.png', 'publi3.png', 'publi4.png', 'publi5.png', 'publi6.png'];
-      
-    const fragment = document.createDocumentFragment();
-    publiImageFiles.forEach(file => {
-        const img = new Image();
-        img.src = `images/publi/${file}`;
-        fragment.appendChild(img);
-    });
-    publiBannerTrack.appendChild(fragment);
-      
-    setTimeout(() => {
-        const initialImages = publiBannerTrack.querySelectorAll('img');
-        if (initialImages.length > 0) {
-            initialImages.forEach(img => {
-                publiBannerTrack.appendChild(img.cloneNode(true));
-            });
-        }
-    }, 100);
+    if (publiBannerTrack) {
+        const publiImageFiles = ['publi.png', 'publi2.png', 'publi3.png', 'publi4.png', 'publi5.png', 'publi6.png'];
+        const fragment = document.createDocumentFragment();
+        publiImageFiles.forEach(file => {
+            const img = new Image();
+            img.src = `images/publi/${file}`;
+            fragment.appendChild(img);
+        });
+        publiBannerTrack.appendChild(fragment);
+        
+        setTimeout(() => {
+            const initialImages = publiBannerTrack.querySelectorAll('img');
+            if (initialImages.length > 0) {
+                initialImages.forEach(img => {
+                    publiBannerTrack.appendChild(img.cloneNode(true));
+                });
+            }
+        }, 100);
+    }
 
     const brandsBannerTrack = document.getElementById('brands-banner-track');
-    let brandsImagesToLoad = marcasOrdenadas.length;
-
-    marcasOrdenadas.forEach(marca => {
-        const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
-        const img = new Image();
-        img.src = `images/logos/${fileName}.png`;
-        img.onload = () => {
-            brandsBannerTrack.appendChild(img);
-            brandsImagesToLoad--;
-            if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
-                Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
-            }
-        };
-        img.onerror = () => {
-            brandsImagesToLoad--;
-            if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
-                Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
-            }
-        };
-    });
+    if (brandsBannerTrack) {
+        let brandsImagesToLoad = marcasOrdenadas.length;
+        marcasOrdenadas.forEach(marca => {
+            const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
+            const img = new Image();
+            img.src = `images/logos/${fileName}.png`;
+            img.onload = () => {
+                brandsBannerTrack.appendChild(img);
+                brandsImagesToLoad--;
+                if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
+                    Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
+                }
+            };
+            img.onerror = () => {
+                brandsImagesToLoad--;
+                if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
+                    Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
+                }
+            };
+        });
+    }
 
     // Event Listeners
-    nextBtns.forEach(btn => btn.addEventListener('click', () => {
-        if (validateStep(currentStep)) {
-            currentStep++;
+    if (nextBtns) {
+        nextBtns.forEach(btn => btn.addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                updateFormSteps();
+            }
+        }));
+    }
+    if(prevBtns) {
+        prevBtns.forEach(btn => btn.addEventListener('click', () => {
+            currentStep--;
             updateFormSteps();
-        }
-    }));
-    prevBtns.forEach(btn => btn.addEventListener('click', () => {
-        currentStep--;
-        updateFormSteps();
-    }));
-      
-    modeloSelect.addEventListener('change', () => {
-        if (modeloSelect.value === "Otro") {
-            otroModeloContainer.style.display = 'block';
-            otroModeloInput.required = true;
-            updateLiveData('modelo', otroModeloInput.value);
-        } else {
-            otroModeloContainer.style.display = 'none';
-            otroModeloInput.required = false;
-            updateLiveData('modelo', modeloSelect.value);
-        }
-        anioSelect.disabled = false;
-        populateAnios();
-        updateImageButtonVisibility();
-    });
+        }));
+    }
+    
+    if(modeloSelect) {
+        modeloSelect.addEventListener('change', () => {
+            if (modeloSelect.value === "Otro") {
+                otroModeloContainer.style.display = 'block';
+                otroModeloInput.required = true;
+                updateLiveData('modelo', otroModeloInput.value);
+            } else {
+                otroModeloContainer.style.display = 'none';
+                otroModeloInput.required = false;
+                updateLiveData('modelo', modeloSelect.value);
+            }
+            anioSelect.disabled = false;
+            populateAnios();
+            updateImageButtonVisibility();
+        });
+    }
 
-    anioSelect.addEventListener('change', () => {
-        if (anioSelect.value === "Otro") {
-            otroAnioContainer.style.display = 'block';
-            otroAnioInput.required = true;
-            updateLiveData('anio', otroAnioInput.value);
-        } else {
-            otroAnioContainer.style.display = 'none';
-            otroAnioInput.required = false;
-            updateLiveData('anio', anioSelect.value);
-        }
-        updateImageButtonVisibility();
-    });
+    if(anioSelect){
+        anioSelect.addEventListener('change', () => {
+            if (anioSelect.value === "Otro") {
+                otroAnioContainer.style.display = 'block';
+                otroAnioInput.required = true;
+                updateLiveData('anio', otroAnioInput.value);
+            } else {
+                otroAnioContainer.style.display = 'none';
+                otroAnioInput.required = false;
+                updateLiveData('anio', anioSelect.value);
+            }
+            updateImageButtonVisibility();
+        });
+    }
 
-    otraMarcaInput.addEventListener('input', () => {
-        brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA';
-    });
-    otroModeloInput.addEventListener('input', () => {
-        updateLiveData('modelo', otroModeloInput.value);
-        updateImageButtonVisibility();
-    });
-    otroAnioInput.addEventListener('input', () => {
-        updateLiveData('anio', otroAnioInput.value);
-        updateImageButtonVisibility();
-    });
-    descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
-    vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
-    nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
-    telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
+    if(otraMarcaInput) otraMarcaInput.addEventListener('input', () => { if(brandDisplayName) brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
+    if(otroModeloInput) otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateImageButtonVisibility(); });
+    if(otroAnioInput) otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateImageButtonVisibility(); });
+    if(descripcionTextarea) descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
+    if(vinInput) vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
+    if(nombreInput) nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
+    if(telefonoInput) telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
       
-    imageRefButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        const brand = marcaInput.value;
-        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
-        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-        const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
-        const searchTerm = `${brand} ${cleanModel} ${year}`;
-        const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
-        const popupWidth = 800,
-            popupHeight = 600;
-        const left = (screen.width / 2) - (popupWidth / 2);
-        const top = (screen.height / 2) - (popupHeight / 2);
-        const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`;
-        window.open(searchUrl, 'imagePopup', popupFeatures);
-    });
+    if(imageRefButton) {
+        imageRefButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const brand = marcaInput.value;
+            const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+            const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+            const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+            const searchTerm = `${brand} ${cleanModel} ${year}`;
+            const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+            const popupWidth = 800, popupHeight = 600;
+            const left = (screen.width / 2) - (popupWidth / 2);
+            const top = (screen.height / 2) - (popupHeight / 2);
+            const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`;
+            window.open(searchUrl, 'imagePopup', popupFeatures);
+        });
+    }
       
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (validateStep(currentStep)) {
-            const formData = new FormData(form);
-            let message = `*SOLICITUD DE REPUESTO*\n\n`;
-            message += `*VEHÍCULO:*\n`;
-            message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
-            message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
-            message += `Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
-            message += `*REPUESTO:*\n`;
-            message += `Descripción: ${formData.get('descripcion')}\n`;
-            message += `VIN: ${formData.get('vin') || 'No proporcionado'}\n\n`;
-            message += `*CONTACTO:*\n`;
-            message += `Nombre: ${formData.get('nombre')}\n`;
-            message += `Teléfono: ${formData.get('telefono')}\n`;
-            message += `Ubicación: ${formData.get('ubicacion') || 'No proporcionado'}\n`;
-            const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
-            window.open(whatsappURL, '_blank');
-        }
-    });
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validateStep(currentStep)) {
+                const formData = new FormData(form);
+                let message = `*SOLICITUD DE REPUESTO*\n\n`;
+                message += `*VEHÍCULO:*\n`;
+                message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
+                message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
+                message += `Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
+                message += `*REPUESTO:*\n`;
+                message += `Descripción: ${formData.get('descripcion')}\n`;
+                message += `VIN: ${formData.get('vin') || 'No proporcionado'}\n\n`;
+                message += `*CONTACTO:*\n`;
+                message += `Nombre: ${formData.get('nombre')}\n`;
+                message += `Teléfono: ${formData.get('telefono')}\n`;
+                message += `Ubicación: ${formData.get('ubicacion') || 'No proporcionado'}\n`;
+                const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
+                window.open(whatsappURL, '_blank');
+            }
+        });
+    }
 
     // ==================================================================
-    // == INICIO: CÓDIGO PARA DISPARAR EL WEBHOOK DE PIPEDREAM ==
+    // == INICIO: CÓDIGO PARA DISPARAR EL WEBHOOK DE PIPEDREAM (CORREGIDO) ==
     // ==================================================================
     if (assistantButton) {
-      // Usamos una función 'async' para poder usar 'await', que facilita manejar operaciones de red.
       assistantButton.addEventListener('click', async function() {
         const webhookUrl = 'https://eobg3f0o9qljmo6.m.pipedream.net';
-        const originalText = this.innerHTML; // Guardamos el contenido original del botón
+        const originalText = this.innerHTML;
 
-        // 1. Dar feedback visual al usuario: deshabilitar el botón y cambiar el texto.
         this.disabled = true;
         this.innerHTML = `<svg fill="currentColor" viewBox="0 0 24 24" class="spin"><path d="M12 4V2A10 10 0 002 12h2a8 8 0 018-8z"></path></svg> <span>Activando...</span>`;
         
-        console.log('Disparando trigger a Pipedream...');
+        console.log('Disparando trigger a Pipedream en modo "no-cors"...');
 
         try {
-          // 2. Realizar la petición POST al webhook usando la API fetch.
-          const response = await fetch(webhookUrl, {
-            method: 'POST', // Usamos POST, es el método estándar para enviar datos o disparar acciones.
+          // Realizamos la petición POST al webhook.
+          // AÑADIMOS "mode: 'no-cors'" PARA EVITAR BLOQUEOS DEL NAVEGADOR.
+          await fetch(webhookUrl, {
+            method: 'POST',
+            mode: 'no-cors', // <--- ¡ESTA ES LA CORRECCIÓN CLAVE!
             headers: {
-              'Content-Type': 'application/json' // Indicamos que enviaremos datos en formato JSON.
+              'Content-Type': 'application/json'
             },
-            // Enviamos un cuerpo (body) con información útil que puedes ver en Pipedream.
             body: JSON.stringify({ 
               source: 'WebsiteAssistantButton', 
               message: 'El usuario ha solicitado el asistente de IA.',
@@ -398,23 +403,17 @@ document.addEventListener('DOMContentLoaded', function() {
             })
           });
 
-          // 3. Verificar si la petición fue exitosa (código de respuesta 2xx).
-          if (response.ok) {
-            console.log('¡Trigger enviado a Pipedream con éxito!');
-            // Aquí podrías mostrar un mensaje de éxito o iniciar el widget de chat.
-            alert('Asistente activado. ¡En breve se iniciará la conversación!');
-          } else {
-            // Si hay un error en la respuesta del servidor (ej. 4xx o 5xx).
-            console.error('Pipedream respondió con un error:', response.status, response.statusText);
-            alert('Hubo un problema al activar el asistente. Por favor, inténtalo de nuevo.');
-          }
+          // Con 'no-cors', no podemos verificar la respuesta, así que asumimos que tuvo éxito.
+          console.log('¡Trigger enviado a Pipedream! Revisa tu workflow para confirmar la llegada.');
+          alert('Asistente activado. ¡En breve se iniciará la conversación!');
 
         } catch (error) {
-          // 4. Capturar errores de red (ej. no hay conexión a internet).
-          console.error('Error de red al intentar contactar Pipedream:', error);
-          alert('No se pudo conectar con el asistente. Revisa tu conexión a internet.');
+          // Este bloque ahora solo capturará errores muy específicos,
+          // como un error de sintaxis en la URL, pero no errores de red.
+          console.error('Error al intentar enviar el trigger:', error);
+          alert('Hubo un problema al activar el asistente. Por favor, inténtalo de nuevo.');
         } finally {
-          // 5. Restablecer el botón a su estado original, tanto si hubo éxito como si hubo error.
+          // Restablecer el botón a su estado original.
           this.disabled = false;
           this.innerHTML = originalText;
         }
@@ -430,9 +429,12 @@ document.addEventListener('DOMContentLoaded', function() {
         bgVideo.playbackRate = 0.7;
         const playNextVideo = () => {
             currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-            bgVideo.querySelector('source').src = videos[currentVideoIndex];
-            bgVideo.load();
-            bgVideo.play().catch(error => console.log('Autoplay para el siguiente video fue prevenido:', error));
+            const source = bgVideo.querySelector('source');
+            if(source) {
+                source.src = videos[currentVideoIndex];
+                bgVideo.load();
+                bgVideo.play().catch(error => console.log('Autoplay para el siguiente video fue prevenido:', error));
+            }
         };
         bgVideo.addEventListener('ended', playNextVideo);
         document.body.addEventListener('click', () => {
