@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Repuestos Express Ecuador</title>
+
+  <!-- INICIO: Título y Metadata Actualizados -->
+  <title>Autopartes Express Cuenca</title>
+  <meta name="description" content="Importamos repuestos originales y alternativos para todas las marcas en Cuenca. Lo que no hay aquí, lo traemos por ti. El mejor soporte para el usuario y el taller.">
+  
+  <meta property="og:title" content="Autopartes Express Cuenca">
+  <meta property="og:description" content="No dejes que un repuesto detenga tu reparación. Importamos para todas las marcas.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://repuestosexpresscuenca.github.io/reeccaja.png">
+  <meta property="og:url" content="https://repuestosexpresscuenca.github.io/">
+  <!-- FIN: Título y Metadata Actualizados -->
+  
   <link rel="icon" href="reeccaja.png" type="image/png">
   <style>
     :root {
@@ -25,16 +36,24 @@
     
     header { background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
-    .logo { height: 45px; cursor: pointer; }
+    .logo { height: 45px; cursor: pointer; flex-shrink: 0; }
     .header-title {
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+    .header-title .main-title {
       font-size: 1.3rem;
       font-weight: 700;
-      color: var(--color-text-primary);
-      letter-spacing: 0.5px;
+      display: block;
     }
-    .header-title .subtitle-text { display: inline; } /* visible por defecto */
-
-    .btn-whatsapp-header { background-color: var(--color-accent); color: #1a1a1a; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; border: none; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; }
+    .header-title .subtitle-text {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      display: block;
+    }
+    
+    .btn-whatsapp-header { background-color: var(--color-accent); color: #1a1a1a; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; border: none; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
     .btn-whatsapp-header:hover { background-color: var(--color-accent-dark); transform: translateY(-2px); }
     .btn-whatsapp-header svg { width: 24px; height: 24px; }
     
@@ -151,34 +170,43 @@
     .validation-popup ul { list-style-type: none; padding-left: 0; }
     .validation-popup li { font-weight: 500; }
 
-    /* --- INICIO: ESTILOS RESPONSIVOS PARA MÓVILES --- */
     @media (max-width: 768px) {
       header {
         padding: 1rem 1.5rem;
+        gap: 0.5rem; /* Reduce gap on mobile */
+      }
+      .header-title .main-title {
+        font-size: 1rem; /* Adjust font size for mobile */
       }
       .header-title .subtitle-text {
-        display: none; /* Oculta el texto secundario en móviles */
+        font-size: 0.7rem; /* Adjust font size for mobile */
+      }
+      .btn-whatsapp-header span {
+          display: none; /* Ocultar el texto "WhatsApp" en móviles */
+      }
+      .btn-whatsapp-header {
+          padding: 0.7rem; /* Hacer el botón más cuadrado */
       }
       .hero {
         padding: 3rem 1rem 2rem;
       }
       .hero h1 {
-        font-size: clamp(2rem, 8vw, 2.8rem); /* Tamaño de fuente más pequeño para móviles */
+        font-size: clamp(2rem, 8vw, 2.8rem);
       }
       .hero p {
-        font-size: 1.2rem; /* Tamaño de subtítulo más pequeño */
+        font-size: 1.2rem;
       }
       main {
         padding: 0 1rem;
       }
       .form-container {
-        grid-template-columns: 1fr; /* Cambia a una sola columna */
+        grid-template-columns: 1fr;
       }
       #sparePartsForm {
         padding: 1.5rem;
       }
       #selected-brand-display {
-        position: static; /* Quita el sticky para que fluya normalmente */
+        position: static;
         margin-top: 2rem;
       }
       .content-section {
@@ -188,8 +216,6 @@
         font-size: 1.5rem;
       }
     }
-    /* --- FIN: ESTILOS RESPONSIVOS PARA MÓVILES --- */
-
   </style>
 </head>
 <body>
@@ -200,10 +226,10 @@
 
   <header>
     <a href="#" class="logo-container">
-      <img src="reeccaja.png" alt="Repuestos Express Ecuador Logo" class="logo" />
+      <img src="reeccaja.png" alt="Autopartes Express Cuenca Logo" class="logo" />
       <span class="header-title">
-        RepuestosExpress - Cuenca.Ec.
-        <span class="subtitle-text"> / No detengas tu reparación</span>
+        <span class="main-title">AutopartesExpress - Cuenca.Ec.</span>
+        <span class="subtitle-text">Repuestos Originales o Alternos de Calidad & Que un repuesto no detenga tu reparación.</span>
       </span>
     </a>
     <a href="https://wa.me/593999115626" class="btn-whatsapp-header" target="_blank">
@@ -213,9 +239,9 @@
   </header>
 
   <section class="hero">
-    <img src="reecwhite.png" alt="Repuestos Express Ecuador Icon" class="hero-logo" />
-    <h1>Importamos repuestos. Entregamos soluciones!</h1>
-    <p>Repuestos Originales o Alternos de Calidad  & Que un repuesto mo detenga tu reparación.</p>
+    <img src="reecwhite.png" alt="Autopartes Express Cuenca Icon" class="hero-logo" />
+    <h1>Importamos repuestos. Entregamos soluciones.</h1>
+    <p>Repuestos Originales o Alternos de Calidad & Que un repuesto no detenga tu reparación.</p>
   </section>
 
   <main>
@@ -307,7 +333,6 @@
       
       const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
       
-      // --- INICIO DE LA ACTUALIZACIÓN: LISTA DE MODELOS COMPLETA Y CORREGIDA ---
       const marcasFullList = {
         "Chevrolet": ["Onix", "Onix RS", "Onix Turbo Sedán", "Joy HB", "Joy Sedán", "Aveo", "Spark GT", "Spark Life", "Beat", "Sail", "Cavalier", "Cruze", "Bolt", "Bolt-EUV", "Groove", "Tracker", "Captiva", "Captiva XL", "Equinox-EV", "Blazer-RS-EV", "Tahoe", "Trailblazer", "Montana", "D-Max (varias gen.)", "Colorado", "Silverado", "Blazer (hist.)", "Trooper", "LUV", "Luv-D-Max", "Rodeo", "Gemini", "Corsa", "Esteem", "Forsa", "Vitara (3 puertas)", "Vitara (5 puertas)", "Grand Vitara", "Blue-Bird", "chasis MR-buses"],
         "Kia": ["Picanto", "Rio", "Rio-5", "Soluto", "Cerato", "K3", "Carens", "Carnival", "Stonic", "Stonic Hybrid", "Seltos", "Sonet", "Sportage", "Sorento", "Niro", "Niro-EV", "EV6", "EV5", "EV9", "Soul-EV"],
@@ -338,8 +363,7 @@
         "Mercedes-Benz": ["A-Class", "C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "GLS", "CLA", "G-Class"],
         "Porsche": ["911", "Cayman", "Boxster", "Macan", "Cayenne", "Taycan", "Panamera", "718", "924", "928"]
       };
-      // --- FIN DE LA ACTUALIZACIÓN ---
-
+      
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
       
@@ -412,11 +436,9 @@
         }
         checkAllFields();
         
-        // --- INICIO DE LA SOLUCIÓN: Scroll suave al campo de modelo ---
         setTimeout(() => {
             modeloSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
-        // --- FIN DE LA SOLUCIÓN ---
       };
       
       const populateLogos = () => {
