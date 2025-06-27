@@ -561,7 +561,7 @@
         e.preventDefault();
         if (validateStep(currentStep)) {
           const formData = new FormData(form);
-          let message = `*POR FAVOR COTIZAR EL SIGUINTE REPUESTO*\n\n`;
+          let message = `*POR FAVOR COTIZAR EL SIGUIENTE REPUESTO*\n\n`;
           message += `*VEHÍCULO:*\n`;
           message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
           message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
