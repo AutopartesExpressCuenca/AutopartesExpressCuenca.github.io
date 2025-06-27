@@ -118,6 +118,10 @@
     #image-ref-button.visible {
       display: inline-block;
     }
+    #image-ref-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
     
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
@@ -355,70 +359,12 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
-      
       imageRefButton = document.getElementById('image-ref-button'),
       imageModalOverlay = document.getElementById('image-modal-overlay'),
       imageModalImg = document.getElementById('image-modal-img'),
       imageModalClose = document.getElementById('image-modal-close');
       
-      let currentStep = 0, popupTimeout, debounceTimer;
-      
-      const UNSPLASH_API_KEY = '9bEUTzDllB1hsCv2Vkm1u71YUdeXrqBkG-jHVqccHgI';
-
-      const updateVehicleImage = () => {
-        clearTimeout(debounceTimer);
-        imageRefButton.classList.remove('visible');
-        
-        debounceTimer = setTimeout(() => {
-          const brand = marcaInput.value;
-          const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
-          const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-          
-          if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
-            imageRefButton.classList.add('visible');
-          }
-        }, 500);
-      };
-
-      async function fetchAndShowVehicleImage() {
-        if (!UNSPLASH_API_KEY || UNSPLASH_API_KEY.includes('Pega_aquí')) {
-          alert('Error: La clave de API de Unsplash no está configurada.');
-          return;
-        }
-
-        const brand = marcaInput.value;
-        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
-        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-        
-        const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
-        const searchTerm = `${year} ${brand} ${cleanModel}`;
-        const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchTerm)}&per_page=1&orientation=landscape`;
-
-        try {
-          const response = await fetch(unsplashUrl, {
-            headers: {
-              'Authorization': `Client-ID ${UNSPLASH_API_KEY}`
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error(`Error de red o API: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-
-          if (data.results && data.results.length > 0) {
-            const imageUrl = data.results[0].urls.regular;
-            imageModalImg.src = imageUrl;
-            imageModalOverlay.classList.add('visible');
-          } else {
-            alert(`No se encontraron imágenes de referencia para "${searchTerm}".\n\nIntenta con otro modelo o año.`);
-          }
-        } catch (error) {
-          console.error('Error al buscar imagen:', error);
-          alert('Hubo un problema al contactar el servicio de imágenes. Por favor, intente más tarde.');
-        }
-      }
+      let currentStep = 0, popupTimeout;
       
       const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
       
@@ -455,7 +401,76 @@
       
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
-      
+
+      // --- INICIO: LÓGICA DE BÚSQUEDA DE IMAGEN MEJORADA ---
+      const UNSPLASH_API_KEY = '9bEUTzDllB1hsCv2Vkm1u71YUdeXrqBkG-jHVqccHgI';
+
+      function getVehicleType(model) {
+        const modelLower = model.toLowerCase();
+        if (modelLower.includes('suv') || modelLower.includes('tracker') || modelLower.includes('runner') || modelLower.includes('cruiser')) return 'suv';
+        if (modelLower.includes('truck') || modelLower.includes('pickup') || modelLower.includes('hilux') || modelLower.includes('ranger') || modelLower.includes('d-max')) return 'pickup';
+        if (modelLower.includes('van') || modelLower.includes('kangoo') || modelLower.includes('transit')) return 'van';
+        return 'car'; // Default
+      }
+
+      async function fetchBestVehicleImage() {
+        imageRefButton.textContent = 'Buscando...';
+        imageRefButton.disabled = true;
+
+        const brand = marcaInput.value;
+        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+        
+        const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+        const vehicleType = getVehicleType(cleanModel);
+
+        const searchTerms = [
+          `${year} ${brand} ${cleanModel} ${vehicleType} side view`,
+          `${brand} ${cleanModel} ${vehicleType}`,
+          `${brand} ${cleanModel}`
+        ];
+
+        let imageUrl = null;
+
+        for (const term of searchTerms) {
+          const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(term)}&per_page=1&orientation=landscape`;
+          try {
+            const response = await fetch(unsplashUrl, { headers: { 'Authorization': `Client-ID ${UNSPLASH_API_KEY}` } });
+            if (!response.ok) continue;
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+              imageUrl = data.results[0].urls.regular;
+              break; // ¡Éxito! Salimos del bucle.
+            }
+          } catch (error) {
+            console.error(`Error en la búsqueda con término "${term}":`, error);
+          }
+        }
+
+        if (imageUrl) {
+          imageModalImg.src = imageUrl;
+          imageModalOverlay.classList.add('visible');
+        } else {
+          alert(`No se encontraron imágenes de referencia para "${brand} ${model}".`);
+        }
+        
+        imageRefButton.textContent = 'Ver imagen de referencia';
+        imageRefButton.disabled = false;
+      }
+
+      const updateImageButtonVisibility = () => {
+        const brand = marcaInput.value;
+        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+        
+        if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
+          imageRefButton.classList.add('visible');
+        } else {
+          imageRefButton.classList.remove('visible');
+        }
+      };
+      // --- FIN: LÓGICA DE BÚSQUEDA DE IMAGEN MEJORADA ---
+
       const updateFormSteps = () => { formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep)); progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep)); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       
       const checkAllFields = () => {
@@ -511,7 +526,7 @@
         brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
-        updateVehicleImage();
+        updateImageButtonVisibility();
 
         if (marca === "Otro") {
           marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios(); modeloSelect.disabled = false;
@@ -600,7 +615,7 @@
           otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
           updateLiveData('modelo', modeloSelect.value);
         }
-        anioSelect.disabled = false; populateAnios(); updateVehicleImage(); 
+        anioSelect.disabled = false; populateAnios(); updateImageButtonVisibility(); 
       });
 
       anioSelect.addEventListener('change', () => {
@@ -611,12 +626,12 @@
           otroAnioContainer.style.display = 'none'; otroAnioInput.required = false;
           updateLiveData('anio', anioSelect.value);
         }
-        updateVehicleImage(); 
+        updateImageButtonVisibility(); 
       });
 
       otraMarcaInput.addEventListener('input', () => { brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
-      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateVehicleImage(); });
-      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateVehicleImage(); });
+      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateImageButtonVisibility(); });
+      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateImageButtonVisibility(); });
       descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
       vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
       nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
@@ -665,6 +680,7 @@
           document.body.addEventListener('click', () => { if (bgVideo.paused) { bgVideo.play().catch(error => console.log('Autoplay inicial fue prevenido:', error)); } }, { once: true });
       }
 
+      // Initializations
       populateLogos();
       populateAnios();
       checkAllFields();
