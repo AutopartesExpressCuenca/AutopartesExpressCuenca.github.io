@@ -84,9 +84,9 @@
     #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* Estilos para el enlace de referencia de imagen */
-    #image-ref-link {
-      display: none;
+    /* INICIO: Estilos para el botón de referencia de imagen */
+    #image-ref-button {
+      display: none; /* Oculto por defecto */
       background-color: var(--color-background);
       border: 1px solid var(--color-border);
       color: var(--color-text-secondary);
@@ -97,15 +97,19 @@
       margin-top: 1rem;
       margin-bottom: 1.5rem;
       transition: all 0.3s ease;
+      cursor: pointer;
+      font-family: var(--font-family);
+      font-size: 0.9rem;
     }
-    #image-ref-link:hover {
+    #image-ref-button:hover {
       background-color: var(--color-accent);
       color: #1a1a1a;
       border-color: var(--color-accent);
     }
-    #image-ref-link.visible {
-      display: inline-block;
+    #image-ref-button.visible {
+      display: inline-block; /* Se muestra cuando es aplicable */
     }
+    /* FIN: Estilos para el botón de referencia de imagen */
     
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
@@ -282,7 +286,7 @@
 
       // 1. Selección de Elementos del DOM
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
-      imageRefLink = document.getElementById('image-ref-link'); // Corregido el nombre del elemento
+      imageRefLink = document.getElementById('image-ref-link');
       
       let currentStep = 0, popupTimeout;
       
