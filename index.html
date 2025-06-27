@@ -32,21 +32,9 @@
     header { background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
     .logo { height: 45px; cursor: pointer; flex-shrink: 0; }
-    .header-title {
-      color: var(--color-text-primary);
-      line-height: 1.2;
-    }
-    .header-title .main-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      display: block;
-    }
-    .header-title .subtitle-text {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: var(--color-text-secondary);
-      display: block;
-    }
+    .header-title { color: var(--color-text-primary); line-height: 1.2; }
+    .header-title .main-title { font-size: 1.3rem; font-weight: 700; display: block; }
+    .header-title .subtitle-text { font-size: 0.85rem; font-weight: 400; color: var(--color-text-secondary); display: block; }
     
     .btn-whatsapp-header { background-color: var(--color-accent); color: #1a1a1a; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; border: none; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
     .btn-whatsapp-header:hover { background-color: var(--color-accent-dark); transform: translateY(-2px); }
@@ -359,12 +347,15 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
+      
       imageRefButton = document.getElementById('image-ref-button'),
       imageModalOverlay = document.getElementById('image-modal-overlay'),
       imageModalImg = document.getElementById('image-modal-img'),
       imageModalClose = document.getElementById('image-modal-close');
       
       let currentStep = 0, popupTimeout;
+      
+      const UNSPLASH_API_KEY = '9bEUTzDllB1hsCv2Vkm1u71YUdeXrqBkG-jHVqccHgI';
       
       const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
       
@@ -401,16 +392,13 @@
       
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
-
-      // --- INICIO: LÓGICA DE BÚSQUEDA DE IMAGEN MEJORADA ---
-      const UNSPLASH_API_KEY = '9bEUTzDllB1hsCv2Vkm1u71YUdeXrqBkG-jHVqccHgI';
-
+      
       function getVehicleType(model) {
         const modelLower = model.toLowerCase();
-        if (modelLower.includes('suv') || modelLower.includes('tracker') || modelLower.includes('runner') || modelLower.includes('cruiser')) return 'suv';
+        if (modelLower.includes('suv') || modelLower.includes('tracker') || modelLower.includes('runner') || modelLower.includes('cruiser') || modelLower.includes('blazer') || modelLower.includes('explorer')) return 'suv';
         if (modelLower.includes('truck') || modelLower.includes('pickup') || modelLower.includes('hilux') || modelLower.includes('ranger') || modelLower.includes('d-max')) return 'pickup';
         if (modelLower.includes('van') || modelLower.includes('kangoo') || modelLower.includes('transit')) return 'van';
-        return 'car'; // Default
+        return 'car';
       }
 
       async function fetchBestVehicleImage() {
@@ -425,7 +413,7 @@
         const vehicleType = getVehicleType(cleanModel);
 
         const searchTerms = [
-          `${year} ${brand} ${cleanModel} ${vehicleType} side view`,
+          `${year} ${brand} ${cleanModel} ${vehicleType}`,
           `${brand} ${cleanModel} ${vehicleType}`,
           `${brand} ${cleanModel}`
         ];
@@ -440,7 +428,7 @@
             const data = await response.json();
             if (data.results && data.results.length > 0) {
               imageUrl = data.results[0].urls.regular;
-              break; // ¡Éxito! Salimos del bucle.
+              break;
             }
           } catch (error) {
             console.error(`Error en la búsqueda con término "${term}":`, error);
@@ -469,8 +457,7 @@
           imageRefButton.classList.remove('visible');
         }
       };
-      // --- FIN: LÓGICA DE BÚSQUEDA DE IMAGEN MEJORADA ---
-
+      
       const updateFormSteps = () => { formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep)); progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep)); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       
       const checkAllFields = () => {
@@ -637,7 +624,7 @@
       nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
       telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
       
-      imageRefButton.addEventListener('click', fetchAndShowVehicleImage);
+      imageRefButton.addEventListener('click', fetchBestVehicleImage);
       const closeModal = () => {
         imageModalOverlay.classList.remove('visible');
         imageModalImg.src = ''; 
