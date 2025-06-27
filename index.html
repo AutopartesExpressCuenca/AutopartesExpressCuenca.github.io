@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- INICIO: Título y Metadata Actualizados -->
   <title>Autopartes Express Cuenca</title>
   <meta name="description" content="Importamos repuestos originales y alternativos para todas las marcas en Cuenca. Lo que no hay aquí, lo traemos por ti. El mejor soporte para el usuario y el taller.">
-  
   <meta property="og:title" content="Autopartes Express Cuenca">
   <meta property="og:description" content="No dejes que un repuesto detenga tu reparación. Importamos para todas las marcas.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://repuestosexpresscuenca.github.io/reeccaja.png">
   <meta property="og:url" content="https://repuestosexpresscuenca.github.io/">
-  <!-- FIN: Título y Metadata Actualizados -->
-  
   <link rel="icon" href="reeccaja.png" type="image/png">
   <style>
     :root {
@@ -101,6 +96,26 @@
     #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
+    /* INICIO: Estilos para la imagen del vehículo */
+    #vehicle-image-container {
+      margin-top: 1rem;
+      margin-bottom: 1.5rem; /* Espacio antes de los datos de texto */
+      border-radius: 8px;
+      overflow: hidden;
+      height: 90px; /* Tamaño mediano, más pequeño que el logo */
+      background-color: var(--color-background);
+      display: none; /* Oculto por defecto */
+      transition: opacity 0.5s ease;
+    }
+    #vehicle-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0; /* Empieza invisible para un fade-in suave */
+      transition: opacity 0.5s ease;
+    }
+    /* FIN: Estilos para la imagen del vehículo */
+    
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
     .btn { background: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.8rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; }
@@ -173,25 +188,25 @@
     @media (max-width: 768px) {
       header {
         padding: 1rem 1.5rem;
-        gap: 0.5rem; /* Reduce gap on mobile */
+        gap: 0.5rem; 
       }
       .header-title .main-title {
-        font-size: 1rem; /* Adjust font size for mobile */
+        font-size: 1rem;
       }
       .header-title .subtitle-text {
-        font-size: 0.7rem; /* Adjust font size for mobile */
+        font-size: 0.7rem;
       }
       .btn-whatsapp-header span {
-          display: none; /* Ocultar el texto "WhatsApp" en móviles */
+          display: none;
       }
       .btn-whatsapp-header {
-          padding: 0.7rem; /* Hacer el botón más cuadrado */
+          padding: 0.7rem;
       }
       .hero {
         padding: 3rem 1rem 2rem;
       }
       .hero h1 {
-        font-size: clamp(1.5rem, 6vw, 2.1rem);
+        font-size: clamp(2rem, 8vw, 2.8rem);
       }
       .hero p {
         font-size: 1.2rem;
@@ -240,7 +255,7 @@
 
   <section class="hero">
     <img src="reecwhite.png" alt="Autopartes Express Cuenca Icon" class="hero-logo" />
-    <h1>Encontramos e Importamos sus repuestos. Entregamos soluciones.</h1>
+    <h1>Importamos repuestos. Entregamos soluciones.</h1>
     <p>Repuestos Originales o Alternos de Calidad & Que un repuesto no detenga tu reparación.</p>
   </section>
 
@@ -285,12 +300,19 @@
           <label for="ubicacion">CIUDAD / DIRECCIÓN (OPCIONAL):</label>
           <input type="text" id="ubicacion" name="ubicacion" placeholder="Cuenca, Ecuador">
           <div id="map-container"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127598.7487053597!2d-79.0772740972656!3d-2.900549999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd181216936357%3A0x3a33959321c6bff3!2sCuenca!5e0!3m2!1ses-419!2sec!4v1680000000000!5m2!1ses-419!2sec" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">SOLICITAR COTIZACION</button></div>
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">ENVIAR SOLICITUD</button></div>
         </div>
       </form>
       <div id="selected-brand-display">
         <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
         <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
+        
+        <!-- INICIO: Contenedor para la imagen del vehículo -->
+        <div id="vehicle-image-container">
+          <img id="vehicle-image" src="" alt="Imagen del vehículo">
+        </div>
+        <!-- FIN: Contenedor para la imagen del vehículo -->
+        
         <div id="live-data-display">
             <p id="display-modelo" style="display:none;">Modelo: <span></span></p>
             <p id="display-anio" style="display:none;">Año: <span></span></p>
@@ -327,7 +349,9 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Elements
-      const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list');
+      const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
+      vehicleImageContainer = document.getElementById('vehicle-image-container'),
+      vehicleImage = document.getElementById('vehicle-image');
 
       let currentStep = 0, popupTimeout;
       
@@ -366,6 +390,63 @@
       
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
+      
+      const updateVehicleImage = () => {
+        const brand = marcaInput.value;
+        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+        
+        if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
+          fetchVehicleImage(brand, model, year);
+        } else {
+          vehicleImageContainer.style.display = 'none';
+          vehicleImage.style.opacity = '0';
+        }
+      };
+
+      async function fetchVehicleImage(brand, model, year) {
+        vehicleImageContainer.style.display = 'none';
+        vehicleImage.style.opacity = '0';
+        
+        const searchTerm = `${year} ${brand} ${model}`;
+        const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`;
+
+        try {
+          const searchResponse = await fetch(searchUrl);
+          const searchData = await searchResponse.json();
+          
+          if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
+            return;
+          }
+          
+          const firstFile = searchData.query.search.find(item => item.title.startsWith('File:'));
+          
+          if (!firstFile) {
+            return;
+          }
+          
+          const fileTitle = firstFile.title;
+          const imageUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&format=json&origin=*`;
+          
+          const imageResponse = await fetch(imageUrl);
+          const imageData = await imageResponse.json();
+          
+          const pages = imageData.query.pages;
+          const pageId = Object.keys(pages)[0];
+          const imageUrl_final = pages[pageId]?.imageinfo?.[0]?.url;
+
+          if (imageUrl_final) {
+            vehicleImage.src = imageUrl_final;
+            vehicleImageContainer.style.display = 'block';
+            vehicleImage.onload = () => {
+              vehicleImage.style.opacity = '1';
+            };
+          }
+
+        } catch (error) {
+          console.error('Error al buscar imagen del vehículo:', error);
+        }
+      }
       
       const updateFormSteps = () => { formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep)); progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep)); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       
@@ -422,6 +503,7 @@
         brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
+        updateVehicleImage();
 
         if (marca === "Otro") {
           marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios(); modeloSelect.disabled = false;
@@ -532,6 +614,7 @@
         }
         anioSelect.disabled = false;
         populateAnios();
+        updateVehicleImage(); 
       });
 
       anioSelect.addEventListener('change', () => {
@@ -544,14 +627,15 @@
           otroAnioInput.required = false;
           updateLiveData('anio', anioSelect.value);
         }
+        updateVehicleImage(); 
       });
 
       otraMarcaInput.addEventListener('input', () => { 
         brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; 
       });
       
-      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); });
-      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); });
+      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateVehicleImage(); });
+      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateVehicleImage(); });
       descripcionTextarea.addEventListener('input', () => { updateLiveData('descripcion', descripcionTextarea.value); });
       vinInput.addEventListener('input', () => { updateLiveData('vin', vinInput.value); });
       nombreInput.addEventListener('input', () => { updateLiveData('nombre', nombreInput.value); });
@@ -561,7 +645,7 @@
         e.preventDefault();
         if (validateStep(currentStep)) {
           const formData = new FormData(form);
-          let message = `*POR FAVOR COTIZAR EL SIGUIENTE REPUESTO*\n\n`;
+          let message = `*SOLICITUD DE REPUESTO*\n\n`;
           message += `*VEHÍCULO:*\n`;
           message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
           message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
