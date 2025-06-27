@@ -84,14 +84,27 @@
     #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    #image-ref-button {
-      display: none; background-color: var(--color-background); border: 1px solid var(--color-border);
-      color: var(--color-text-secondary); padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none;
-      font-weight: 600; margin-top: 1rem; margin-bottom: 1.5rem; transition: all 0.3s ease; cursor: pointer;
+    #image-ref-link {
+      display: none;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
     }
-    #image-ref-button:hover { background-color: var(--color-accent); color: #1a1a1a; border-color: var(--color-accent); }
-    #image-ref-button.visible { display: inline-block; }
-    #image-ref-button:disabled { cursor: not-allowed; opacity: 0.6; }
+    #image-ref-link:hover {
+      background-color: var(--color-accent);
+      color: #1a1a1a;
+      border-color: var(--color-accent);
+    }
+    #image-ref-link.visible {
+      display: inline-block;
+    }
     
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
@@ -136,31 +149,6 @@
     .validation-popup h4 { margin-bottom: 0.5rem; text-transform: uppercase; font-size: 1rem; }
     .validation-popup ul { list-style-type: none; padding-left: 0; }
     .validation-popup li { font-weight: 500; }
-
-    .image-modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.85); z-index: 10000;
-      display: none; justify-content: center; align-items: center;
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    .image-modal-overlay.visible { display: flex; opacity: 1; }
-    .image-modal-content {
-      position: relative; background-color: var(--color-surface);
-      padding: 1rem; border-radius: 12px; border: 1px solid var(--color-border);
-      width: 90%; height: 80%; max-width: 800px;
-      display: flex; flex-direction: column;
-    }
-    .image-modal-close {
-      position: absolute; top: -15px; right: -15px;
-      background-color: var(--color-accent); color: #1a1a1a;
-      border: 2px solid #fff; border-radius: 50%;
-      width: 40px; height: 40px; font-size: 1.5rem; font-weight: bold;
-      cursor: pointer; display: flex; justify-content: center; align-items: center;
-      line-height: 1; z-index: 10001;
-    }
-    #image-modal-img {
-      width: 100%; height: 100%; border-radius: 8px; object-fit: contain;
-    }
 
     @media (max-width: 768px) {
       header { padding: 1rem 1.5rem; gap: 0.5rem; }
@@ -253,7 +241,7 @@
       <div id="selected-brand-display">
         <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
         <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
-        <button type="button" id="image-ref-button">Ver imagen de referencia</button>
+        <a id="image-ref-link" href="#" target="_blank">Ver imágenes de referencia</a>
         <div id="live-data-display">
             <p id="display-modelo" style="display:none;">Modelo: <span></span></p>
             <p id="display-anio" style="display:none;">Año: <span></span></p>
@@ -287,23 +275,13 @@
     <div class="footer-email"><a href="mailto:p.cordero.ec@gmail.com">p.cordero.ec@gmail.com</a></div>
   </footer>
 
-  <div id="image-modal-overlay" class="image-modal-overlay">
-    <div id="image-modal-content" class="image-modal-content">
-      <button id="image-modal-close" class="image-modal-close">×</button>
-      <img id="image-modal-img" src="" alt="Imagen de referencia del vehículo">
-    </div>
-  </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // --- INICIO: Lógica Unificada de la Página ---
 
       // 1. Selección de Elementos del DOM
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
-      imageRefButton = document.getElementById('image-ref-button'),
-      imageModalOverlay = document.getElementById('image-modal-overlay'),
-      imageModalImg = document.getElementById('image-modal-img'),
-      imageModalClose = document.getElementById('image-modal-close');
+      imageRefLink = document.getElementById('image-ref-link');
       
       let currentStep = 0, popupTimeout;
       
@@ -343,24 +321,23 @@
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
       
-      // --- INICIO: LÓGICA DE BÚSQUEDA DE IMAGEN DEFINITIVA ---
-      const updateImageButtonVisibility = () => {
+      const updateVehicleImageLink = () => {
         const brand = marcaInput.value;
         const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
         const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
         
         if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
-          imageRefButton.classList.add('visible');
+          const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+          const searchTerm = `${year} ${brand} ${cleanModel}`;
+          const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+          
+          imageRefLink.href = googleImagesUrl;
+          imageRefLink.classList.add('visible');
         } else {
-          imageRefButton.classList.remove('visible');
+          imageRefLink.classList.remove('visible');
         }
       };
-
-      const updateAll = () => {
-        updateImageButtonVisibility();
-      };
-      // --- FIN: LÓGICA DE BÚSQUEDA DE IMAGEN DEFINITIVA ---
-
+      
       const updateFormSteps = () => { formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep)); progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep)); form.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       
       const checkAllFields = () => {
@@ -416,7 +393,7 @@
         brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
-        updateImageButtonVisibility();
+        updateVehicleImageLink();
 
         if (marca === "Otro") {
           marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios(); modeloSelect.disabled = false;
@@ -505,7 +482,7 @@
           otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
           updateLiveData('modelo', modeloSelect.value);
         }
-        anioSelect.disabled = false; populateAnios(); updateImageButtonVisibility(); 
+        anioSelect.disabled = false; populateAnios(); updateVehicleImageLink(); 
       });
 
       anioSelect.addEventListener('change', () => {
@@ -516,21 +493,16 @@
           otroAnioContainer.style.display = 'none'; otroAnioInput.required = false;
           updateLiveData('anio', anioSelect.value);
         }
-        updateImageButtonVisibility(); 
+        updateVehicleImageLink(); 
       });
 
       otraMarcaInput.addEventListener('input', () => { brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
-      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateImageButtonVisibility(); });
-      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateImageButtonVisibility(); });
+      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateVehicleImageLink(); });
+      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateVehicleImageLink(); });
       descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
       vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
       nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
       telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
-      
-      imageRefLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          window.open(e.currentTarget.href, '_blank');
-      });
       
       form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -574,4 +546,4 @@
     });
   </script>
 </body>
-</html>
+</html>  
