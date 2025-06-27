@@ -84,7 +84,6 @@
     #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-    /* Estilos del botón que abrirá el popup */
     #image-ref-button {
       display: none; background-color: var(--color-background); border: 1px solid var(--color-border);
       color: var(--color-text-secondary); padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none;
@@ -266,7 +265,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
-      imageRefButton = document.getElementById('image-ref-button');
+      imageRefButton = document.getElementById('image-ref-button'); // Cambiado a button
       
       let currentStep = 0, popupTimeout;
       
@@ -306,7 +305,7 @@
       const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
       const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
       
-      const updateVehicleImageLink = () => {
+      const updateImageButtonVisibility = () => {
         const brand = marcaInput.value;
         const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
         const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
@@ -373,7 +372,7 @@
         brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
-        updateVehicleImageLink();
+        updateImageButtonVisibility();
 
         if (marca === "Otro") {
           marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios(); modeloSelect.disabled = false;
@@ -462,7 +461,7 @@
           otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
           updateLiveData('modelo', modeloSelect.value);
         }
-        anioSelect.disabled = false; populateAnios(); updateVehicleImageLink(); 
+        anioSelect.disabled = false; populateAnios(); updateImageButtonVisibility(); 
       });
 
       anioSelect.addEventListener('change', () => {
@@ -473,38 +472,35 @@
           otroAnioContainer.style.display = 'none'; otroAnioInput.required = false;
           updateLiveData('anio', anioSelect.value);
         }
-        updateVehicleImageLink(); 
+        updateImageButtonVisibility(); 
       });
 
       otraMarcaInput.addEventListener('input', () => { brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
-      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateVehicleImageLink(); });
-      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateVehicleImageLink(); });
+      otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateImageButtonVisibility(); });
+      otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateImageButtonVisibility(); });
       descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
       vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
       nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
       telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
       
-      // --- INICIO: LÓGICA DEL POPUP ---
       imageRefButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          const brand = marcaInput.value;
-          const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
-          const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-          const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
-          const searchTerm = `${year} ${brand} ${cleanModel}`;
-          
-          // Usaremos Google por defecto por ser más completo, pero podrías cambiar a duckduckgo.com/?q=...&iax=images&ia=images
-          const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+        e.preventDefault();
+        
+        const brand = marcaInput.value;
+        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+        const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+        const searchTerm = `${brand} ${cleanModel} ${year}`;
+        const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+        
+        const popupWidth = 800;
+        const popupHeight = 600;
+        const left = (screen.width / 2) - (popupWidth / 2);
+        const top = (screen.height / 2) - (popupHeight / 2);
+        const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`;
 
-          const popupWidth = 800;
-          const popupHeight = 600;
-          const left = (screen.width / 2) - (popupWidth / 2);
-          const top = (screen.height / 2) - (popupHeight / 2);
-          const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes`;
-
-          window.open(searchUrl, 'imagePopup', popupFeatures);
+        window.open(searchUrl, 'imagePopup', popupFeatures);
       });
-      // --- FIN: LÓGICA DEL POPUP ---
       
       form.addEventListener('submit', function(e) {
         e.preventDefault();
