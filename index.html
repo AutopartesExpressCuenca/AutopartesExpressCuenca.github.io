@@ -92,6 +92,7 @@
     }
     #image-ref-button:hover { background-color: var(--color-accent); color: #1a1a1a; border-color: var(--color-accent); }
     #image-ref-button.visible { display: inline-block; }
+    #image-ref-button:disabled { cursor: not-allowed; opacity: 0.6; }
     
     .otro-input-container { display: none; margin-top: 1rem; }
     .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
@@ -137,7 +138,6 @@
     .validation-popup ul { list-style-type: none; padding-left: 0; }
     .validation-popup li { font-weight: 500; }
 
-    /* INICIO: Estilos del Modal */
     .image-modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background-color: rgba(0, 0, 0, 0.85); z-index: 10000;
@@ -162,7 +162,6 @@
     #image-modal-img {
       width: 100%; height: 100%; border-radius: 8px; object-fit: contain;
     }
-    /* FIN: Estilos del Modal */
 
     @media (max-width: 768px) {
       header { padding: 1rem 1.5rem; gap: 0.5rem; }
@@ -291,6 +290,9 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // --- INICIO: Lógica Unificada de la Página ---
+
+      // 1. Selección de Elementos del DOM
       const form = document.getElementById('sparePartsForm'), nextBtns = document.querySelectorAll('.btn-next'), prevBtns = document.querySelectorAll('.btn-prev'), formSteps = document.querySelectorAll('.form-step'), progressSteps = document.querySelectorAll('.progress-step'), marcaInput = document.getElementById('marca'), modeloSelect = document.getElementById('modelo'), anioSelect = document.getElementById('anio'), logosContainer = document.getElementById('logos-container'), otroMarcaContainer = document.getElementById('otra-marca-container'), otroModeloContainer = document.getElementById('otro-modelo-container'), otroAnioContainer = document.getElementById('otro-anio-container'), otraMarcaInput = document.getElementById('otra-marca'), otroModeloInput = document.getElementById('otro-modelo'), otroAnioInput = document.getElementById('otro-anio'), brandDisplay = document.getElementById('selected-brand-display'), brandDisplayLogoContainer = document.querySelector('.display-logo-container'), brandDisplayLogo = document.getElementById('selected-brand-display-logo'), brandDisplayName = document.getElementById('selected-brand-name'), displayModelo = document.getElementById('display-modelo'), displayAnio = document.getElementById('display-anio'), displayVin = document.getElementById('display-vin'), displayNombre = document.getElementById('display-nombre'), displayTelefono = document.getElementById('display-telefono'), displayDescripcion = document.getElementById('display-descripcion'), descripcionTextarea = document.getElementById('descripcion'), vinInput = document.getElementById('vin'), nombreInput = document.getElementById('nombre'), telefonoInput = document.getElementById('telefono'), sendPrompt = document.getElementById('send-prompt'), bgVideo = document.getElementById('bg-video'), validationPopup = document.getElementById('validation-popup'), errorList = document.getElementById('error-list'),
       imageRefButton = document.getElementById('image-ref-button');
       
@@ -517,6 +519,7 @@
         const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
         const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
         const searchTerm = `${brand} ${cleanModel} ${year}`;
+        
         const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
         
         const popupWidth = 800, popupHeight = 600;
