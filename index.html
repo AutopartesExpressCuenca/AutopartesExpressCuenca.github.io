@@ -728,7 +728,7 @@
           
           bgVideo.playbackRate = 0.7;
 
-          const playNextVideo = () => {            
+          const playNextVideo = () => {
               currentVideoIndex = (currentVideoIndex + 1) % videos.length;
               const videoSource = bgVideo.querySelector('source');
               videoSource.src = videos[currentVideoIndex];
