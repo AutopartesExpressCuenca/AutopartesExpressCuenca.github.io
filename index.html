@@ -285,7 +285,7 @@
           <label for="ubicacion">CIUDAD / DIRECCIÓN (OPCIONAL):</label>
           <input type="text" id="ubicacion" name="ubicacion" placeholder="Cuenca, Ecuador">
           <div id="map-container"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127598.7487053597!2d-79.0772740972656!3d-2.900549999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd181216936357%3A0x3a33959321c6bff3!2sCuenca!5e0!3m2!1ses-419!2sec!4v1680000000000!5m2!1ses-419!2sec" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">ENVIAR SOLICITUD</button></div>
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">SOLICITAR COTIZACION</button></div>
         </div>
       </form>
       <div id="selected-brand-display">
@@ -561,7 +561,7 @@
         e.preventDefault();
         if (validateStep(currentStep)) {
           const formData = new FormData(form);
-          let message = `*SOLICITUD DE REPUESTO*\n\n`;
+          let message = `*POR FAVOR COTIZAR EL SIGUINTE REPUESTO*\n\n`;
           message += `*VEHÍCULO:*\n`;
           message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
           message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
