@@ -1,7 +1,97 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- INICIO: Lógica Unificada de la Página ---
 
-    // 1. Selección de Elementos del DOM
+    // ==================================================================
+    // == LÓGICA DEL WIDGET DE CHAT Y COMUNICACIÓN EN TIEMPO REAL ==
+    // ==================================================================
+    
+    const chatWidget = document.getElementById('chat-widget');
+    const chatCloseBtn = document.getElementById('chat-close-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+    const assistantButtonChat = document.getElementById('btn-assistant-header');
+    const PipedreamWebhookUrl = 'https://eobg3f0o9qljmo6.m.pipedream.net';
+    
+    // Genera un ID único para cada visitante, para que las conversaciones no se mezclen.
+    const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+    function addMessage(sender, text) {
+        if (!chatMessages) return;
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', `${sender}-message`);
+        messageElement.textContent = text;
+        chatMessages.appendChild(messageElement);
+        // Mueve el scroll hacia abajo para ver el nuevo mensaje
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function handleSendMessage() {
+        if (!chatInput || !chatInput.value) return;
+        const messageText = chatInput.value.trim();
+        if (messageText === '') return;
+
+        addMessage('user', messageText);
+        chatInput.value = '';
+
+        try {
+            await fetch(PipedreamWebhookUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: userId, // <-- Enviamos este ID a Pipedream
+                    text: messageText,
+                    source: 'WebsiteChat',
+                    timestamp: new Date().toISOString()
+                })
+            });
+            console.log('Mensaje enviado a Pipedream con el userId:', userId);
+        } catch (error) {
+            console.error('Error enviando mensaje a Pipedream:', error);
+            addMessage('assistant', 'Lo siento, hubo un error de conexión. Inténtalo de nuevo.');
+        }
+    }
+
+    if (assistantButtonChat) {
+        assistantButtonChat.addEventListener('click', () => {
+            if(chatWidget) chatWidget.classList.remove('hidden');
+            if (chatMessages && chatMessages.children.length === 0) {
+                 addMessage('assistant', '¡Hola! Soy tu asistente virtual. ¿Qué repuesto estás buscando? Dime marca, modelo, año y la pieza que necesitas.');
+            }
+        });
+    }
+
+    if (chatCloseBtn) chatCloseBtn.addEventListener('click', () => chatWidget.classList.add('hidden'));
+    if (chatSendBtn) chatSendBtn.addEventListener('click', handleSendMessage);
+    if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
+
+    // ¡¡¡IMPORTANTE!!! Valores actualizados con tus claves.
+    const PUSHER_APP_KEY = '9ae8e7117128b1abb5b3'; // <--- TU KEY PÚBLICA
+    const PUSHER_APP_CLUSTER = 'sa1';             // <--- TU CLUSTER
+
+    try {
+        if (typeof Pusher !== 'undefined' && PUSHER_APP_KEY !== 'REEMPLAZA_CON_TU_KEY') {
+            const pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_APP_CLUSTER });
+            // Nos suscribimos a un canal único para este usuario
+            const channel = pusher.subscribe(userId); 
+            // Escuchamos por un evento llamado 'new-message' en ese canal
+            channel.bind('new-message', function(data) {
+                addMessage('assistant', data.message);
+            });
+            console.log(`Conectado a Pusher y escuchando en el canal: ${userId}`);
+        } else {
+             console.error("La librería de Pusher no se ha cargado o las claves no han sido reemplazadas.");
+        }
+    } catch(e) {
+        console.error("Error al inicializar Pusher. ¿Están correctas las claves?: ", e);
+        if(chatMessages && chatMessages.children.length <= 1) addMessage('assistant', 'No se pudo conectar al servicio de chat en este momento.');
+    }
+
+
+    // ==================================================================
+    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL) ==
+    // ==================================================================
+    
     const form = document.getElementById('sparePartsForm');
     const nextBtns = document.querySelectorAll('.btn-next');
     const prevBtns = document.querySelectorAll('.btn-prev');
@@ -36,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const validationPopup = document.getElementById('validation-popup');
     const errorList = document.getElementById('error-list');
     const imageRefButton = document.getElementById('image-ref-button');
-    const assistantButton = document.getElementById('btn-assistant-header');
     
     let currentStep = 0;
     let popupTimeout;
@@ -78,10 +167,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
       
     const updateImageButtonVisibility = () => {
+        if (!marcaInput || !modeloSelect || !anioSelect || !imageRefButton) return;
         const brand = marcaInput.value;
         const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
         const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-        
         if (brand && model && year && brand !== 'Otro' && model !== '' && year !== '') {
             imageRefButton.classList.add('visible');
         } else {
@@ -90,13 +179,14 @@ document.addEventListener('DOMContentLoaded', function() {
     };
       
     const updateFormSteps = () => {
+        if (!formSteps || !progressSteps || !form) return;
         formSteps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
         progressSteps.forEach((s, i) => s.classList.toggle('active', i <= currentStep));
-        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
       
     const checkAllFields = () => {
-        if (!form) return;
+        if (!form || !sendPrompt) return;
         let allValid = true;
         form.querySelectorAll('[required]:not([type=hidden])').forEach(input => {
             let container = input.closest('.otro-input-container');
@@ -104,10 +194,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!input.value) allValid = false;
             }
         });
-        if(sendPrompt) sendPrompt.style.display = allValid ? 'block' : 'none';
+        sendPrompt.style.display = allValid ? 'block' : 'none';
     };
 
     const validateStep = (stepIndex) => {
+        if (!formSteps[stepIndex]) return true;
         let errors = [];
         formSteps[stepIndex].querySelectorAll('[required]').forEach(input => {
             let fieldLabel = document.querySelector(`label[for='${input.id}']`);
@@ -121,24 +212,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         if (errors.length > 0) {
-            errorList.innerHTML = '';
-            errors.forEach(err => {
-                const li = document.createElement('li');
-                li.textContent = `• ${err}`;
-                errorList.appendChild(li);
-            });
-            validationPopup.classList.add('show');
-            clearTimeout(popupTimeout);
-            popupTimeout = setTimeout(() => {
-                validationPopup.classList.remove('show');
-            }, 4000);
+            if (errorList && validationPopup) {
+                errorList.innerHTML = '';
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = `• ${err}`;
+                    errorList.appendChild(li);
+                });
+                validationPopup.classList.add('show');
+                clearTimeout(popupTimeout);
+                popupTimeout = setTimeout(() => {
+                    validationPopup.classList.remove('show');
+                }, 4000);
+            }
             return false;
         }
         return true;
     };
 
     const populateAnios = () => {
-        if(!anioSelect) return;
+        if (!anioSelect) return;
         anioSelect.innerHTML = '<option value="">Selecciona el año</option>';
         for (let y = new Date().getFullYear() + 1; y >= 1990; y--) anioSelect.add(new Option(y, y));
         anioSelect.add(new Option("Otro", "Otro"));
@@ -158,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const handleMarcaSelection = (marca, wrapper) => {
-        if(!brandDisplay) return;
+        if (!brandDisplay || !modeloSelect || !anioSelect || !otroMarcaContainer || !otroModeloContainer) return;
         brandDisplay.classList.add('visible');
         const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
         brandDisplayLogo.src = logoSrc;
@@ -170,10 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
         otraMarcaInput.required = false;
         otroModeloContainer.style.display = 'none';
         otroModeloInput.required = false;
-        
         wrapper.style.setProperty('--logo-glow-url', `url(${logoSrc})`);
         brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
-
         updateLiveData('modelo', '');
         updateLiveData('anio', '');
         updateImageButtonVisibility();
@@ -197,10 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modeloSelect.disabled = false;
         }
         checkAllFields();
-        
-        setTimeout(() => {
-            if (modeloSelect) modeloSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+        setTimeout(() => { if (modeloSelect) modeloSelect.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     };
       
     const populateLogos = () => {
@@ -244,13 +332,10 @@ document.addEventListener('DOMContentLoaded', function() {
             fragment.appendChild(img);
         });
         publiBannerTrack.appendChild(fragment);
-        
         setTimeout(() => {
             const initialImages = publiBannerTrack.querySelectorAll('img');
             if (initialImages.length > 0) {
-                initialImages.forEach(img => {
-                    publiBannerTrack.appendChild(img.cloneNode(true));
-                });
+                initialImages.forEach(img => publiBannerTrack.appendChild(img.cloneNode(true)));
             }
         }, 100);
     }
@@ -262,70 +347,47 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
             const img = new Image();
             img.src = `images/logos/${fileName}.png`;
+            const onImageLoadOrError = () => {
+                brandsImagesToLoad--;
+                if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
+                    Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
+                }
+            };
             img.onload = () => {
                 brandsBannerTrack.appendChild(img);
-                brandsImagesToLoad--;
-                if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
-                    Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
-                }
+                onImageLoadOrError();
             };
-            img.onerror = () => {
-                brandsImagesToLoad--;
-                if (brandsImagesToLoad === 0 && brandsBannerTrack.children.length > 0) {
-                    Array.from(brandsBannerTrack.children).forEach(child => brandsBannerTrack.appendChild(child.cloneNode(true)));
-                }
-            };
+            img.onerror = onImageLoadOrError;
         });
     }
 
-    // Event Listeners
-    if (nextBtns) {
-        nextBtns.forEach(btn => btn.addEventListener('click', () => {
-            if (validateStep(currentStep)) {
-                currentStep++;
-                updateFormSteps();
-            }
-        }));
-    }
-    if(prevBtns) {
-        prevBtns.forEach(btn => btn.addEventListener('click', () => {
-            currentStep--;
-            updateFormSteps();
-        }));
-    }
-    
-    if(modeloSelect) {
-        modeloSelect.addEventListener('change', () => {
-            if (modeloSelect.value === "Otro") {
-                otroModeloContainer.style.display = 'block';
-                otroModeloInput.required = true;
-                updateLiveData('modelo', otroModeloInput.value);
-            } else {
-                otroModeloContainer.style.display = 'none';
-                otroModeloInput.required = false;
-                updateLiveData('modelo', modeloSelect.value);
-            }
-            anioSelect.disabled = false;
-            populateAnios();
-            updateImageButtonVisibility();
-        });
-    }
-
-    if(anioSelect){
-        anioSelect.addEventListener('change', () => {
-            if (anioSelect.value === "Otro") {
-                otroAnioContainer.style.display = 'block';
-                otroAnioInput.required = true;
-                updateLiveData('anio', otroAnioInput.value);
-            } else {
-                otroAnioContainer.style.display = 'none';
-                otroAnioInput.required = false;
-                updateLiveData('anio', anioSelect.value);
-            }
-            updateImageButtonVisibility();
-        });
-    }
-
+    // Event Listeners for Form
+    if (nextBtns) nextBtns.forEach(btn => btn.addEventListener('click', () => { if (validateStep(currentStep)) { currentStep++; updateFormSteps(); } }));
+    if(prevBtns) prevBtns.forEach(btn => btn.addEventListener('click', () => { currentStep--; updateFormSteps(); }));
+    if(modeloSelect) modeloSelect.addEventListener('change', () => {
+        if (modeloSelect.value === "Otro") {
+            otroModeloContainer.style.display = 'block';
+            otroModeloInput.required = true;
+            updateLiveData('modelo', otroModeloInput.value);
+        } else {
+            otroModeloContainer.style.display = 'none';
+            otroModeloInput.required = false;
+            updateLiveData('modelo', modeloSelect.value);
+        }
+        anioSelect.disabled = false; populateAnios(); updateImageButtonVisibility();
+    });
+    if(anioSelect) anioSelect.addEventListener('change', () => {
+        if (anioSelect.value === "Otro") {
+            otroAnioContainer.style.display = 'block';
+            otroAnioInput.required = true;
+            updateLiveData('anio', otroAnioInput.value);
+        } else {
+            otroAnioContainer.style.display = 'none';
+            otroAnioInput.required = false;
+            updateLiveData('anio', anioSelect.value);
+        }
+        updateImageButtonVisibility();
+    });
     if(otraMarcaInput) otraMarcaInput.addEventListener('input', () => { if(brandDisplayName) brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
     if(otroModeloInput) otroModeloInput.addEventListener('input', () => { updateLiveData('modelo', otroModeloInput.value); updateImageButtonVisibility(); });
     if(otroAnioInput) otroAnioInput.addEventListener('input', () => { updateLiveData('anio', otroAnioInput.value); updateImageButtonVisibility(); });
@@ -333,95 +395,40 @@ document.addEventListener('DOMContentLoaded', function() {
     if(vinInput) vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
     if(nombreInput) nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
     if(telefonoInput) telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
-      
-    if(imageRefButton) {
-        imageRefButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const brand = marcaInput.value;
-            const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
-            const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
-            const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
-            const searchTerm = `${brand} ${cleanModel} ${year}`;
-            const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
-            const popupWidth = 800, popupHeight = 600;
-            const left = (screen.width / 2) - (popupWidth / 2);
-            const top = (screen.height / 2) - (popupHeight / 2);
-            const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`;
-            window.open(searchUrl, 'imagePopup', popupFeatures);
-        });
-    }
-      
-    if(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (validateStep(currentStep)) {
-                const formData = new FormData(form);
-                let message = `*SOLICITUD DE REPUESTO*\n\n`;
-                message += `*VEHÍCULO:*\n`;
-                message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
-                message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
-                message += `Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
-                message += `*REPUESTO:*\n`;
-                message += `Descripción: ${formData.get('descripcion')}\n`;
-                message += `VIN: ${formData.get('vin') || 'No proporcionado'}\n\n`;
-                message += `*CONTACTO:*\n`;
-                message += `Nombre: ${formData.get('nombre')}\n`;
-                message += `Teléfono: ${formData.get('telefono')}\n`;
-                message += `Ubicación: ${formData.get('ubicacion') || 'No proporcionado'}\n`;
-                const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
-                window.open(whatsappURL, '_blank');
-            }
-        });
-    }
-
-    // ==================================================================
-    // == INICIO: CÓDIGO PARA DISPARAR EL WEBHOOK DE PIPEDREAM (CORREGIDO) ==
-    // ==================================================================
-    if (assistantButton) {
-      assistantButton.addEventListener('click', async function() {
-        const webhookUrl = 'https://eobg3f0o9qljmo6.m.pipedream.net';
-        const originalText = this.innerHTML;
-
-        this.disabled = true;
-        this.innerHTML = `<svg fill="currentColor" viewBox="0 0 24 24" class="spin"><path d="M12 4V2A10 10 0 002 12h2a8 8 0 018-8z"></path></svg> <span>Activando...</span>`;
-        
-        console.log('Disparando trigger a Pipedream en modo "no-cors"...');
-
-        try {
-          // Realizamos la petición POST al webhook.
-          // AÑADIMOS "mode: 'no-cors'" PARA EVITAR BLOQUEOS DEL NAVEGADOR.
-          await fetch(webhookUrl, {
-            method: 'POST',
-            mode: 'no-cors', // <--- ¡ESTA ES LA CORRECCIÓN CLAVE!
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-              source: 'WebsiteAssistantButton', 
-              message: 'El usuario ha solicitado el asistente de IA.',
-              timestamp: new Date().toISOString()
-            })
-          });
-
-          // Con 'no-cors', no podemos verificar la respuesta, así que asumimos que tuvo éxito.
-          console.log('¡Trigger enviado a Pipedream! Revisa tu workflow para confirmar la llegada.');
-          alert('Asistente activado. ¡En breve se iniciará la conversación!');
-
-        } catch (error) {
-          // Este bloque ahora solo capturará errores muy específicos,
-          // como un error de sintaxis en la URL, pero no errores de red.
-          console.error('Error al intentar enviar el trigger:', error);
-          alert('Hubo un problema al activar el asistente. Por favor, inténtalo de nuevo.');
-        } finally {
-          // Restablecer el botón a su estado original.
-          this.disabled = false;
-          this.innerHTML = originalText;
+    if(imageRefButton) imageRefButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        const brand = marcaInput.value;
+        const model = (modeloSelect.value === 'Otro') ? otroModeloInput.value : modeloSelect.value;
+        const year = (anioSelect.value === 'Otro') ? otroAnioInput.value : anioSelect.value;
+        const cleanModel = model.replace(/\s*\(.*\)/g, '').trim();
+        const searchTerm = `${brand} ${cleanModel} ${year}`;
+        const searchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchTerm)}`;
+        const popupWidth = 800, popupHeight = 600;
+        const left = (screen.width / 2) - (popupWidth / 2);
+        const top = (screen.height / 2) - (popupHeight / 2);
+        const popupFeatures = `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`;
+        window.open(searchUrl, 'imagePopup', popupFeatures);
+    });
+    if(form) form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validateStep(currentStep)) {
+            const formData = new FormData(form);
+            let message = `*SOLICITUD DE REPUESTO*\n\n`;
+            message += `*VEHÍCULO:*\n`;
+            message += `Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
+            message += `Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
+            message += `Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
+            message += `*REPUESTO:*\n`;
+            message += `Descripción: ${formData.get('descripcion')}\n`;
+            message += `VIN: ${formData.get('vin') || 'No proporcionado'}\n\n`;
+            message += `*CONTACTO:*\n`;
+            message += `Nombre: ${formData.get('nombre')}\n`;
+            message += `Teléfono: ${formData.get('telefono')}\n`;
+            message += `Ubicación: ${formData.get('ubicacion') || 'No proporcionado'}\n`;
+            const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
+            window.open(whatsappURL, '_blank');
         }
-      });
-    }
-    // ==================================================================
-    // == FIN: CÓDIGO DEL WEBHOOK ==
-    // ==================================================================
+    });
 
     if (bgVideo) {
         const videos = ['images/videos/1.mp4', 'images/videos/2.mp4', 'images/videos/3.mp4', 'images/videos/4.mp4'];
@@ -444,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { once: true });
     }
 
-    // Initializations
+    // Initializations for Form
     populateLogos();
     populateAnios();
     checkAllFields();
