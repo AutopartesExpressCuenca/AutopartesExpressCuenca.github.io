@@ -66,11 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
 
     // ¡¡¡IMPORTANTE!!! Valores actualizados con tus claves.
-    const PUSHER_APP_KEY = '9ae8e7117128b1abb5b3'; // <--- TU KEY PÚBLICA
-    const PUSHER_APP_CLUSTER = 'sa1';             // <--- TU CLUSTER
+    const PUSHER_APP_KEY = '9ae8e7117128b1abb5b3';
+    const PUSHER_APP_CLUSTER = 'sa1';
 
     try {
-        if (typeof Pusher !== 'undefined' && PUSHER_APP_KEY !== 'REEMPLAZA_CON_TU_KEY') {
+        if (typeof Pusher !== 'undefined') {
             const pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_APP_CLUSTER });
             // Nos suscribimos a un canal único para este usuario
             const channel = pusher.subscribe(userId); 
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const validateStep = (stepIndex) => {
-        if (!formSteps[stepIndex]) return true;
+        if (!formSteps || !formSteps[stepIndex]) return true;
         let errors = [];
         formSteps[stepIndex].querySelectorAll('[required]').forEach(input => {
             let fieldLabel = document.querySelector(`label[for='${input.id}']`);
@@ -429,7 +429,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open(whatsappURL, '_blank');
         }
     });
-    
 
     if (bgVideo) {
         const videos = ['images/videos/1.mp4', 'images/videos/2.mp4', 'images/videos/3.mp4', 'images/videos/4.mp4'];

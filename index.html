@@ -146,30 +146,54 @@
     .validation-popup ul { list-style-type: none; padding-left: 0; }
     .validation-popup li { font-weight: 500; }
 
-    .image-modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.85); z-index: 10000;
-      display: none; justify-content: center; align-items: center;
-      opacity: 0; transition: opacity 0.3s ease;
+    /* ESTILOS PARA EL WIDGET DE CHAT */
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      max-width: 90%;
+      height: 500px;
+      max-height: 80vh;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      transform: translateY(0);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 10001;
+      opacity: 1;
     }
-    .image-modal-overlay.visible { display: flex; opacity: 1; }
-    .image-modal-content {
-      position: relative; background-color: var(--color-surface);
-      padding: 1rem; border-radius: 12px; border: 1px solid var(--color-border);
-      width: 90%; height: 80%; max-width: 800px;
-      display: flex; flex-direction: column;
+    .chat-widget.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
     }
-    .image-modal-close {
-      position: absolute; top: -15px; right: -15px;
-      background-color: var(--color-accent); color: #1a1a1a;
-      border: 2px solid #fff; border-radius: 50%;
-      width: 40px; height: 40px; font-size: 1.5rem; font-weight: bold;
-      cursor: pointer; display: flex; justify-content: center; align-items: center;
-      line-height: 1; z-index: 10001;
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      background-color: rgba(0,0,0,0.2);
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
     }
-    #image-modal-img {
-      width: 100%; height: 100%; border-radius: 8px; object-fit: contain;
-    }
+    .chat-header h4 { margin: 0; color: var(--color-text-primary); font-weight: 700; }
+    .chat-close-btn { background: none; border: none; color: var(--color-text-secondary); font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0; transition: color 0.2s ease; }
+    .chat-close-btn:hover { color: var(--color-accent); }
+    .chat-messages { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .chat-message { padding: 0.75rem 1rem; border-radius: 12px; max-width: 80%; line-height: 1.4; word-wrap: break-word; }
+    .user-message { background-color: var(--color-accent); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .assistant-message { background-color: var(--color-background); color: var(--color-text-primary); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .chat-input-container { display: flex; padding: 1rem; border-top: 1px solid var(--color-border); }
+    #chat-input { flex-grow: 1; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    #chat-input:focus { z-index: 2; }
+    #chat-send-btn { background-color: var(--color-accent); color: #1a1a1a; border: 1px solid var(--color-accent); border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s ease; }
+    #chat-send-btn:hover { background-color: var(--color-accent-dark); }
+
 
     @media (max-width: 992px) { /* Adjusted breakpoint for better response */
       header { padding: 1rem 1.5rem; gap: 0.5rem; }
@@ -297,12 +321,38 @@
       <a href="https://facebook.com" target="_blank" aria-label="Facebook"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
       <a href="https://instagram.com" target="_blank" aria-label="Instagram"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.7 2 8.3 2.02 7.1 2.07c-1.2.05-2.1.27-2.9.58-.8.3-1.5.7-2.2 1.4-.7.7-1.1 1.4-1.4 2.2-.3.8-.5 1.7-.58 2.9C2.02 8.3 2 8.7 2 12s.02 3.7.07 4.9c.05 1.2.27 2.1.58 2.9.3.8.7 1.5 1.4 2.2.7.7 1.4 1.1 2.2 1.4.8.3 1.7.5 2.9.58 1.2.05 1.6.07 4.9.07s3.7-.02 4.9-.07c1.2-.05 2.1-.27 2.9-.58.8-.3 1.5-.7 2.2-1.4.7-.7-1.1-1.4 1.4-2.2.3-.8.5-1.7.58 2.9.05-1.2.07-1.6.07-4.9s-.02-3.7-.07-4.9c-.05-1.2-.27-2.1-.58-2.9-.3-.8-.7-1.5-1.4-2.2-.7-.7-1.4-1.1-2.2-1.4-.8-.3-1.7-.5-2.9-.58C15.7 2.02 15.3 2 12 2zm0 1.8c3.2 0 3.6 0 4.8.07 1.1.05 1.8.25 2.2.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.15.4.35 1.1.4 2.2.07 1.2.07 1.6.07 4.8s0 3.6-.07 4.8c-.05 1.1-.25 1.8-.4 2.2-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.15-1.1.35-2.2.4-1.2.07-1.6.07-4.8.07s-3.6 0-4.8-.07c-1.1-.05-1.8-.25-2.2-.4-.5-.2-.9-.45-1.3-.85-.4-.4-.8-.65-.85-1.3-.15-.4-.35-1.1-.4-2.2C4.02 15.6 4 15.2 4 12s0-3.6.07-4.8c.05-1.1.25 1.8.4-2.2.2-.5.45.9.85-1.3.4-.4.8-.65 1.3-.85.4-.15 1.1-.35 2.2-.4C8.4 4.02 8.8 4 12 4zm0 2.9c-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.1-2.3 5.1-5.1-2.3-5.1-5.1-5.1zm0 8.4c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3 3.3 1.5 3.3 3.3-1.5 3.3-3.3 3.3zm6.2-8.5c-.7 0-1.3.6-1.3 1.3s.6 1.3 1.3 1.3 1.3-.6 1.3-1.3-.6-1.3-1.3-1.3z"/></svg></a>
       <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.53.02C13.84 0 15.14.01 16.44 0a.08.08 0 0 1 .09.08V12.9a.08.08 0 0 1-.09.08h-2.95a.08.08 0 0 1-.09-.08V6.65c0-1.81.01-3.62 0-5.43A.08.08 0 0 0 13.32 1.2a1 1 0 0 0-.25-.32A.08.08 0 0 1 13 1.15c-.44-.28-.9-.55-1.36-.82a1 1 0 0 0-.44-.11.08.08 0 0 1-.08-.09V.08a.08.08 0 0 1 .08-.06z M6.05 6.44C6.05 2.93 8.9 0 12.44 0v2.95c-1.88 0-3.4 1.52-3.4 3.4s1.52 3.4 3.4 3.4v2.95C8.9 12.74 6.05 9.95 6.05 6.44z M13.36 14.86c-2.58 0-4.68 2.1-4.68 4.68s2.1 4.68 4.68 4.68c2.58 0 4.68-2.1 4.68-4.68s-2.1-4.68-4.68-4.68z"/></svg></a>
-      <a href="https://m.me/YOUR_MESSENGER_USERNAME" target="_blank" aria-label="Messenger"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.79 2 10.33c0 2.47 1.31 4.69 3.32 6.04-.3.9-.84 2.4-1.32 3.61.02-.01.05-.02.08-.03a.5.5 0 0 1 .39-.08c.57-.18 1.12-.41 1.63-.69.46-.25.89-.53 1.3-.84.86.3 1.77.47 2.7.47 5.52 0 10-3.79 10-8.33S17.52 2 12 2zm1.22 9.54l-2.07 2.07c-.49.49-1.28.49-1.77 0l-1.15-1.15c-.49-.49-.49-1.28 0-1.77l5.96-5.96c.24-.24.64-.24.88 0l1.15 1.15c.24.24.24.64 0 .88L13.22 8.46l-2.07 2.07c-.24.24-.24.64 0 .88.24.24.64.24.88 0l2.07-2.07c.49-.49 1.28-.49 1.77 0l1.15 1.15c.49.49.49 1.28 0 1.77l-5.96 5.96c-.24.24-.64.24-.88 0l-1.15-1.15c-.24-.24-.24-.64 0-.88l2.07-2.07.01.01z"/></svg></a>
+      <a href="https://m.me/YOUR_MESSENGER_USERNAME" target="_blank" aria-label="Messenger"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.79 2 10.33c0 2.47 1.31 4.69 3.32 6.04-.3.9-.84 2.4-1.32 3.61.02-.01.05-.02.08-.03a.5.5 0 0 1 .39-.08c.57-.18 1.12-.41 1.63-.69.46-.25.89-.53 1.3-.84.86.3 1.77.47 2.7.47 5.52 0 10-3.79 10-8.33S17.52 2 12 2zm1.22 9.54l-2.07 2.07c-.49.49-1.28.49-1.77 0l-1.15-1.15c-.49-.49-.49-1.28 0-1.77l5.96-5.96c.24-.24.64-.24.88 0l1.15 1.15c.24.24.24.64 0 .88L13.22 8.46l-2.07 2.07c-.24.24-.24.64 0 .88.24.24.64.24.88 0l2.07-2.07c.49-.49 1.28-.49 1.77 0l1.15 1.15c.49.49.49 1.28 0 1.77l-5.96 5.96c-.24-.24-.64.24-.88 0l-1.15-1.15c-.24-.24-.24-.64 0-.88l2.07-2.07.01.01z"/></svg></a>
     </div>
     <div class="footer-email"><a href="mailto:p.cordero.ec@gmail.com">p.cordero.ec@gmail.com</a></div>
   </footer>
 
-  <!-- CARGAMOS EL JAVASCRIPT DESDE UN ARCHIVO EXTERNO -->
+  <!-- ======================================================= -->
+  <!-- == INICIO: VENTANA DEL WIDGET DE CHAT == -->
+  <!-- ======================================================= -->
+  <div id="chat-widget" class="chat-widget hidden">
+    <div class="chat-header">
+      <h4>Asistente de Autopartes</h4>
+      <button id="chat-close-btn" class="chat-close-btn">×</button>
+    </div>
+    <div id="chat-messages" class="chat-messages">
+      <!-- Los mensajes del chat aparecerán aquí -->
+    </div>
+    <div class="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Escribe tu consulta aquí...">
+      <button id="chat-send-btn">
+        <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+      </button>
+    </div>
+  </div>
+  <!-- ======================================================= -->
+  <!-- == FIN: VENTANA DEL WIDGET DE CHAT == -->
+  <!-- ======================================================= -->
+
+  <!-- ¡¡¡LÍNEAS CRÍTICAS!!! -->
+  <!-- 1. CARGAMOS LA LIBRERÍA DE PUSHER -->
+  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+  
+  <!-- 2. CARGAMOS NUESTRO PROPIO SCRIPT -->
   <script src="script.js" defer></script>
 
 </body>
