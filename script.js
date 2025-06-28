@@ -429,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open(whatsappURL, '_blank');
         }
     });
+    
 
     if (bgVideo) {
         const videos = ['images/videos/1.mp4', 'images/videos/2.mp4', 'images/videos/3.mp4', 'images/videos/4.mp4'];
