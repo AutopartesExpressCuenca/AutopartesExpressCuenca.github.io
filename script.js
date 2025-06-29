@@ -29,27 +29,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function handleSendMessage() {
-        if (!chatInput || !chatInput.value || !makeWebhookUrl || makeWebhookUrl === 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd') {
-            if (makeWebhookUrl === 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd') {
-                 console.error("¡ERROR! No has pegado la URL de Make.com en el archivo script.js.");
-                 addMessage('assistant', 'Error de configuración: La conexión con el asistente no está establecida.');
-            }
+        // 1. Verificamos que el campo de texto y la URL existen
+        if (!chatInput || !makeWebhookUrl) {
+            console.error("Error: El campo de chat o la URL de Make no están definidos.");
             return;
         }
-        
-        const messageText = chatInput.value.trim();
-        if (messageText === '') return;
 
+        const messageText = chatInput.value.trim();
+
+        // 2. Verificamos que el usuario escribió algo
+        if (messageText === '') {
+            return;
+        }
+
+        // 3. Mostramos el mensaje del usuario y limpiamos el campo
         addMessage('user', messageText);
         chatInput.value = '';
 
+        // 4. Enviamos los datos a Make.com
         try {
-            // Enviamos la petición a nuestro webhook en Make.com
             await fetch(makeWebhookUrl, {
                 method: 'POST',
-                // Usamos 'no-cors' para evitar problemas al probar el archivo HTML localmente.
-                // Make.com recibirá los datos de todas formas.
-                mode: 'no-cors', 
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: userId,
