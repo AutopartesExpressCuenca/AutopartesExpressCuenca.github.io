@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA DEL WIDGET DE CHAT Y COMUNICACIÓN EN TIEMPO REAL ==
+    // == LÓGICA DEL WIDGET DE CHAT Y COMUNICACIÓN CON MAKE.COM Y PUSHER ==
     // ==================================================================
     
     const chatWidget = document.getElementById('chat-widget');
@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
     const assistantButtonChat = document.getElementById('btn-assistant-header');
-    const PipedreamWebhookUrl = 'https://eobg3f0o9qljmo6.m.pipedream.net';
+    
+    // ¡¡¡ ATENCIÓN !!!
+    // Pega aquí la URL única que te dio el módulo Webhook de Make.com
+    const makeWebhookUrl = 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd';
     
     // Genera un ID único para cada visitante, para que las conversaciones no se mezclen.
     const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -26,7 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function handleSendMessage() {
-        if (!chatInput || !chatInput.value) return;
+        if (!chatInput || !chatInput.value || !makeWebhookUrl || makeWebhookUrl === 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd') {
+            if (makeWebhookUrl === 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd') {
+                 console.error("¡ERROR! No has pegado la URL de Make.com en el archivo script.js.");
+                 addMessage('assistant', 'Error de configuración: La conexión con el asistente no está establecida.');
+            }
+            return;
+        }
+        
         const messageText = chatInput.value.trim();
         if (messageText === '') return;
 
@@ -34,20 +44,23 @@ document.addEventListener('DOMContentLoaded', function() {
         chatInput.value = '';
 
         try {
-            await fetch(PipedreamWebhookUrl, {
+            // Enviamos la petición a nuestro webhook en Make.com
+            await fetch(makeWebhookUrl, {
                 method: 'POST',
-                mode: 'no-cors',
+                // Usamos 'no-cors' para evitar problemas al probar el archivo HTML localmente.
+                // Make.com recibirá los datos de todas formas.
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    userId: userId, // <-- Enviamos este ID a Pipedream
+                    userId: userId,
                     text: messageText,
                     source: 'WebsiteChat',
                     timestamp: new Date().toISOString()
                 })
             });
-            console.log('Mensaje enviado a Pipedream con el userId:', userId);
+            console.log('Mensaje enviado a Make.com con el userId:', userId);
         } catch (error) {
-            console.error('Error enviando mensaje a Pipedream:', error);
+            console.error('Error enviando mensaje a Make.com:', error);
             addMessage('assistant', 'Lo siento, hubo un error de conexión. Inténtalo de nuevo.');
         }
     }
@@ -70,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const PUSHER_APP_CLUSTER = 'sa1';
 
     try {
-        if (typeof Pusher !== 'undefined') {
+        if (typeof Pusher !== 'undefined' && PUSHER_APP_KEY !== 'TU_PUSHER_APP_KEY') {
             const pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_APP_CLUSTER });
             // Nos suscribimos a un canal único para este usuario
             const channel = pusher.subscribe(userId); 
