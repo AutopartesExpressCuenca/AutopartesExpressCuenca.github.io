@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================================================================
     
     // --- CONFIGURACIÓN ---
-    const GOOGLE_API_KEY = 'AIzaSyCoSJRU2POl_8pFHHzgro5XlCIIPSaIltSM'; // Clave ya pegada
+    const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M'; // Clave ya pegada
     const AI_MODEL = 'gemini-1.5-flash-latest';
 
     // --- ELEMENTOS DEL DOM ---
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) {
             return;
         }
-        if (GOOGLE_API_KEY === 'PEGA_AQUI_TU_CLAVE_DE_API_RESTRINGIDA') {
+        if (GOOGLE_API_KEY === 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M') {
             addMessage('assistant', 'Error de configuración: La clave de API no ha sido establecida.');
             return;
         }
