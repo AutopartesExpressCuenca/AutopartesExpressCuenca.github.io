@@ -1,109 +1,144 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA DEL WIDGET DE CHAT Y COMUNICACIÓN CON MAKE.COM Y PUSHER ==
+    // == LÓGICA DEL CHAT - MÉTODO DIRECTO A GOOGLE GEMINI API ==
     // ==================================================================
     
+    // --- CONFIGURACIÓN ---
+    // ¡¡¡ ATENCIÓN !!! Pega aquí tu Clave de API de Google que restringiste a tu dominio.
+    const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
+    const AI_MODEL = 'gemini-1.5-flash-latest'; // Modelo rápido y eficiente para chat.
+
+    // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
     const chatCloseBtn = document.getElementById('chat-close-btn');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
     const assistantButtonChat = document.getElementById('btn-assistant-header');
-    
-    // ¡¡¡ ATENCIÓN !!!
-    // Pega aquí la URL única que te dio el módulo Webhook de Make.com
-    const makeWebhookUrl = 'https://hook.us2.make.com/ujbl8e5rdd3gi8tu4lnw1a2f6xoivjsd';
-    
-    // Genera un ID único para cada visitante, para que las conversaciones no se mezclen.
-    const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
-    function addMessage(sender, text) {
+    // --- ESTADO DE LA CONVERSACIÓN ---
+    // Aquí guardamos el historial del chat para que la IA tenga contexto.
+    // Incluimos las instrucciones iniciales para darle una personalidad al bot.
+    let conversationHistory = [
+        {
+            role: "user",
+            parts: [{ text: "INSTRUCCIONES DEL SISTEMA: Eres un asistente virtual de la empresa 'Autopartes Express Cuenca', tu nombre es 'ExpressBot'. Eres un experto en automotriz, extremadamente amable y servicial. Tu objetivo principal es identificar el repuesto que el cliente necesita. Para ello, siempre debes asegurarte de tener la MARCA, MODELO y AÑO del vehículo. Si el cliente no te da alguno de esos datos, debes preguntárselo amablemente antes de continuar. Mantén tus respuestas cortas, claras y siempre en español ecuatoriano. Nunca salgas de tu rol de asistente de autopartes." }],
+        },
+        {
+            role: "model",
+            parts: [{ text: "¡Entendido! Soy ExpressBot, tu asistente de Autopartes Express Cuenca. Estoy listo para ayudarte a encontrar el repuesto que necesitas." }],
+        }
+    ];
+
+    // --- FUNCIONES DEL CHAT ---
+
+    // Añade un mensaje a la ventana del chat
+    function addMessage(sender, text, isThinking = false) {
         if (!chatMessages) return;
+
+        // Si hay un mensaje de "pensando", lo borramos antes de añadir el nuevo.
+        const existingThinkingMessage = document.getElementById('thinking-message');
+        if (existingThinkingMessage) {
+            existingThinkingMessage.remove();
+        }
+
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', `${sender}-message`);
-        messageElement.textContent = text;
+        
+        if (isThinking) {
+            // Animación de "escribiendo..."
+            messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
+            messageElement.id = 'thinking-message';
+        } else {
+            messageElement.textContent = text;
+        }
+        
         chatMessages.appendChild(messageElement);
-        // Mueve el scroll hacia abajo para ver el nuevo mensaje
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageElement;
     }
 
+    // Lógica principal al enviar un mensaje
     async function handleSendMessage() {
-        // 1. Verificamos que el campo de texto y la URL existen
-        if (!chatInput || !makeWebhookUrl) {
-            console.error("Error: El campo de chat o la URL de Make no están definidos.");
+        if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) {
+            return;
+        }
+
+        if (GOOGLE_API_KEY === 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M') {
+            addMessage('assistant', 'Error de configuración: La clave de API no ha sido establecida.');
             return;
         }
 
         const messageText = chatInput.value.trim();
-
-        // 2. Verificamos que el usuario escribió algo
-        if (messageText === '') {
-            return;
-        }
-
-        // 3. Mostramos el mensaje del usuario y limpiamos el campo
+        
+        // 1. Añadir el mensaje del usuario a la UI y al historial
         addMessage('user', messageText);
+        conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
         chatInput.value = '';
+        chatSendBtn.disabled = true; // Deshabilitar botón para evitar envíos múltiples
 
-        // 4. Enviamos los datos a Make.com
+        // 2. Mostrar un indicador de "pensando..."
+        addMessage('assistant', '', true);
+
+        // 3. Llamar directamente a la API de Gemini
         try {
-            await fetch(makeWebhookUrl, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: userId,
-                    text: messageText,
-                    source: 'WebsiteChat',
-                    timestamp: new Date().toISOString()
-                })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ contents: conversationHistory }),
             });
-            console.log('Mensaje enviado a Make.com con el userId:', userId);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error de la API de Gemini:', errorData);
+                throw new Error(`Error ${response.status}: ${errorData.error.message}`);
+            }
+
+            const data = await response.json();
+            
+            // Verificamos que la respuesta tiene contenido
+            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+
+                // 4. Añadir la respuesta de la IA al historial
+                conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
+                
+                // 5. Reemplazar el "pensando..." con la respuesta real
+                addMessage('assistant', aiResponse);
+            } else {
+                // Manejar el caso de que la respuesta venga vacía o con un bloqueo de seguridad
+                addMessage('assistant', 'No he podido generar una respuesta. Por favor, intenta reformular tu pregunta.');
+                console.warn('Respuesta de Gemini vacía o bloqueada:', data);
+            }
+
         } catch (error) {
-            console.error('Error enviando mensaje a Make.com:', error);
-            addMessage('assistant', 'Lo siento, hubo un error de conexión. Inténtalo de nuevo.');
+            console.error('Error crítico al llamar a la API de Gemini:', error);
+            addMessage('assistant', 'Lo siento, no puedo responder en este momento. Hubo un problema de conexión.');
+        } finally {
+            // Habilitar el botón de envío nuevamente, sin importar si hubo éxito o error
+            chatSendBtn.disabled = false;
         }
     }
-
+    
+    // --- EVENT LISTENERS ---
     if (assistantButtonChat) {
         assistantButtonChat.addEventListener('click', () => {
-            if(chatWidget) chatWidget.classList.remove('hidden');
-            if (chatMessages && chatMessages.children.length === 0) {
-                 addMessage('assistant', '¡Hola! Soy tu asistente virtual. ¿Qué repuesto estás buscando? Dime marca, modelo, año y la pieza que necesitas.');
+            chatWidget.classList.remove('hidden');
+            if (chatMessages.children.length === 0) {
+                 addMessage('assistant', '¡Hola! Soy ExpressBot. ¿En qué repuesto puedo ayudarte?');
             }
         });
     }
-
     if (chatCloseBtn) chatCloseBtn.addEventListener('click', () => chatWidget.classList.add('hidden'));
     if (chatSendBtn) chatSendBtn.addEventListener('click', handleSendMessage);
     if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
 
-    // ¡¡¡IMPORTANTE!!! Valores actualizados con tus claves.
-    const PUSHER_APP_KEY = '9ae8e7117128b1abb5b3';
-    const PUSHER_APP_CLUSTER = 'sa1';
-
-    try {
-        if (typeof Pusher !== 'undefined' && PUSHER_APP_KEY !== 'TU_PUSHER_APP_KEY') {
-            const pusher = new Pusher(PUSHER_APP_KEY, { cluster: PUSHER_APP_CLUSTER });
-            // Nos suscribimos a un canal único para este usuario
-            const channel = pusher.subscribe(userId); 
-            // Escuchamos por un evento llamado 'new-message' en ese canal
-            channel.bind('new-message', function(data) {
-                addMessage('assistant', data.message);
-            });
-            console.log(`Conectado a Pusher y escuchando en el canal: ${userId}`);
-        } else {
-             console.error("La librería de Pusher no se ha cargado o las claves no han sido reemplazadas.");
-        }
-    } catch(e) {
-        console.error("Error al inicializar Pusher. ¿Están correctas las claves?: ", e);
-        if(chatMessages && chatMessages.children.length <= 1) addMessage('assistant', 'No se pudo conectar al servicio de chat en este momento.');
-    }
-
 
     // ==================================================================
-    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL) ==
+    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL - SIN CAMBIOS) ==
     // ==================================================================
     
     const form = document.getElementById('sparePartsForm');
