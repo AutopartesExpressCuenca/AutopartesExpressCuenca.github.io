@@ -5,9 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================================================================
     
     // --- CONFIGURACIÓN ---
-    // ¡¡¡ ATENCIÓN !!! Pega aquí tu Clave de API de Google que restringiste a tu dominio.
-    const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
-    const AI_MODEL = 'gemini-1.5-flash-latest'; // Modelo rápido y eficiente para chat.
+    const GOOGLE_API_KEY = 'AIzaSyCoSJRU2POl_8pFHHzgro5XlCIIPSaIltSM'; // Clave ya pegada
+    const AI_MODEL = 'gemini-1.5-flash-latest';
 
     // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
@@ -18,127 +17,118 @@ document.addEventListener('DOMContentLoaded', function() {
     const assistantButtonChat = document.getElementById('btn-assistant-header');
 
     // --- ESTADO DE LA CONVERSACIÓN ---
-    // Aquí guardamos el historial del chat para que la IA tenga contexto.
-    // Incluimos las instrucciones iniciales para darle una personalidad al bot.
     let conversationHistory = [
-        {
-            role: "user",
-            parts: [{ text: "INSTRUCCIONES DEL SISTEMA: Eres un asistente virtual de la empresa 'Autopartes Express Cuenca', tu nombre es 'ExpressBot'. Eres un experto en automotriz, extremadamente amable y servicial. Tu objetivo principal es identificar el repuesto que el cliente necesita. Para ello, siempre debes asegurarte de tener la MARCA, MODELO y AÑO del vehículo. Si el cliente no te da alguno de esos datos, debes preguntárselo amablemente antes de continuar. Mantén tus respuestas cortas, claras y siempre en español ecuatoriano. Nunca salgas de tu rol de asistente de autopartes." }],
-        },
-        {
-            role: "model",
-            parts: [{ text: "¡Entendido! Soy ExpressBot, tu asistente de Autopartes Express Cuenca. Estoy listo para ayudarte a encontrar el repuesto que necesitas." }],
-        }
+        { role: "user", parts: [{ text: "INSTRUCCIONES DEL SISTEMA: Eres un asistente virtual de la empresa 'Autopartes Express Cuenca', tu nombre es 'ExpressBot'. Eres un experto en automotriz, extremadamente amable y servicial. Tu objetivo principal es identificar el repuesto que el cliente necesita. Para ello, siempre debes asegurarte de tener la MARCA, MODELO y AÑO del vehículo. Si el cliente no te da alguno de esos datos, debes preguntárselo amablemente antes de continuar. Mantén tus respuestas cortas, claras y siempre en español ecuatoriano. Nunca salgas de tu rol de asistente de autopartes." }] },
+        { role: "model", parts: [{ text: "¡Entendido! Soy ExpressBot, tu asistente de Autopartes Express Cuenca. Estoy listo para ayudarte a encontrar el repuesto que necesitas." }] }
     ];
 
     // --- FUNCIONES DEL CHAT ---
-
-    // Añade un mensaje a la ventana del chat
     function addMessage(sender, text, isThinking = false) {
         if (!chatMessages) return;
-
-        // Si hay un mensaje de "pensando", lo borramos antes de añadir el nuevo.
         const existingThinkingMessage = document.getElementById('thinking-message');
-        if (existingThinkingMessage) {
-            existingThinkingMessage.remove();
-        }
-
+        if (existingThinkingMessage) existingThinkingMessage.remove();
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', `${sender}-message`);
-        
         if (isThinking) {
-            // Animación de "escribiendo..."
             messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
             messageElement.id = 'thinking-message';
         } else {
             messageElement.textContent = text;
         }
-        
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return messageElement;
     }
 
-    // Lógica principal al enviar un mensaje
     async function handleSendMessage() {
         if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) {
             return;
         }
-
-        if (GOOGLE_API_KEY === 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M') {
+        if (GOOGLE_API_KEY === 'PEGA_AQUI_TU_CLAVE_DE_API_RESTRINGIDA') {
             addMessage('assistant', 'Error de configuración: La clave de API no ha sido establecida.');
             return;
         }
-
         const messageText = chatInput.value.trim();
-        
-        // 1. Añadir el mensaje del usuario a la UI y al historial
         addMessage('user', messageText);
         conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
         chatInput.value = '';
-        chatSendBtn.disabled = true; // Deshabilitar botón para evitar envíos múltiples
-
-        // 2. Mostrar un indicador de "pensando..."
+        chatSendBtn.disabled = true;
         addMessage('assistant', '', true);
-
-        // 3. Llamar directamente a la API de Gemini
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: conversationHistory }),
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Error de la API de Gemini:', errorData);
                 throw new Error(`Error ${response.status}: ${errorData.error.message}`);
             }
-
             const data = await response.json();
-            
-            // Verificamos que la respuesta tiene contenido
             if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
                 const aiResponse = data.candidates[0].content.parts[0].text;
-
-                // 4. Añadir la respuesta de la IA al historial
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
-                
-                // 5. Reemplazar el "pensando..." con la respuesta real
                 addMessage('assistant', aiResponse);
             } else {
-                // Manejar el caso de que la respuesta venga vacía o con un bloqueo de seguridad
                 addMessage('assistant', 'No he podido generar una respuesta. Por favor, intenta reformular tu pregunta.');
                 console.warn('Respuesta de Gemini vacía o bloqueada:', data);
             }
-
         } catch (error) {
             console.error('Error crítico al llamar a la API de Gemini:', error);
             addMessage('assistant', 'Lo siento, no puedo responder en este momento. Hubo un problema de conexión.');
         } finally {
-            // Habilitar el botón de envío nuevamente, sin importar si hubo éxito o error
             chatSendBtn.disabled = false;
+            if(chatInput) chatInput.focus(); // Re-enfocar el input después de enviar
         }
     }
     
-    // --- EVENT LISTENERS ---
-    if (assistantButtonChat) {
-        assistantButtonChat.addEventListener('click', () => {
-            chatWidget.classList.remove('hidden');
-            if (chatMessages.children.length === 0) {
-                 addMessage('assistant', '¡Hola! Soy ExpressBot. ¿En qué repuesto puedo ayudarte?');
+    // --- EVENT LISTENERS (MODIFICACIÓN CLAVE) ---
+
+    // Variable para asegurar que los listeners se añaden solo una vez
+    let chatListenersAdded = false;
+
+    // Función para añadir los listeners del chat
+    function addChatListeners() {
+        if (chatListenersAdded || !chatSendBtn || !chatInput) return;
+
+        chatSendBtn.addEventListener('click', handleSendMessage);
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevenir el comportamiento por defecto del Enter (ej: enviar formulario)
+                handleSendMessage();
             }
         });
+
+        console.log("Listeners del chat añadidos correctamente.");
+        chatListenersAdded = true;
     }
-    if (chatCloseBtn) chatCloseBtn.addEventListener('click', () => chatWidget.classList.add('hidden'));
-    if (chatSendBtn) chatSendBtn.addEventListener('click', handleSendMessage);
-    if (chatInput) chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
+
+    // El botón para abrir el chat siempre existe, así que este listener es seguro
+    if (assistantButtonChat) {
+        assistantButtonChat.addEventListener('click', () => {
+            if (!chatWidget) return;
+            chatWidget.classList.remove('hidden');
+            if (chatMessages && chatMessages.children.length === 0) {
+                 addMessage('assistant', '¡Hola! Soy ExpressBot. ¿En qué repuesto puedo ayudarte?');
+            }
+            // Añadimos los listeners justo cuando el usuario abre el chat.
+            // En este punto, estamos 100% seguros de que los elementos del chat existen en el DOM.
+            addChatListeners();
+            if(chatInput) chatInput.focus(); // Poner el foco en el input al abrir
+        });
+    }
+
+    // El listener para cerrar también es seguro
+    if (chatCloseBtn) {
+        chatCloseBtn.addEventListener('click', () => {
+            if (chatWidget) chatWidget.classList.add('hidden');
+        });
+    }
 
 
     // ==================================================================
-    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL - SIN CAMBIOS) ==
+    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (SIN CAMBIOS) ==
     // ==================================================================
     
     const form = document.getElementById('sparePartsForm');
