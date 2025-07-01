@@ -44,10 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) {
             return;
         }
-        //ESTE ES UN CODIGO QUE AI HIZO MALif (GOOGLE_API_KEY === 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M') {
-          //  addMessage('assistant', 'Error de configuración: La clave de API no ha sido establecida.');
-           // return;
-        //}
+      
         const messageText = chatInput.value.trim();
         addMessage('user', messageText);
         conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
