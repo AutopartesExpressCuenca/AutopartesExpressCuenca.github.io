@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) };
             await fetch(makeWebhookLoggerUrl, {
                 method: 'POST',
-                mode: 'no-cors',
+               // mode: 'no-cors', //LO ESTA HACEINDO QUITAR POR QUE NO LLEGA DESEMPAQUETADO
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullData)
             });
