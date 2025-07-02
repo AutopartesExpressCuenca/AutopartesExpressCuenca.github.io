@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA DEL CHAT Y FORMULARIO (FUNCIONALIDAD INTACTA) ==
+    // == LÓGICA DEL CHAT - DIRECTO A GEMINI + REGISTRO EN MAKE.COM ==
     // ==================================================================
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
@@ -82,7 +82,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!response.ok) throw new Error(`Error de API: ${response.statusText}`);
                 const data = await response.json();
                 if (!data.candidates || data.candidates.length === 0) throw new Error("Respuesta de API inválida.");
+                
                 const aiResponseText = data.candidates[0].content.parts[0].text;
+                
                 try {
                     const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
                     if (jsonMatch) {
@@ -98,8 +100,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 } catch (e) { console.warn("Respuesta no era JSON. Tratando como texto normal.", e); }
+                
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
                 typeMessage('assistant', aiResponseText);
+
             } catch (error) {
                 console.error('Error al llamar a la API de Gemini:', error);
                 const existingThinkingMessage = document.getElementById('thinking-message');
@@ -115,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function logDataToMake(data) { if (!makeWebhookLoggerUrl) { console.error("URL del webhook de Make.com no configurada."); return; } try { const now = new Date(); const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) }; await fetch(makeWebhookLoggerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fullData) }); console.log("Datos enviados a Make.com."); } catch (error) { console.error("Error al enviar datos a Make.com:", error); } }
     let chatListenersAdded = false; function addChatListeners() { if (chatListenersAdded || !chatSendBtn || !chatInput) return; chatSendBtn.addEventListener('click', handleSendMessage); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } }); chatListenersAdded = true; }
     
+    // ==================================================================
+    // == LÓGICA DEL FORMULARIO Y SINCRONIZACIÓN ==
+    // ==================================================================
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
     const validationPopup = document.getElementById('validation-popup');
@@ -225,13 +232,14 @@ document.addEventListener('DOMContentLoaded', function() {
                  if (anioSelect.value === data.año_vehiculo) { anioSelect.dispatchEvent(new Event('change')); } else { anioSelect.value = "Otro"; anioSelect.dispatchEvent(new Event('change')); otroAnioInput.value = data.año_vehiculo; updateLiveData('anio', data.año_vehiculo); }
             }, 300);
         }, 300);
+        
         const fullDescription = `Repuesto solicitado: ${data.repuesto_solicitado}\n\nObservaciones/Resumen:\n${data.observaciones_resumen}`;
         descripcionTextarea.value = fullDescription;
         updateLiveData('descripcion', fullDescription);
+        
         telefonoInput.value = data.contacto_cliente.replace(/\D/g, ''); updateLiveData('telefono', telefonoInput.value);
         if (data.nombre_cliente && data.nombre_cliente !== 'No proporcionado') { nombreInput.value = data.nombre_cliente; updateLiveData('nombre', data.nombre_cliente); }
-        nombreInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        nombreInput.focus();
+        nombreInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); nombreInput.focus();
         checkFormCompleteness();
     }
     
@@ -274,39 +282,4 @@ document.addEventListener('DOMContentLoaded', function() {
     populateLogos();
     populateAnios();
     checkFormCompleteness();
-
-    // ==================================================================
-    // == COMPORTAMIENTOS VISUALES 2025 (SIN ALTERAR LÓGICA) ==
-    // ==================================================================
-
-    // TREND 2025: Animaciones de aparición en scroll con Intersection Observer.
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); // Animar solo una vez
-            }
-        });
-    }, {
-        threshold: 0.1 // Activar cuando el 10% del elemento es visible
-    });
-
-    document.querySelectorAll('.fade-in').forEach(element => {
-        observer.observe(element);
-    });
-
-    // TREND 2025: Fondo dinámico que sigue al cursor, optimizado con requestAnimationFrame.
-    const spotlight = document.getElementById('spotlight-effect');
-    if (spotlight) {
-        let frameId;
-        window.addEventListener('mousemove', (e) => {
-            if (frameId) {
-                cancelAnimationFrame(frameId);
-            }
-            frameId = requestAnimationFrame(() => {
-                spotlight.style.setProperty('--x', `${e.clientX}px`);
-                spotlight.style.setProperty('--y', `${e.clientY}px`);
-            });
-        }, { passive: true });
-    }
 });
