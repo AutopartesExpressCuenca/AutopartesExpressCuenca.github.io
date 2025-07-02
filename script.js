@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const marcaInput = document.getElementById('marca');
     const modeloSelect = document.getElementById('modelo');
     const anioSelect = document.getElementById('ÓN 2/2 !!! Pega aquí la URL del webhook de Make.com.
-    const makeWebhookLoggerUrl = 'PEGA_AQUI_TU_NUEVA_URL_DE_WEBHOOK_DE_MAKE';
+    const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
 
     // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
