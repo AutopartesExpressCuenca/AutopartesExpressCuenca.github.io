@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autopartes Express Cuenca</title>
+  <meta name="description" content="Importamos repuestos originales y alternativos para todas las marcas en Cuenca. Lo que no hay aquí, lo traemos por ti. El mejor soporte para el usuario y el taller.">
+  <meta property="og:title" content="Autopartes Express Cuenca">
+  <meta property="og:description" content="No dejes que un repuesto detenga tu reparación. Importamos para todas las marcas.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://repuestosexpresscuenca.github.io/reeccaja.png">
+  <meta property="og:url" content="https://repuestosexpresscuenca.github.io/">
+  <link rel="icon" href="reeccaja.png" type="image/png">
+  <style>
+    :root {
+      --color-background: #1a1a1a; --color-surface: #2c2c2c; --color-border: #444;
+      --color-text-primary: #e5e5e5; --color-text-secondary: #a0a0a0;
+      --color-accent: #FFC800; --color-accent-dark: #e0b000;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family); background-color: var(--color-background);
+      color: var(--color-text-primary); line-height: 1.6; overflow-x: hidden;
+      background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23333333' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .video-container video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.35; filter: saturate(0.8); }
+    .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, var(--color-background) 90%); z-index: -1; }
+    
+    header { background: rgba(26, 26, 26, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+    .logo { height: 45px; cursor: pointer; flex-shrink: 0; }
+    .header-title { color: var(--color-text-primary); line-height: 1.2; }
+    .header-title .main-title { font-size: 1.3rem; font-weight: 700; display: block; }
+    .header-title .subtitle-text { font-size: 0.85rem; font-weight: 400; color: var(--color-text-secondary); display: block; }
+    
+    .header-buttons { display: flex; align-items: center; gap: 1rem; }
+    .btn-assistant-header, .btn-whatsapp-header { padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; cursor: pointer; }
+    .btn-assistant-header { background-color: transparent; color: var(--color-accent); border: 2px solid var(--color-accent); }
+    .btn-assistant-header:hover:not(:disabled) { background-color: var(--color-accent); color: #1a1a1a; }
+    .btn-assistant-header:disabled { cursor: not-allowed; opacity: 0.6; }
+    .btn-assistant-header .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .btn-whatsapp-header { background-color: var(--color-accent); color: #1a1a1a; border: 2px solid var(--color-accent); }
+    .btn-whatsapp-header:hover { background-color: var(--color-accent-dark); border-color: var(--color-accent-dark); transform: translateY(-2px); }
+    .btn-assistant-header svg, .btn-whatsapp-header svg { width: 24px; height: 24px; }
+    
+    .hero { text-align: center; padding: 5rem 2rem 4rem; }
+    .hero-logo { height: 160px; margin-bottom: 1.5rem; }
+    .hero h1 { font-size: clamp(2.5rem, 5vw, 3.5rem); margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; }
+    .hero p { font-size: 2rem; color: #ccc; max-width: 800px; margin: auto; }
+
+    main { position: relative; max-width: 1400px; margin: 2rem auto; padding: 0 2rem; z-index: 2; }
+    .form-container { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: flex-start; }
+    #sparePartsForm { background: var(--color-surface); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--color-border); }
+    .progress-bar { display: flex; gap: 1rem; align-items: center; margin-bottom: 2.5rem; }
+    .progress-step { flex: 1; height: 6px; background-color: var(--color-border); border-radius: 3px; transition: background-color 0.4s ease; }
+    .progress-step.active { background-color: var(--color-accent); }
+    .form-step { display: none; animation: fadeIn 0.5s ease; }
+    .form-step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    h2.step-title { font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 700; color: white; text-transform: uppercase; }
+    p.step-subtitle { color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 400; }
+    label { display: block; margin-top: 1.5rem; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+    input, select, textarea { width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-background); color: var(--color-text-primary); font-size: 1rem; font-family: var(--font-family); transition: all 0.3s ease; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(255, 200, 0, 0.2); }
+    
+    #logos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 1rem; padding: 1.5rem 0; }
+    .logo-wrapper { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 0.75rem; border-radius: 12px; background: var(--color-background); border: 2px solid var(--color-border); height: 110px; }
+    .logo-wrapper:hover { transform: translateY(-5px); border-color: var(--color-accent); }
+    .logo-wrapper img { width: 100%; max-width: 60px; height: 50px; object-fit: contain; transition: all 0.3s ease; z-index: 5; filter: grayscale(1); opacity: 0.6; }
+    .logo-wrapper.selected img { filter: none; opacity: 1; transform: scale(1.5); }
+    .logo-wrapper span { font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 500; }
+    .logo-wrapper.selected { border-color: var(--color-accent); box-shadow: 0 0 25px rgba(255, 255, 255, 0.2); }
+    .logo-wrapper::after { content: ''; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 70%; background-image: var(--logo-glow-url); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(10px) brightness(10); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
+    .logo-wrapper.selected::after { opacity: 1; }
+    
+    #selected-brand-display { background-color: var(--color-surface); border-radius: 16px; padding: 2rem; position: sticky; top: 120px; opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.4s ease; border: 2px solid transparent; text-align: center; }
+    #selected-brand-display.visible { opacity: 1; transform: translateY(0); pointer-events: auto; border-color: var(--color-accent); box-shadow: 0 0 30px rgba(255, 255, 255, 0.15); }
+    .display-logo-container { position: relative; height: 120px; margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; }
+    #selected-brand-display-logo { width: 100%; height: 100%; object-fit: contain; z-index: 5; }
+    .display-logo-container::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background-image: var(--logo-glow-url-display); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(15px) brightness(10); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
+    #selected-brand-display.visible .display-logo-container::after { opacity: 1; }
+    #selected-brand-display h3 { font-size: 1.5rem; color: white; text-transform: uppercase; }
+    #live-data-display { margin-top: 1.5rem; text-align: center; color: var(--color-text-secondary); }
+    #live-data-display p { margin-bottom: 0.5rem; font-size: 0.9rem; word-break: break-word; }
+    #live-data-display span { color: var(--color-text-primary); font-weight: 500; }
+    #send-prompt { color: var(--color-accent); font-weight: 700; text-align: center; margin-top: 1rem; display: none; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    #image-ref-button {
+      display: none; background-color: var(--color-background); border: 1px solid var(--color-border);
+      color: var(--color-text-secondary); padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none;
+      font-weight: 600; margin-top: 1rem; margin-bottom: 1.5rem; transition: all 0.3s ease; cursor: pointer;
+      font-family: var(--font-family); font-size: 0.9rem;
+    }
+    #image-ref-button:hover { background-color: var(--color-accent); color: #1a1a1a; border-color: var(--color-accent); }
+    #image-ref-button.visible { display: inline-block; }
+    #image-ref-button:disabled { cursor: not-allowed; opacity: 0.6; }
+    
+    .otro-input-container { display: none; margin-top: 1rem; }
+    .form-navigation { display: flex; justify-content: space-between; margin-top: 3rem; }
+    .btn { background: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-border); padding: 0.8rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; }
+    .btn-next, .btn-submit { background: var(--color-accent); color: #1a1a1a; border: none; }
+    .btn:hover { transform: translateY(-3px); }
+
+    #map-container { margin-top: 2rem; }
+    #map-container iframe { width: 100%; height: 200px; border-radius: 8px; border: 1px solid var(--color-border); filter: invert(1) grayscale(1) contrast(0.9); }
+    
+    .content-section { max-width: 1400px; margin: 4rem auto; padding: 4rem 2rem; border-top: 1px solid var(--color-border); }
+    .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+    .content-item { background: var(--color-surface); padding: 2rem; border-radius: 16px; }
+    .content-item h3 { font-size: 1.5rem; color: var(--color-accent); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;}
+    .content-item svg { width: 28px; height: 28px; }
+    .content-item p, .content-item li { color: var(--color-text-secondary); }
+    .content-item ul { list-style-position: inside; padding-left: 0.5rem; }
+
+    footer { margin-top: 4rem; text-align: center; padding: 3rem 2rem; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); padding-bottom: 120px; }
+    .social-icons { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .social-icons a { color: var(--color-text-secondary); transition: all 0.3s ease; }
+    .social-icons a:hover { color: var(--color-accent); transform: translateY(-3px); }
+    .social-icons svg { width: 28px; height: 28px; }
+    .footer-email a { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
+    .footer-email a:hover { color: var(--color-accent); }
+    
+    .scrolling-banner { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; overflow: hidden; border-top: 2px solid var(--color-accent); padding: 7px 0; }
+    .scrolling-banner .banner-track { display: flex; width: max-content; animation: scrollLeft 40s linear infinite; }
+    .scrolling-banner .banner-track img { height: 42px; margin: 0 25px; transition: transform 0.3s ease; filter: grayscale(1) opacity(0.7); }
+    .scrolling-banner .banner-track:hover { animation-play-state: paused; }
+    .scrolling-banner .banner-track img:hover { transform: scale(1.2); filter: none; }
+    
+    .brands-banner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; overflow: hidden; pointer-events: none; display: flex; align-items: center; }
+    .brands-banner .banner-track { display: flex; width: max-content; animation: scrollRight 190s linear infinite; }
+    .brands-banner .banner-track img { height: 200px; filter: none; opacity: 0.1; margin: 0 25px; object-fit: contain; }
+    
+    @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes scrollRight { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+    .validation-popup { position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background-color: var(--color-accent); color: #1a1a1a; padding: 1rem 1.5rem; border-radius: 8px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: top 0.5s ease; }
+    .validation-popup.show { top: 2rem; }
+    .validation-popup h4 { margin-bottom: 0.5rem; text-transform: uppercase; font-size: 1rem; }
+    .validation-popup ul { list-style-type: none; padding-left: 0; }
+    .validation-popup li { font-weight: 500; }
+
+    /* ESTILOS PARA EL WIDGET DE CHAT */
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      max-width: 90%;
+      height: 500px;
+      max-height: 80vh;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      transform: translateY(0);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 10001;
+      opacity: 1;
+    }
+    .chat-widget.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      background-color: rgba(0,0,0,0.2);
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+    }
+    .chat-header h4 { margin: 0; color: var(--color-text-primary); font-weight: 700; }
+    .chat-close-btn { background: none; border: none; color: var(--color-text-secondary); font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0; transition: color 0.2s ease; }
+    .chat-close-btn:hover { color: var(--color-accent); }
+    .chat-messages { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .chat-message { padding: 0.75rem 1rem; border-radius: 12px; max-width: 80%; line-height: 1.4; word-wrap: break-word; }
+    .user-message { background-color: var(--color-accent); color: #1a1a1a; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .assistant-message { background-color: var(--color-background); color: var(--color-text-primary); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .chat-input-container { display: flex; padding: 1rem; border-top: 1px solid var(--color-border); }
+    #chat-input { flex-grow: 1; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    #chat-input:focus { z-index: 2; }
+    #chat-send-btn { background-color: var(--color-accent); color: #1a1a1a; border: 1px solid var(--color-accent); border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s ease; }
+    #chat-send-btn:hover { background-color: var(--color-accent-dark); }
+    #chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .thinking-dots span { display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
+    .thinking-dots span:nth-of-type(1) { animation-delay: -0.32s; }
+    .thinking-dots span:nth-of-type(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+
+    @media (max-width: 992px) { /* Adjusted breakpoint for better response */
+      header { padding: 1rem 1.5rem; gap: 0.5rem; }
+      .header-title .main-title { font-size: 1rem; }
+      .header-title .subtitle-text { font-size: 0.7rem; }
+      .btn-assistant-header span, .btn-whatsapp-header span { display: none; }
+      .btn-assistant-header, .btn-whatsapp-header { padding: 0.7rem; }
+      .hero { padding: 3rem 1rem 2rem; }
+      .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+      .hero p { font-size: 1.2rem; }
+      main { padding: 0 1rem; }
+      .form-container { grid-template-columns: 1fr; }
+      #sparePartsForm { padding: 1.5rem; }
+      #selected-brand-display { position: static; margin-top: 2rem; }
+      .content-section { padding: 2rem 1rem; }
+      h2.step-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="video-container"><video id="bg-video" autoplay muted playsinline><source src="images/videos/1.mp4" type="video/mp4"></video></div>
+  <div class="video-overlay"></div>
+  <div id="validation-popup" class="validation-popup"><h4>Por favor, completa los siguientes campos:</h4><ul id="error-list"></ul></div>
+
+  <header>
+    <a href="#" class="logo-container">
+      <img src="reeccaja.png" alt="Autopartes Express Cuenca Logo" class="logo" />
+      <span class="header-title">
+        <span class="main-title">AutopartesExpress - Cuenca.Ec.</span>
+        <span class="subtitle-text">Cotiza con nuestro asistente o habla con un experto. Tú eliges.</span>
+      </span>
+    </a>
+    <div class="header-buttons">
+      <button id="btn-assistant-header" class="btn-assistant-header">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM17.155 5.564a.75.75 0 0 1 .19 1.045l-2.45 4.244a.75.75 0 0 1-1.235-.71l2.45-4.244a.75.75 0 0 1 1.045-.19ZM6.845 5.564a.75.75 0 0 1 1.045.19l2.45 4.244a.75.75 0 0 1-1.235.71L6.655 6.609a.75.75 0 0 1 .19-1.045ZM18 12.75a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5ZM12 11.25a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75ZM6 12.75a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5Z"/></svg>
+        <span>Asistente</span>
+      </button>
+      <a href="https://wa.me/593999115626" class="btn-whatsapp-header" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-10 10c0 5.52 4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm3.17 14.42c-.2-.11-1.18-.58-1.36-.65-.18-.07-.31-.11-.44.11-.13.22-.51.65-.63.78-.12.13-.24.15-.44.04-.2-.11-.85-.31-1.62-.99-.6-.53-.99-1.19-1.12-1.39-.12-.2 0-.31.1-.41.09-.09.2-.24.3-.32.1-.08.13-.13.2-.22s.01-.18-.04-.29c-.05-.11-.44-1.07-.6-1.47-.16-.4-.32-.34-.44-.35h-.22c-.12 0-.31.04-.47.22-.16.18-.62.61-.62 1.49s.64 1.73.72 1.85c.08.12 1.24 1.89 3.01 2.64.43.18.77.29 1.04.37.52.16 1.01.14 1.38.08.42-.06 1.18-.48 1.35-1.04.16-.56.16-1.04.11-1.15-.04-.11-.18-.18-.38-.29z"/></svg>
+        <span>WhatsApp</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img src="reecwhite.png" alt="Autopartes Express Cuenca Icon" class="hero-logo" />
+    <h1>Cotización Inteligente. Soluciones Reales.</h1>
+    <p>Usa nuestro asistente para una cotización rápida o llena el formulario para atención personalizada de un experto.</p>
+  </section>
+
+  <main>
+    <div class="brands-banner">
+        <div class="banner-track" id="brands-banner-track"></div>
+    </div>
+    <div class="form-container">
+      <form id="sparePartsForm" novalidate>
+        <div class="progress-bar"><div class="progress-step active"></div><div class="progress-step"></div><div class="progress-step"></div></div>
+        <div class="form-step active">
+          <h2 class="step-title">PASO 1: VEHÍCULO</h2>
+          <p class="step-subtitle">Usa este formulario para una cotización detallada con uno de nuestros expertos.</p>
+          <label>MARCA:</label>
+          <div id="logos-container"></div>
+          <input type="hidden" id="marca" name="marca" required>
+          <div id="otra-marca-container" class="otro-input-container"><label for="otra-marca">Por favor, especifica la marca:</label><input type="text" id="otra-marca" name="otra-marca" required></div>
+          <label for="modelo">MODELO:</label>
+          <select id="modelo" name="modelo" required disabled><option value="">Primero selecciona una marca</option></select>
+          <div id="otro-modelo-container" class="otro-input-container"><label for="otro-modelo">Por favor, especifica el modelo:</label><input type="text" id="otro-modelo" name="otro-modelo" required></div>
+          <label for="anio">AÑO:</label>
+          <select id="anio" name="anio" required disabled><option value="">Primero selecciona un modelo</option></select>
+          <div id="otro-anio-container" class="otro-input-container"><label for="otro-anio">Por favor, especifica el año:</label><input type="text" id="otro-anio" name="otro-anio" required></div>
+          <div class="form-navigation"><div></div><button type="button" class="btn btn-next">Siguiente</button></div>
+        </div>
+        <div class="form-step">
+          <h2 class="step-title">PASO 2: REPUESTO</h2>
+          <p class="step-subtitle">Repuestos originales y alternativos de cualquier parte del mundo.</p>
+          <label for="descripcion">DESCRIPCIÓN DEL REPUESTO & OBSERV:</label>
+          <textarea id="descripcion" name="descripcion" required rows="5" placeholder="Ej: Amortiguadores delanteros, pastillas de freno cerámicas..."></textarea>
+          <label for="vin">VIN (RECOMENDADO):</label>
+          <input type="text" id="vin" name="vin" placeholder="Número de 17 dígitos en tu matrícula" />
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="button" class="btn btn-next">Siguiente</button></div>
+        </div>
+        <div class="form-step">
+          <h2 class="step-title">PASO 3: CONTACTO</h2>
+          <p class="step-subtitle">Tu confianza, nuestro mayor valor.</p>
+          <label for="nombre">NOMBRE COMPLETO:</label>
+          <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre y apellido" />
+          <label for="telefono">NÚMERO DE WHATSAPP:</label>
+          <input type="tel" id="telefono" name="telefono" required placeholder="0991234567" />
+          <label for="ubicacion">CIUDAD / DIRECCIÓN (OPCIONAL):</label>
+          <input type="text" id="ubicacion" name="ubicacion" placeholder="Cuenca, Ecuador">
+          <div id="map-container"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127598.7487053597!2d-79.0772740972656!3d-2.900549999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd181216936357%3A0x3a33959321c6bff3!2sCuenca!5e0!3m2!1ses-419!2sec!4v1680000000000!5m2!1ses-419!2sec" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+          <div class="form-navigation"><button type="button" class="btn btn-prev">Anterior</button><button type="submit" class="btn btn-submit">ENVIAR SOLICITUD</button></div>
+        </div>
+      </form>
+      <div id="selected-brand-display">
+        <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
+        <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
+        <button type="button" id="image-ref-button">Ver imagen de referencia</button>
+        <div id="live-data-display">
+            <p id="display-modelo" style="display:none;">Modelo: <span></span></p>
+            <p id="display-anio" style="display:none;">Año: <span></span></p>
+            <p id="display-vin" style="display:none;">VIN: <span></span></p>
+            <p id="display-descripcion" style="display:none;">Repuesto: <span></span></p>
+            <p id="display-nombre" style="display:none;">Cliente: <span></span></p>
+            <p id="display-telefono" style="display:none;">Teléfono: <span></span></p>
+        </div>
+        <p id="send-prompt">¡Listo para Enviar!</p>
+      </div>
+    </div>
+    <div class="content-section">
+      <div class="content-grid">
+          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Acerca de Nosotros</h3><p>Somos una empresa ecuatoriana dedicada a la importación bajo pedido de repuestos de autos y motos. Conseguimos repuestos originales y alternativos para todas las marcas, gracias a nuestros contactos de confianza en Estados Unidos, China, India, Alemania, Inglaterra, Brasil y México. Atención humana, trato directo y soluciones reales.</p></div>
+          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/></svg>Nuestro Objetivo</h3><p>Facilitar la importación de repuestos de vehículos, con confianza, seguridad y compromiso, para que tú solo te preocupes por conducir.</p></div>
+      </div>
+    </div>
+    <div class="content-section">
+        <div class="content-item" style="grid-column: 1 / -1;"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>Términos de Venta</h3><ul><li>Todos los pedidos requieren reserva con anticipo.</li><li>El tiempo de entrega es de 10 a 20 días hábiles, según el país de origen.</li><li>Importamos repuestos originales de casa matriz y alternativos de calidad.</li><li>Contactos directos con proveedores internacionales confiables.</li><li>Atención personalizada, seguimiento constante y comunicación directa.</li></ul></div>
+    </div>
+  </main>
+  <div class="scrolling-banner"><div class="banner-track"></div></div>
+  <footer>
+    <p>Repuestos originales o alternos de calidad. Tú eliges, nosotros cumplimos..</p>
+    <div class="social-icons">
+      <a href="https://facebook.com" target="_blank" aria-label="Facebook"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></a>
+      <a href="https://instagram.com" target="_blank" aria-label="Instagram"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.7 2 8.3 2.02 7.1 2.07c-1.2.05-2.1.27-2.9.58-.8.3-1.5.7-2.2 1.4-.7.7-1.1 1.4-1.4 2.2-.3.8-.5 1.7-.58 2.9C2.02 8.3 2 8.7 2 12s.02 3.7.07 4.9c.05 1.2.27 2.1.58 2.9.3.8.7 1.5 1.4 2.2.7.7 1.4 1.1 2.2 1.4.8.3 1.7.5 2.9.58 1.2.05 1.6.07 4.9.07s3.7-.02 4.9-.07c1.2-.05 2.1-.27 2.9-.58.8-.3 1.5-.7 2.2-1.4.7-.7-1.1-1.4 1.4-2.2.3-.8.5-1.7.58 2.9.05-1.2.07-1.6.07-4.9s-.02-3.7-.07-4.9c-.05-1.2-.27-2.1-.58-2.9-.3-.8-.7-1.5-1.4-2.2-.7-.7-1.4-1.1-2.2-1.4-.8-.3-1.7-.5-2.9-.58C15.7 2.02 15.3 2 12 2zm0 1.8c3.2 0 3.6 0 4.8.07 1.1.05 1.8.25 2.2.4.5.2.9.45 1.3.85.4.4.65.8.85 1.3.15.4.35 1.1.4 2.2.07 1.2.07 1.6.07 4.8s0 3.6-.07 4.8c-.05 1.1-.25 1.8-.4 2.2-.2.5-.45.9-.85 1.3-.4.4-.8.65-1.3.85-.4.15-1.1.35-2.2.4-1.2.07-1.6.07-4.8.07s-3.6 0-4.8-.07c-1.1-.05-1.8-.25-2.2-.4-.5-.2-.9-.45-1.3-.85-.4-.4-.8-.65-.85-1.3-.15-.4-.35-1.1-.4-2.2C4.02 15.6 4 15.2 4 12s0-3.6.07-4.8c.05-1.1.25 1.8.4-2.2.2-.5.45.9.85-1.3.4-.4.8-.65 1.3-.85.4-.15 1.1-.35 2.2-.4C8.4 4.02 8.8 4 12 4zm0 2.9c-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.1-2.3 5.1-5.1-2.3-5.1-5.1-5.1zm0 8.4c-1.8 0-3.3-1.5-3.3-3.3s1.5-3.3 3.3-3.3 3.3 1.5 3.3 3.3-1.5 3.3-3.3 3.3zm6.2-8.5c-.7 0-1.3.6-1.3 1.3s.6 1.3 1.3 1.3 1.3-.6 1.3-1.3-.6-1.3-1.3-1.3z"/></svg></a>
+      <a href="https://tiktok.com" target="_blank" aria-label="TikTok"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.53.02C13.84 0 15.14.01 16.44 0a.08.08 0 0 1 .09.08V12.9a.08.08 0 0 1-.09.08h-2.95a.08.08 0 0 1-.09-.08V6.65c0-1.81.01-3.62 0-5.43A.08.08 0 0 0 13.32 1.2a1 1 0 0 0-.25-.32A.08.08 0 0 1 13 1.15c-.44-.28-.9-.55-1.36-.82a1 1 0 0 0-.44-.11.08.08 0 0 1-.08-.09V.08a.08.08 0 0 1 .08-.06z M6.05 6.44C6.05 2.93 8.9 0 12.44 0v2.95c-1.88 0-3.4 1.52-3.4 3.4s1.52 3.4 3.4 3.4v2.95C8.9 12.74 6.05 9.95 6.05 6.44z M13.36 14.86c-2.58 0-4.68 2.1-4.68 4.68s2.1 4.68 4.68 4.68c2.58 0 4.68-2.1 4.68-4.68s-2.1-4.68-4.68-4.68z"/></svg></a>
+      <a href="https://m.me/YOUR_MESSENGER_USERNAME" target="_blank" aria-label="Messenger"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.79 2 10.33c0 2.47 1.31 4.69 3.32 6.04-.3.9-.84 2.4-1.32 3.61.02-.01.05-.02.08-.03a.5.5 0 0 1 .39-.08c.57-.18 1.12-.41 1.63-.69.46-.25.89-.53 1.3-.84.86.3 1.77.47 2.7.47 5.52 0 10-3.79 10-8.33S17.52 2 12 2zm1.22 9.54l-2.07 2.07c-.49.49-1.28.49-1.77 0l-1.15-1.15c-.49-.49-.49-1.28 0-1.77l5.96-5.96c.24-.24.64-.24.88 0l1.15 1.15c.24.24.24.64 0 .88L13.22 8.46l-2.07 2.07c-.24.24-.24.64 0 .88.24.24.64.24.88 0l2.07-2.07c.49-.49 1.28-.49 1.77 0l1.15 1.15c.49.49.49 1.28 0 1.77l-5.96 5.96c-.24-.24-.64.24-.88 0l-1.15-1.15c-.24-.24-.24-.64 0-.88l2.07-2.07.01.01z"/></svg></a>
+    </div>
+    <div class="footer-email"><a href="mailto:p.cordero.ec@gmail.com">p.cordero.ec@gmail.com</a></div>
+  </footer>
+
+  <!-- ======================================================= -->
+  <!-- == INICIO: VENTANA DEL WIDGET DE CHAT == -->
+  <!-- ======================================================= -->
+  <div id="chat-widget" class="chat-widget hidden">
+    <div class="chat-header">
+      <h4>Asistente de Autopartes</h4>
+      <button id="chat-close-btn" class="chat-close-btn">×</button>
+    </div>
+    <div id="chat-messages" class="chat-messages">
+      <!-- Los mensajes del chat aparecerán aquí -->
+    </div>
+    <div class="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Escribe tu consulta aquí...">
+      <button id="chat-send-btn">
+        <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+      </button>
+    </div>
+  </div>
+  <!-- ======================================================= -->
+  <!-- == FIN: VENTANA DEL WIDGET DE CHAT == -->
+  <!-- ======================================================= -->
+
+  <!-- ¡¡¡ LÍNEA CRÍTICA - MODIFICADO !!! -->
+  <!-- YA NO NECESITAMOS LA LIBRERÍA DE PUSHER -->
+  
+  <!-- CARGAMOS NUESTRO PROPIO SCRIPT -->
+  <script src="script.js" defer></script>
+
+</body>
+</html>
