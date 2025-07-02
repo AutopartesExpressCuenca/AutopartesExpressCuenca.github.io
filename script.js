@@ -1,18 +1,16 @@
-// =================================================================================
-// == SCRIPT.JS - VERSIÓN DE RESTAURACIÓN ESTABLE Y FUNCIONAL (SIN DUPLICADOS) ==
-// == Este código funcionaba y enviaba los datos básicos a Make.com correctamente. ==
-// =================================================================================
-
+// --- SCRIPT.JS COMPLETO CON IA, REGISTRO EN MAKE.COM Y LÓGICA DE FORMULARIO ---
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA DEL CHAT - GEMINI + REGISTRO EN MAKE.COM ==
+    // == LÓGICA DEL CHAT - DIRECTO A GEMINI + REGISTRO EN MAKE.COM ==
     // ==================================================================
     
     // --- CONFIGURACIÓN ---
-    const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
+    // ¡¡¡ ATENCIÓN 1/2 !!! Pega aquí tu Clave de API de Google.
+    const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M'; // REEMPLAZA SI ES NECESARIO
     const AI_MODEL = 'gemini-1.5-flash-latest';
-    const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
+    // ¡¡¡ ATENCIÓN 2/2 !!! Pega aquí la URL del webhook de Make.com para registrar los datos.
+    const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10'; // REEMPLAZA CON TU URL
 
     // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
@@ -22,46 +20,75 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatSendBtn = document.getElementById('chat-send-btn');
     const assistantButtonChat = document.getElementById('btn-assistant-header');
 
-    // --- ESTADO DE LA CONVERSACIÓN (PROMPT ESTABLE Y PROBADO) ---
+    // ==================================================================
+    // == PROMPT FINAL Y MEJORADO PARA LA IA ==
+    // ==================================================================
     let conversationHistory = [
         { role: "user", parts: [{ text: `
           REGLAS ESTRICTAS DEL SISTEMA:
-          1.  **Rol y Tono:** Eres "Alex", un asistente profesional de "Autopartes Express Cuenca".
-          2.  **Misión Principal:** Tu único objetivo es recopilar 5 datos obligatorios (Marca, Modelo, Año, Repuesto, Teléfono).
-          3.  **REGLA DE ORO - ACCIÓN FINAL:**
+          1.  **Rol y Tono:** Eres "Alex", un asistente de "Autopartes Express Cuenca". Tu tono es profesional y siempre usas "usted".
+          2.  **Misión Principal:** Tu único objetivo es recopilar la información para una cotización. Eres un bot recolector de datos.
+          3.  **Datos Obligatorios:** Debes conseguir sí o sí:
+              - Marca del vehículo.
+              - Modelo del vehículo.
+              - Año del vehículo.
+              - Repuesto necesitado.
+              - Número de teléfono del cliente.
+          4.  **Datos Opcionales pero importantes:** Intenta obtener de forma conversacional si el cliente los menciona:
+              - Nombre del cliente.
+              - Ciudad y Provincia del cliente.
+          5.  **Flujo de Conversación:**
+              - Saluda y pregunta inmediatamente por la información del vehículo y el repuesto.
+              - A medida que conversas, intenta obtener los datos opcionales si el cliente los menciona.
+              - Una vez tengas los 5 datos obligatorios, tu trabajo está hecho.
+          6.  **Regla de Salida de Emergencia:** Si el cliente quiere hablar con un humano, tu ÚNICA respuesta posible es: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626.". Después de eso, no digas nada más.
+          
+          7.  **REGLA DE ORO - ACCIÓN FINAL:**
               - **CUANDO TENGAS LOS 5 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
-              - **NO ESCRIBAS NADA ANTES NI DESPUÉS DEL JSON.** Tu respuesta debe empezar con "{" y terminar con "}".
-              - **La estructura del JSON debe ser EXACTAMENTE esta:**
+              - **NO ESCRIBAS TEXTO INTRODUCTORIO.**
+              - **NO USES COMILLAS DE BLOQUE DE CÓDIGO ( \`\`\`json ).**
+              - Tu respuesta debe empezar con el carácter "{" y terminar con el carácter "}".
+              - **Utiliza la siguiente estructura EXACTA para el JSON:**
                 {
                   "accion": "registrar_cotizacion",
                   "datos": {
-                    "nombre_cliente": "No recopilado por chat",
-                    "contacto_cliente": "El teléfono recopilado",
-                    "marca_vehiculo": "La marca recopilada",
-                    "modelo_vehiculo": "El modelo recopilado",
-                    "año_vehiculo": "El año recopilado",
+                    "nombre_cliente": "El nombre que recopilaste, o 'No proporcionado'",
+                    "contacto_cliente": "El teléfono que recopilaste",
+                    "marca_vehiculo": "La marca que recopilaste",
+                    "modelo_vehiculo": "El modelo que recopilaste",
+                    "año_vehiculo": "El año que recopilaste",
                     "repuesto_solicitado": "La pieza que el cliente necesita",
                     "numero_de_parte": "El número si lo dieron, o 'No proporcionado'",
-                    "resumen_chat": "Un resumen muy breve y profesional de la solicitud."
+                    "ciudad": "La ciudad si la mencionaron, o 'No proporcionado'",
+                    "provincia": "La provincia si la mencionaron, o 'No proporcionado'",
+                    "observaciones_resumen": "Un resumen muy breve y profesional de la solicitud completa del cliente.",
+                    "texto_chat_completo": "TODO el historial de la conversación entre el usuario y tú, formateado como un solo bloque de texto con saltos de línea \\n."
                   }
                 }
+              - **El mensaje de "Excelente, he registrado su solicitud..." NO lo generas tú. El sistema lo hará automáticamente.** Tu trabajo termina al enviar el JSON puro.
         `}]},
         { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
+    // ==================================================================
+    // == FIN DEL PROMPT ==
+    // ==================================================================
 
-    // --- FUNCIONES DEL CHAT ---
+    // --- FUNCIONES DEL CHAT (CORREGIDAS Y FINALES) ---
     function addMessage(sender, text, isThinking = false) {
         if (!chatMessages) return;
         const existingThinkingMessage = document.getElementById('thinking-message');
         if (existingThinkingMessage) existingThinkingMessage.remove();
+        
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', `${sender}-message`);
+        
         if (isThinking) {
             messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
             messageElement.id = 'thinking-message';
         } else {
             messageElement.textContent = text;
         }
+        
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return messageElement;
@@ -71,11 +98,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageElement = addMessage(sender, '');
         let i = 0;
         const speed = 30;
+        
         function type() {
             if (i < text.length) {
                 messageElement.textContent += text.charAt(i);
                 i++;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll con cada letra
                 setTimeout(type, speed);
             }
         }
@@ -84,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function handleSendMessage() {
         if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) return;
-        if (GOOGLE_API_KEY === 'PEGA_AQUI_TU_CLAVE_DE_API_RESTRINGIDA' || !GOOGLE_API_KEY) {
+        if (GOOGLE_API_KEY.includes('PEGA_AQUI')) {
             addMessage('assistant', 'Error: La clave de API de Google no ha sido configurada.');
             return;
         }
@@ -111,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const errorData = await response.json();
                     throw new Error(`Error ${response.status}: ${errorData.error.message}`);
                 }
-
                 const data = await response.json();
+                
                 if (!data.candidates || data.candidates.length === 0) {
                     throw new Error("La respuesta de la API no contiene candidatos.");
                 }
@@ -128,14 +156,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             const confirmationMessage = "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.";
                             conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
                             typeMessage('assistant', confirmationMessage);
-                            await logDataToMake(responseObject.datos); 
-                            return; 
+                            await logDataToMake(responseObject.datos);
+                            return; // Esencial para no duplicar mensajes
                         }
                     }
                 } catch (e) {
-                    // No era un JSON de cotización o falló el parseo, se tratará como mensaje normal
+                    console.warn("Se intentó procesar un JSON pero falló. Tratando como texto normal.", e);
                 }
                 
+                // Si llegamos aquí, es un mensaje de texto normal
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
                 typeMessage('assistant', aiResponseText);
 
@@ -151,9 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1200);
     }
 
-    // VERSIÓN ESTABLE: Envía solo los datos del JSON + fecha/hora
     async function logDataToMake(data) {
-        if (!makeWebhookLoggerUrl || makeWebhookLoggerUrl === 'PEGA_AQUI_TU_NUEVA_URL_DE_WEBHOOK_DE_MAKE') {
+        if (!makeWebhookLoggerUrl || makeWebhookLoggerUrl.includes('PEGA_AQUI')) {
             console.error("URL del webhook de registro de Make.com no configurada.");
             return;
         }
@@ -164,9 +192,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), 
                 hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) 
             };
-
             await fetch(makeWebhookLoggerUrl, {
                 method: 'POST',
+                // NO AÑADIR 'mode: no-cors'
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullData)
             });
@@ -188,20 +216,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         chatListenersAdded = true;
     }
-
-    // LÓGICA ESTABLE PARA ABRIR EL CHAT
     if (assistantButtonChat) {
         assistantButtonChat.addEventListener('click', () => {
             if (!chatWidget) return;
             chatWidget.classList.remove('hidden');
             if (chatMessages && chatMessages.children.length === 0) {
-                 addMessage('assistant', '¡Hola! Soy Alex. ¿En qué puedo ayudarle con los repuestos para su vehículo?');
+                 // El mensaje inicial ahora es parte del historial, no se añade aquí
             }
             addChatListeners();
             if(chatInput) chatInput.focus();
         });
     }
-
     if (chatCloseBtn) {
         chatCloseBtn.addEventListener('click', () => {
             if (chatWidget) chatWidget.classList.add('hidden');
@@ -209,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ==================================================================
-    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL INTACTO) ==
+    // == LÓGICA DEL FORMULARIO DE VARIOS PASOS (CÓDIGO ORIGINAL COMPLETO) ==
     // ==================================================================
     const form = document.getElementById('sparePartsForm');
     const nextBtns = document.querySelectorAll('.btn-next');
