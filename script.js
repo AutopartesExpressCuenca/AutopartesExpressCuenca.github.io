@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
+    const submitHelper = document.getElementById('submit-helper-text');
     const validationPopup = document.getElementById('validation-popup');
     const errorList = document.getElementById('error-list');
     const marcaInput = document.getElementById('marca');
@@ -153,6 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!input.value) allValid = false;
         });
         submitButton.disabled = !allValid;
+        
+        // UX Improvement: Show or hide helper text for the button
+        if(submitHelper) {
+            submitHelper.textContent = allValid ? "" : "Complete los campos requeridos para enviar.";
+            submitHelper.style.opacity = allValid ? "0" : "1";
+        }
     }
 
     function updateLiveData(field, value) {
@@ -296,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // TREND 2025: Fondo dinámico que sigue al cursor, optimizado con requestAnimationFrame.
-    const spotlight = document.getElementById('spotlight-effect');
+    const spotlight = document.querySelector('.spotlight-effect-light');
     if (spotlight) {
         let frameId;
         window.addEventListener('mousemove', (e) => {
