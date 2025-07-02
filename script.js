@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
               - El número de teléfono del cliente para enviarle la cotización.
           5.  **Información Opcional:** Menciona que si el cliente tiene el número VIN del auto, la cotización será mucho más precisa, pero no es obligatorio. Pregunta por el número de parte del repuesto solo si el cliente parece tener conocimientos técnicos.
           6.  **Ruta de Escape / Contacto Humano:** Si el cliente expresa su deseo de hablar con una persona, o si la conversación se vuelve muy compleja para ti, debes proporcionar la siguiente información y NADA MÁS: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626." Después de dar esta información, finaliza la conversación amablemente.
-          7.  **Acción Final (Generar JSON):** Una vez que hayas recopilado toda la información requerida (marca, modelo, año, repuesto y teléfono), tu penúltimo mensaje debe ser de confirmación, como: "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.". Inmediatamente después, tu ÚLTIMA respuesta debe ser EXCLUSIVAMENTE un objeto JSON con la siguiente estructura, sin texto adicional:
+          7.    7.  **Acción Final (Generar JSON):** Una vez que hayas recopilado toda la información requerida (marca, modelo, año, repuesto y teléfono), tu penúltimo mensaje debe ser de confirmación, como: "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.". Inmediatamente después, tu ÚLTIMA respuesta debe ser EXCLUSIVAMENTE un objeto JSON con la siguiente estructura, sin texto adicional:
                   {
                     "accion": "registrar_cotizacion",
                     "datos": {
@@ -117,18 +117,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 const existingThinkingMessage = document.getElementById('thinking-message');
                 if (existingThinkingMessage) existingThinkingMessage.remove();
 
-                try {
-                    const responseObject = JSON.parse(aiResponseText);
-                    if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
-                        const confirmationMessage = "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.";
-                        conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
-                        typeMessage('assistant', confirmationMessage);
-                        await logDataToMake(responseObject.datos);
-                        return;
+               
+               try {
+                    // Intenta encontrar un bloque JSON en la respuesta, incluso si hay texto alrededor
+                    const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const jsonString = jsonMatch[0];
+                        const responseObject = JSON.parse(jsonString);
+
+                        if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
+                            // ¡Es el JSON que buscamos!
+                            const confirmationMessage = "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.";
+                            
+                            // NO agregamos la respuesta JSON cruda al historial, solo el mensaje de confirmación
+                            conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
+                            
+                            typeMessage('assistant', confirmationMessage);
+                            await logDataToMake(responseObject.datos);
+                            
+                            // Importante: Salimos de la función aquí para no imprimir nada más
+                            return; 
+                        }
                     }
                 } catch (e) {
-                    // No era JSON, es un mensaje normal
+                    // El texto encontrado no era un JSON válido, o hubo otro error.
+                    // Lo trataremos como un mensaje normal más adelante.
+                    console.warn("Se encontró algo que parecía JSON, pero no se pudo procesar:", e);
                 }
+
+                // Si llegamos aquí, es porque la respuesta era un mensaje de texto normal (no el JSON de cotización)
+                conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
+                typeMessage('assistant', aiResponseText);
+                // ...
+               
+               
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
                 typeMessage('assistant', aiResponseText);
             } catch (error) {
