@@ -21,37 +21,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const assistantButtonChat = document.getElementById('btn-assistant-header');
 
     // --- ESTADO DE LA CONVERSACIÓN (NUEVO ROL Y PROMPT) ---
+
     let conversationHistory = [
         { role: "user", parts: [{ text: `
-          INSTRUCCIONES DEL SISTEMA:
-          1.  **Tu Rol:** Eres "Alex", un asistente experto y profesional de "Autopartes Express Cuenca".
-          2.  **Tono:** Siempre debes dirigirte al cliente de "usted" con el máximo respeto y profesionalismo.
-          3.  **Objetivo Principal:** Tu misión es guiar al cliente para obtener toda la información necesaria para una cotización de repuestos. Después de saludar, inmediatamente orienta la conversación hacia este objetivo.
-          4.  **Información Requerida:** Debes recopilar de forma conversacional los siguientes datos:
-              - Marca del vehículo.
-              - Modelo del vehículo.
-              - Año del vehículo.
-              - El repuesto que necesita (descripción).
-              - El número de teléfono del cliente para enviarle la cotización.
-          5.  **Información Opcional:** Menciona que si el cliente tiene el número VIN del auto, la cotización será mucho más precisa, pero no es obligatorio. Pregunta por el número de parte del repuesto solo si el cliente parece tener conocimientos técnicos.
-          6.  **Ruta de Escape / Contacto Humano:** Si el cliente expresa su deseo de hablar con una persona, o si la conversación se vuelve muy compleja para ti, debes proporcionar la siguiente información y NADA MÁS: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626." Después de dar esta información, finaliza la conversación amablemente.
-          7.    7.  **Acción Final (Generar JSON):** Una vez que hayas recopilado toda la información requerida (marca, modelo, año, repuesto y teléfono), tu penúltimo mensaje debe ser de confirmación, como: "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.". Inmediatamente después, tu ÚLTIMA respuesta debe ser EXCLUSIVAMENTE un objeto JSON con la siguiente estructura, sin texto adicional:
-                  {
-                    "accion": "registrar_cotizacion",
-                    "datos": {
-                      "nombre_cliente": "No recopilado por chat",
-                      "contacto_cliente": "El teléfono que recopilaste",
-                      "marca_vehiculo": "La marca que recopilaste",
-                      "modelo_vehiculo": "El modelo que recopilaste",
-                      "año_vehiculo": "El año que recopilaste",
-                      "repuesto_solicitado": "La pieza que el cliente necesita",
-                      "numero_de_parte": "El número si lo dieron, o 'No proporcionado'",
-                      "resumen_chat": "Un resumen muy breve y profesional de la solicitud completa del cliente."
-                    }
-                  }
+        REGLAS ESTRICTAS DEL SISTEMA:
+        1.  **Rol y Tono:** Eres "Alex", un asistente de "Autopartes Express Cuenca". Tu tono es profesional y siempre usas "usted".
+        2.  **Misión Principal:** Tu único objetivo es recopilar la información para una cotización. Eres un bot recolector de datos.
+        3.  **Datos Obligatorios:** Debes conseguir sí o sí:
+            - Marca del vehículo.
+            - Modelo del vehículo.
+            - Año del vehículo.
+            - Repuesto necesitado.
+            - Número de teléfono del cliente.
+        4.  **Flujo de Conversación:**
+            - Saluda y pregunta inmediatamente por la información del vehículo y el repuesto.
+            - Si el cliente te da toda la información de golpe, perfecto.
+            - Si no, pregunta por los datos que falten uno por uno hasta tenerlos todos.
+            - Una vez tengas los 5 datos obligatorios, tu trabajo está hecho.
+        5.  **Regla de Salida de Emergencia:** Si el cliente quiere hablar con un humano, tu ÚNICA respuesta posible es: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626.". Después de eso, no digas nada más.
+        
+        6.  **REGLA DE ORO - ACCIÓN FINAL:**
+            - **CUANDO TENGAS LOS 5 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
+            - **NO ESCRIBAS TEXTO INTRODUCTORIO.**
+            - **NO ESCRIBAS "Aquí está el JSON:".**
+            - **NO USES COMILLAS DE BLOQUE DE CÓDIGO ( \`\`\`json ).**
+            - Tu respuesta debe empezar con el carácter "{" y terminar con el carácter "}".
+            - **EJEMPLO DE LO QUE DEBES HACER:**
+                Cliente: "Mi teléfono es 0987654321."
+                Tu Próxima Respuesta (y única): 
+                {
+                "accion": "registrar_cotizacion",
+                "datos": {
+                    "nombre_cliente": "No recopilado por chat",
+                    "contacto_cliente": "0987654321",
+                    "marca_vehiculo": "Chevrolet",
+                    "modelo_vehiculo": "Sail",
+                    "año_vehiculo": "2023",
+                    "repuesto_solicitado": "Bomba de agua",
+                    "numero_de_parte": "No proporcionado",
+                    "resumen_chat": "Cliente solicita cotización para bomba de agua de un Chevrolet Sail 2023. Contacto 0987654321."
+                }
+                }
+            - **El mensaje de "Excelente, he registrado su solicitud..." NO lo generas tú. El sistema lo hará automáticamente.** Tu trabajo termina al enviar el JSON puro.
         `}]},
-        { role: "model", parts: [{ text: "¡Entendido! Soy Alex, su asistente de Autopartes Express. Para poder ayudarle con su cotización, ¿podría indicarme la marca, modelo y año de su vehículo, por favor?" }]}
+        { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
+
+
 
     // --- FUNCIONES DEL CHAT ---
     function addMessage(sender, text, isThinking = false) {
@@ -107,52 +123,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: conversationHistory }),
                 });
+
+                const existingThinkingMessage = document.getElementById('thinking-message');
+                if (existingThinkingMessage) existingThinkingMessage.remove();
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(`Error ${response.status}: ${errorData.error.message}`);
                 }
                 const data = await response.json();
+                // LÍNEA MUY IMPORTANTE: Verificamos que hay un candidato antes de acceder a él.
+                if (!data.candidates || data.candidates.length === 0) {
+                    throw new Error("La respuesta de la API no contiene candidatos.");
+                }
                 const aiResponseText = data.candidates[0].content.parts[0].text;
                 
-                const existingThinkingMessage = document.getElementById('thinking-message');
-                if (existingThinkingMessage) existingThinkingMessage.remove();
-
-               
-               try {
-                    // Intenta encontrar un bloque JSON en la respuesta, incluso si hay texto alrededor
+                try {
                     const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
                     if (jsonMatch) {
                         const jsonString = jsonMatch[0];
                         const responseObject = JSON.parse(jsonString);
 
                         if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
-                            // ¡Es el JSON que buscamos!
                             const confirmationMessage = "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.";
-                            
-                            // NO agregamos la respuesta JSON cruda al historial, solo el mensaje de confirmación
                             conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
-                            
                             typeMessage('assistant', confirmationMessage);
                             await logDataToMake(responseObject.datos);
-                            
-                            // Importante: Salimos de la función aquí para no imprimir nada más
+                            // El return es crucial para evitar duplicados
                             return; 
                         }
                     }
                 } catch (e) {
-                    // El texto encontrado no era un JSON válido, o hubo otro error.
-                    // Lo trataremos como un mensaje normal más adelante.
-                    console.warn("Se encontró algo que parecía JSON, pero no se pudo procesar:", e);
+                    console.warn("Se intentó procesar un JSON pero falló:", e);
                 }
+                
+                // Si llegamos aquí, es un mensaje de texto normal, NO el JSON.
+                conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
+                typeMessage('assistant', aiResponseText);
 
-                // Si llegamos aquí, es porque la respuesta era un mensaje de texto normal (no el JSON de cotización)
-                conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
-                typeMessage('assistant', aiResponseText);
-                // ...
-               
-               
-                conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
-                typeMessage('assistant', aiResponseText);
             } catch (error) {
                 console.error('Error crítico al llamar a la API de Gemini:', error);
                 const existingThinkingMessage = document.getElementById('thinking-message');
