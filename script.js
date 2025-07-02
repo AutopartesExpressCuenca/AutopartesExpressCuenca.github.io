@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
     // ¡¡¡ ATENCIÓN 2/2 !!! Pega aquí la NUEVA URL del webhook de Make.com para registrar los datos.
-    const makeWebhookLoggerUrl = 'PEGA_AQUI_TU_NUEVA_URL_DE_WEBHOOK_DE_MAKE';
+    const makeWebhookLoggerUrl = 'https://hook.us2.make.com/4zr5s60kxc7xtk69j9ekawc2mrzpzj6c';
 
     // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
