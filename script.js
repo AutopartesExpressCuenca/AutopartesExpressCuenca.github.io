@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- CONFIGURACIÓN ---
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
-    const makeWebhookLoggerUrl = 'PEGA_AQUI_TU_NUEVA_URL_DE_WEBHOOK_DE_MAKE';
+    const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
 
     // --- ELEMENTOS DEL DOM ---
     const chatWidget = document.getElementById('chat-widget');
