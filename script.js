@@ -1,24 +1,20 @@
-// --- SCRIPT.JS COMPLETO CON IA, REGISTRO EN MAKE.COM Y LÓGICA DE FORMULARIO UNIFICADO ---
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
     // == LÓGICA DEL CHAT - DIRECTO A GEMINI + REGISTRO EN MAKE.COM ==
     // ==================================================================
-    
-    // --- CONFIGURACIÓN ---
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
     const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
 
-    // --- ELEMENTOS DEL DOM (CHAT) ---
     const chatWidget = document.getElementById('chat-widget');
     const chatCloseBtn = document.getElementById('chat-close-btn');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
-    const assistantButtonChat = document.getElementById('btn-assistant-header');
+    const assistantButtonHeader = document.getElementById('btn-assistant-header');
+    const assistantButtonForm = document.getElementById('btn-assistant-form');
 
-    // --- PROMPT DE LA IA (SIN CAMBIOS EN SU LÓGICA CENTRAL) ---
     let conversationHistory = [
         { role: "user", parts: [{ text: `
           REGLAS ESTRICTAS DEL SISTEMA:
@@ -35,15 +31,14 @@ document.addEventListener('DOMContentLoaded', function() {
               - Ciudad y Provincia del cliente.
           5.  **Flujo de Conversación:**
               - Saluda y pregunta inmediatamente por la información del vehículo y el repuesto.
-              - A medida que conversas, intenta obtener los datos opcionales si el cliente los menciona.
+              - A medida que conversas, intenta obtener los datos opcionales.
               - Una vez tengas los 5 datos obligatorios, tu trabajo está hecho.
           6.  **Regla de Salida de Emergencia:** Si el cliente quiere hablar con un humano, tu ÚNICA respuesta posible es: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626.". Después de eso, no digas nada más.
           
           7.  **REGLA DE ORO - ACCIÓN FINAL:**
               - **CUANDO TENGAS LOS 5 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
-              - **NO ESCRIBAS TEXTO INTRODUCTORIO.**
-              - **NO USES COMILLAS DE BLOQUE DE CÓDIGO ( \`\`\`json ).**
-              - Tu respuesta debe empezar con el carácter "{" y terminar con el carácter "}".
+              - **NO ESCRIBAS TEXTO INTRODUCTORIO NI USES BLOQUES DE CÓDIGO.**
+              - Tu respuesta debe empezar con "{" y terminar con "}".
               - **Utiliza la siguiente estructura EXACTA para el JSON:**
                 {
                   "accion": "registrar_cotizacion",
@@ -53,11 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     "marca_vehiculo": "La marca que recopilaste",
                     "modelo_vehiculo": "El modelo que recopilaste",
                     "año_vehiculo": "El año que recopilaste",
-                    "repuesto_solicitado": "La pieza que el cliente necesita",
+                    "repuesto_solicitado": "El nombre específico de la pieza que el cliente necesita (Ej: 'Faro delantero derecho')",
                     "numero_de_parte": "El número si lo dieron, o 'No proporcionado'",
                     "ciudad": "La ciudad si la mencionaron, o 'No proporcionado'",
                     "provincia": "La provincia si la mencionaron, o 'No proporcionado'",
-                    "observaciones_resumen": "Un resumen muy breve y profesional de la solicitud completa del cliente.",
+                    "observaciones_resumen": "Un resumen muy breve y profesional de la solicitud completa del cliente, incluyendo detalles adicionales que haya mencionado. Ej: 'Cliente busca pastillas de freno cerámicas para el eje delantero, mencionó que prefiere marca Brembo si es posible.'",
                     "texto_chat_completo": "TODO el historial de la conversación entre el usuario y tú, formateado como un solo bloque de texto con saltos de línea \\n."
                   }
                 }
@@ -66,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
 
-    // --- FUNCIONES DEL CHAT ---
     function addMessage(sender, text, isThinking = false) { if (!chatMessages) return; const existingThinkingMessage = document.getElementById('thinking-message'); if (existingThinkingMessage) existingThinkingMessage.remove(); const messageElement = document.createElement('div'); messageElement.classList.add('chat-message', `${sender}-message`); if (isThinking) { messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>'; messageElement.id = 'thinking-message'; } else { messageElement.textContent = text; } chatMessages.appendChild(messageElement); chatMessages.scrollTop = chatMessages.scrollHeight; return messageElement; }
     function typeMessage(sender, text) { const messageElement = addMessage(sender, ''); let i = 0; const speed = 30; function type() { if (i < text.length) { messageElement.textContent += text.charAt(i); i++; chatMessages.scrollTop = chatMessages.scrollHeight; setTimeout(type, speed); } } type(); }
     
@@ -96,12 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (jsonMatch) {
                         const responseObject = JSON.parse(jsonMatch[0]);
                         if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
-                            const confirmationMessage = "¡Excelente! He rellenado los datos del vehículo en el formulario. Por favor, complete su nombre y teléfono, y luego presione 'Enviar Solicitud por WhatsApp' para finalizar.";
+                            const confirmationMessage = "¡Excelente! He rellenado los datos en el formulario principal. Por favor, revísalos, completa tu nombre si falta, y presiona el botón de WhatsApp para finalizar.";
                             await logDataToMake(responseObject.datos);
                             populateFormFromAI(responseObject.datos);
                             conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
                             typeMessage('assistant', confirmationMessage);
-                            setTimeout(() => chatWidget.classList.add('hidden'), 5000);
+                            setTimeout(() => chatWidget.classList.add('hidden'), 6000);
                             return;
                         }
                     }
@@ -124,14 +118,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function logDataToMake(data) { if (!makeWebhookLoggerUrl) { console.error("URL del webhook de Make.com no configurada."); return; } try { const now = new Date(); const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) }; await fetch(makeWebhookLoggerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fullData) }); console.log("Datos enviados a Make.com."); } catch (error) { console.error("Error al enviar datos a Make.com:", error); } }
     let chatListenersAdded = false; function addChatListeners() { if (chatListenersAdded || !chatSendBtn || !chatInput) return; chatSendBtn.addEventListener('click', handleSendMessage); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } }); chatListenersAdded = true; }
-    if (assistantButtonChat) { assistantButtonChat.addEventListener('click', () => { if (!chatWidget) return; chatWidget.classList.remove('hidden'); addChatListeners(); if(chatInput) chatInput.focus(); }); }
-    if (chatCloseBtn) { chatCloseBtn.addEventListener('click', () => { if (chatWidget) chatWidget.classList.add('hidden'); }); }
-
+    
     // ==================================================================
-    // == LÓGICA DEL FORMULARIO UNIFICADO Y RESPONSIVO ==
+    // == LÓGICA DEL FORMULARIO Y SINCRONIZACIÓN ==
     // ==================================================================
     const form = document.getElementById('sparePartsForm');
-    const submitButton = document.getElementById('submit-button');
+    const submitButton = document.getElementById('submit-button-whatsapp');
     const validationPopup = document.getElementById('validation-popup');
     const errorList = document.getElementById('error-list');
     const marcaInput = document.getElementById('marca');
@@ -152,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const brandDisplayLogoContainer = document.querySelector('.display-logo-container');
     const brandDisplayLogo = document.getElementById('selected-brand-display-logo');
     const brandDisplayName = document.getElementById('selected-brand-name');
-    const liveDataSeparator = document.getElementById('live-data-separator');
+    
     const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
     const marcasFullList = { "Chevrolet": ["Onix", "Onix RS", "Onix Turbo Sedán", "Joy HB", "Joy Sedán", "Aveo", "Spark GT", "Spark Life", "Beat", "Sail", "Cavalier", "Cruze", "Bolt", "Bolt-EUV", "Groove", "Tracker", "Captiva", "Captiva XL", "Equinox-EV", "Blazer-RS-EV", "Tahoe", "Trailblazer", "Montana", "D-Max (varias gen.)", "Colorado", "Silverado", "Blazer (hist.)", "Trooper", "LUV", "Luv-D-Max", "Rodeo", "Gemini", "Corsa", "Esteem", "Forsa", "Vitara (3 puertas)", "Vitara (5 puertas)", "Grand Vitara", "Blue-Bird", "chasis MR-buses"], "Kia": ["Picanto", "Rio", "Rio-5", "Soluto", "Cerato", "K3", "Carens", "Carnival", "Stonic", "Stonic Hybrid", "Seltos", "Sonet", "Sportage", "Sorento", "Niro", "Niro-EV", "EV6", "EV5", "EV9", "Soul-EV"], "Toyota": ["Agya", "Yaris", "Yaris Sport", "Yaris Cross", "Corolla", "Corolla Híbrido", "Corolla Cross Híbrido", "C-HR", "Raize", "RAV4", "Rush", "Prius", "Prius-C", "Innova", "Hilux", "Tacoma", "Fortuner", "Land Cruiser Prado", "Land Cruiser 200", "Land Cruiser 300", "4Runner", "FJ Cruiser", "Starlet", "Tercel", "Celica"], "Hyundai": ["Accent", "Grand i10", "Elantra", "Sonata", "Venue", "Kona", "Kona Hybrid", "Tucson", "Santa Fe", "Creta", "Staria"], "Chery": ["QQ3", "QQ6", "Nice-A1", "Van-Pass", "XCross", "Arrizo-3", "Arrizo-5", "Tiggo", "Tiggo-2", "Tiggo-2 Pro", "Tiggo-3", "Tiggo-4", "Tiggo-5", "Tiggo-7", "Tiggo-7 Pro", "Tiggo-8", "Tiggo-8 Pro"], "Suzuki": ["Swift", "Baleno", "Celerio", "Ignis", "Vitara", "Grand Vitara", "Jimny", "XL7", "Ertiga", "S-Cross", "SX4"], "Renault": ["Kwid", "Sandero", "Logan", "Stepway", "Duster", "Captur", "Koleos", "Oroch", "Kangoo", "Symbol", "Megane", "Fluence"], "Great Wall": ["Wingle-1", "Wingle-2", "Wingle-3", "Poer", "Haval H2", "Haval H6", "Haval H9", "Haval Jolion", "Haval F7", "M4", "ORA Good-Cat", "Tank-300"], "JAC": ["J2", "J4", "J5", "S2", "S3", "S5", "S7", "T40", "T60", "V7", "HFC-1037"], "DFSK": ["Glory-500", "Glory-560", "Glory-580", "F5", "Mini Truck", "C31", "C52", "EC35", "K05", "K07"], "Volkswagen": ["Gol", "Escarabajo (Tipo-1)", "Voyage", "Polo", "Virtus", "T-Cross", "Tiguan", "Taigo", "Jetta", "Passat", "Amarok"], "Nissan": ["March", "Versa", "Sentra", "Kicks", "X-Trail", "Frontier", "NV350", "Pathfinder", "Note", "Micra"], "Mazda": ["Mazda2", "Mazda3", "Mazda6", "CX-3", "CX-30", "CX-5", "CX-9", "CX-50", "CX-90", "BT-50"], "Dongfeng": ["Rich-6", "Rich-7", "Rich-12", "S30", "Husky", "EQ2030", "EQ2050", "580", "580 Pro", "mini-van Q30"], "Sinotruk": ["Howo-7", "Howo-9", "A7", "G7", "T5G", "ZZ1257", "ZZ1325", "ZZ1507", "ZZ3317", "ZZ4251"], "Jetour": ["X70", "X90", "X95", "T1", "T5", "T8", "Dasheng", "Cruiser", "XC", "Cooler"], "Ford": ["Fiesta", "EcoSport", "Ranger", "Explorer", "Mustang", "Transit", "Everest", "Bronco", "F-150", "Edge"], "Changan": ["CS35", "CS55", "CS75", "CS85", "Alsvin", "UNI-T", "Eado", "Eado Xt", "Benni", "CS15"], "BYD": ["Atto-3", "Dolphin", "Seal", "Song-Plus", "Tang", "Yuan-EV", "Qin", "e1", "e2", "Han"], "Subaru": ["Impreza", "XV", "Forester", "Outback", "WRX", "Crosstrek", "Legacy", "BRZ", "Solterra", "Ascent"], "Citroen": ["C3", "C3 Aircross", "C4", "C5 Aircross", "Berlingo", "C-Elysée", "C4 Cactus", "Spacetourer", "Jumpy", "Jumper"], "Fiat": ["500", "Panda", "Punto", "Tipo", "Toro", "Strada", "Argo", "Uno", "Ducato", "Fiorino"], "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler", "Gladiator", "Avenger", "Commander", "Wagoneer", "Patriot"], "Honda": ["Fit", "City", "Civic", "Accord", "CR-V", "HR-V", "Pilot", "BR-V", "Ridgeline", "Insight"], "BMW": ["Serie 1", "Serie 2", "Serie 3", "Serie 4", "Serie 5", "Serie 7", "X1", "X3", "X5", "Z4"], "Audi": ["A3", "A4", "A6", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT"], "Mercedes-Benz": ["A-Class", "C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "GLS", "CLA", "G-Class"], "Porsche": ["911", "Cayman", "Boxster", "Macan", "Cayenne", "Taycan", "Panamera", "718", "924", "928"] };
     const marcasOtras = Object.keys(marcasFullList).filter(m => !marcasPopulares.includes(m));
@@ -168,17 +160,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!input.value) allValid = false;
         });
         submitButton.disabled = !allValid;
-        submitButton.textContent = allValid ? 'Enviar Solicitud por WhatsApp' : 'Completa los datos para enviar';
     }
 
     function updateLiveData(field, value) {
         const displayElement = document.getElementById(`display-${field}`);
         if (!displayElement) return;
         const span = displayElement.querySelector('span');
-        if (value) { span.textContent = value; displayElement.style.display = 'block'; } else { displayElement.style.display = 'none'; }
-        const vehicleDataExists = (document.getElementById('display-modelo').style.display !== 'none');
-        const contactDataExists = (document.getElementById('display-nombre').style.display !== 'none');
-        if (liveDataSeparator) liveDataSeparator.style.display = (vehicleDataExists && contactDataExists) ? 'block' : 'none';
+        if (value) { span.textContent = value; displayElement.style.display = 'block'; }
+        else { displayElement.style.display = 'none'; }
         checkFormCompleteness();
     }
     
@@ -190,20 +179,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
         brandDisplayLogo.src = logoSrc;
         brandDisplayLogo.classList.add('visible');
-        brandDisplayName.textContent = marca;
+        brandDisplayName.textContent = marca.toUpperCase();
         modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
         anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
         anioSelect.disabled = true;
         otroMarcaContainer.style.display = 'none'; otraMarcaInput.required = false;
         otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
-        wrapper.style.setProperty('--logo-glow-url', `url(${logoSrc})`);
-        brandDisplayLogoContainer.style.setProperty('--logo-glow-url-display', `url(${logoSrc})`);
         updateLiveData('modelo', ''); updateLiveData('anio', '');
         if (marca === "Otro") {
             marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios();
             modeloSelect.disabled = false; modeloSelect.innerHTML = '<option value="Otro" selected>Otro (Especifique)</option>';
             otroMarcaContainer.style.display = 'block'; otraMarcaInput.required = true;
             otroModeloContainer.style.display = 'block'; otroModeloInput.required = true;
+            brandDisplayName.textContent = 'OTRA MARCA';
         } else {
             marcaInput.value = marca;
             if (marcasFullList[marca]) { marcasFullList[marca].forEach(modelo => modeloSelect.add(new Option(modelo, modelo))); }
@@ -225,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); wrapper.classList.add('selected'); handleMarcaSelection(marca, wrapper); };
         });
         const otroWrapper = document.createElement('div'); otroWrapper.className = 'logo-wrapper';
-        otroWrapper.innerHTML = '<img src="images/logos/otra.png" alt="Otra Marca" style="height: 40px;"><span>Otra</span>';
+        otroWrapper.innerHTML = '<img src="images/logos/otra.png" alt="Otra Marca"><span>Otra</span>';
         logosContainer.appendChild(otroWrapper);
         otroWrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); otroWrapper.classList.add('selected'); handleMarcaSelection("Otro", otroWrapper); };
     }
@@ -235,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const marca = data.marca_vehiculo;
         const logoWrappers = document.querySelectorAll('.logo-wrapper');
         let brandWrapper = Array.from(logoWrappers).find(w => w.querySelector('span')?.textContent.toLowerCase() === marca.toLowerCase());
-        if (brandWrapper) { brandWrapper.click(); } else { const otroWrapper = Array.from(logoWrappers).find(w => w.querySelector('span')?.textContent.toLowerCase() === 'otra'); if (otroWrapper) { otroWrapper.click(); otraMarcaInput.value = marca; brandDisplayName.textContent = marca; } }
+        if (brandWrapper) { brandWrapper.click(); } else { const otroWrapper = Array.from(logoWrappers).find(w => w.querySelector('span')?.textContent.toLowerCase() === 'otra'); if (otroWrapper) { otroWrapper.click(); otraMarcaInput.value = marca; if(brandDisplayName) brandDisplayName.textContent = marca.toUpperCase(); } }
         setTimeout(() => {
             modeloSelect.value = data.modelo_vehiculo;
             if (modeloSelect.value === data.modelo_vehiculo) { modeloSelect.dispatchEvent(new Event('change')); } else { modeloSelect.value = "Otro"; modeloSelect.dispatchEvent(new Event('change')); otroModeloInput.value = data.modelo_vehiculo; updateLiveData('modelo', data.modelo_vehiculo); }
@@ -244,40 +232,45 @@ document.addEventListener('DOMContentLoaded', function() {
                  if (anioSelect.value === data.año_vehiculo) { anioSelect.dispatchEvent(new Event('change')); } else { anioSelect.value = "Otro"; anioSelect.dispatchEvent(new Event('change')); otroAnioInput.value = data.año_vehiculo; updateLiveData('anio', data.año_vehiculo); }
             }, 300);
         }, 300);
-        descripcionTextarea.value = data.repuesto_solicitado; updateLiveData('descripcion', data.repuesto_solicitado);
+        
+        const fullDescription = `Repuesto solicitado: ${data.repuesto_solicitado}\n\nObservaciones/Resumen:\n${data.observaciones_resumen}`;
+        descripcionTextarea.value = fullDescription;
+        updateLiveData('descripcion', fullDescription);
+        
         telefonoInput.value = data.contacto_cliente.replace(/\D/g, ''); updateLiveData('telefono', telefonoInput.value);
         if (data.nombre_cliente && data.nombre_cliente !== 'No proporcionado') { nombreInput.value = data.nombre_cliente; updateLiveData('nombre', data.nombre_cliente); }
         nombreInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); nombreInput.focus();
+        checkFormCompleteness();
     }
-
-    if (form) {
-        form.addEventListener('input', checkFormCompleteness);
-        form.addEventListener('change', checkFormCompleteness);
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            let errors = [];
-            form.querySelectorAll('[required]').forEach(input => {
-                 let fieldLabel = document.querySelector(`label[for='${input.id}']`);
-                 const container = input.closest('.otro-input-container');
-                 if (container && container.style.display !== 'block') return;
-                 if (!input.value) { errors.push(fieldLabel ? fieldLabel.textContent.replace(/:/g, '').trim() : 'Campo requerido'); }
-            });
-            if (errors.length > 0) {
-                if (errorList && validationPopup) {
-                    errorList.innerHTML = ''; [...new Set(errors)].forEach(err => { const li = document.createElement('li'); li.textContent = `• ${err}`; errorList.appendChild(li); });
-                    validationPopup.classList.add('show'); setTimeout(() => validationPopup.classList.remove('show'), 4000);
-                } return false;
-            }
+    
+    // --- EVENT LISTENERS ---
+    function openChat() { if (!chatWidget) return; chatWidget.classList.remove('hidden'); addChatListeners(); if(chatInput) chatInput.focus(); }
+    if (assistantButtonHeader) assistantButtonHeader.addEventListener('click', openChat);
+    if (assistantButtonForm) assistantButtonForm.addEventListener('click', openChat);
+    if (chatCloseBtn) chatCloseBtn.addEventListener('click', () => { if (chatWidget) chatWidget.classList.add('hidden'); });
+    if(form) { form.addEventListener('input', checkFormCompleteness); form.addEventListener('change', checkFormCompleteness); }
+    if (submitButton) {
+        submitButton.addEventListener('click', function() {
+            if (this.disabled) return;
             const formData = new FormData(form);
-            let message = `*SOLICITUD DE REPUESTO*\n\n*VEHÍCULO:*\n  - Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n  - Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n  - Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n*REPUESTO SOLICITADO:*\n  - Descripción: ${formData.get('descripcion')}\n  - VIN: ${formData.get('vin') || 'No proporcionado'}\n\n*DATOS DE CONTACTO:*\n  - Nombre: ${formData.get('nombre')}\n  - Teléfono: ${formData.get('telefono')}\n  - Ubicación: ${formData.get('ubicacion') || 'No proporcionada'}\n`;
+            let message = `*SOLICITUD DE REPUESTO*\n\n`;
+            message += `*VEHÍCULO:*\n`;
+            message += `  - Marca: ${formData.get('marca') === 'Otro' ? formData.get('otra-marca') : formData.get('marca')}\n`;
+            message += `  - Modelo: ${formData.get('modelo') === 'Otro' ? formData.get('otro-modelo') : formData.get('modelo')}\n`;
+            message += `  - Año: ${formData.get('anio') === 'Otro' ? formData.get('otro-anio') : formData.get('anio')}\n\n`;
+            message += `*SOLICITUD DETALLADA:*\n${formData.get('descripcion')}\n\n`;
+            message += `*VIN:* ${formData.get('vin') || 'No proporcionado'}\n\n`;
+            message += `*DATOS DE CONTACTO:*\n`;
+            message += `  - Nombre: ${formData.get('nombre')}\n`;
+            message += `  - Teléfono: ${formData.get('telefono')}\n`;
+            message += `  - Ubicación: ${formData.get('ubicacion') || 'No proporcionada'}\n`;
             const whatsappURL = `https://wa.me/593999115626?text=${encodeURIComponent(message)}`;
             window.open(whatsappURL, '_blank');
         });
     }
-
     if(modeloSelect) modeloSelect.addEventListener('change', () => { if (modeloSelect.value === "Otro") { otroModeloContainer.style.display = 'block'; otroModeloInput.required = true; updateLiveData('modelo', otroModeloInput.value); } else { otroModeloContainer.style.display = 'none'; otroModeloInput.required = false; updateLiveData('modelo', modeloSelect.value); } anioSelect.disabled = false; populateAnios(); });
     if(anioSelect) anioSelect.addEventListener('change', () => { if (anioSelect.value === "Otro") { otroAnioContainer.style.display = 'block'; otroAnioInput.required = true; updateLiveData('anio', otroAnioInput.value); } else { otroAnioContainer.style.display = 'none'; otroAnioInput.required = false; updateLiveData('anio', anioSelect.value); } });
-    if(otraMarcaInput) otraMarcaInput.addEventListener('input', () => { if(brandDisplayName) brandDisplayName.textContent = otraMarcaInput.value || 'OTRA MARCA'; });
+    if(otraMarcaInput) otraMarcaInput.addEventListener('input', () => { if(brandDisplayName) brandDisplayName.textContent = (otraMarcaInput.value || 'OTRA MARCA').toUpperCase(); });
     if(otroModeloInput) otroModeloInput.addEventListener('input', () => updateLiveData('modelo', otroModeloInput.value));
     if(otroAnioInput) otroAnioInput.addEventListener('input', () => updateLiveData('anio', otroAnioInput.value));
     if(descripcionTextarea) descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
@@ -285,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if(nombreInput) nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
     if(telefonoInput) telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
     
+    // --- INICIALIZACIÓN ---
     populateLogos();
     populateAnios();
     checkFormCompleteness();

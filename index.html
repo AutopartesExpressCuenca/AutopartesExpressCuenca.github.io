@@ -3,20 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autopartes Express Cuenca</title>
-  <meta name="description" content="Importamos repuestos originales y alternativos para todas las marcas en Cuenca. Lo que no hay aquí, lo traemos por ti. El mejor soporte para el usuario y el taller.">
-  <meta property="og:title" content="Autopartes Express Cuenca">
-  <meta property="og:description" content="No dejes que un repuesto detenga tu reparación. Importamos para todas las marcas.">
+  <title>Autopartes Express Cuenca - Cotización Inteligente</title>
+  <meta name="description" content="Importamos el repuesto que necesitas a los mejores precios y condiciones. ¡Cotiza con nosotros! Originales y alternativos para todas las marcas.">
+  <meta property="og:title" content="Autopartes Express Cuenca - Cotización Inteligente">
+  <meta property="og:description" content="Usa nuestro asistente IA o llena el formulario para una cotización detallada con un experto.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://repuestosexpresscuenca.github.io/reeccaja.png">
   <meta property="og:url" content="https://repuestosexpresscuenca.github.io/">
   <link rel="icon" href="reeccaja.png" type="image/png">
   <style>
     :root {
-      --color-background: #111827; --color-surface: #1F2937; --color-border: #374151;
-      --color-text-primary: #F9FAFB; --color-text-secondary: #9CA3AF;
-      --color-accent: #3B82F6; --color-accent-dark: #2563EB;
-      --color-cta: #F97316; --color-cta-dark: #EA580C;
+      /* Nueva Paleta de Colores Profesional y Elegante */
+      --color-background: #0D1117; /* Gris carbón oscuro */
+      --color-surface: #161B22;    /* Gris más claro para superficies */
+      --color-border: #30363D;     /* Borde sutil */
+      --color-text-primary: #E6EDF3; /* Blanco suave */
+      --color-text-secondary: #7D8590;/* Gris para texto secundario */
+      --color-accent: #22D3EE;      /* Cian eléctrico vibrante */
+      --color-accent-dark: #17B1C9; /* Cian más oscuro para hover */
       --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,27 +28,28 @@
     body {
       font-family: var(--font-family); background-color: var(--color-background);
       color: var(--color-text-primary); line-height: 1.6; overflow-x: hidden;
-      background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23333333' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23161B22' fill-opacity='0.6' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
     }
-    .video-container video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.25; filter: saturate(0.7); }
+    .video-container video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.15; filter: saturate(0.5); }
     .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, var(--color-background) 90%); z-index: -1; }
-    header { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    header { background: rgba(13, 17, 23, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-border); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
     .logo { height: 45px; cursor: pointer; flex-shrink: 0; }
     .header-title { color: var(--color-text-primary); line-height: 1.2; }
     .header-title .main-title { font-size: 1.3rem; font-weight: 700; display: block; }
     .header-title .subtitle-text { font-size: 0.85rem; font-weight: 400; color: var(--color-text-secondary); display: block; }
     .header-buttons { display: flex; align-items: center; gap: 1rem; }
-    .btn-assistant-header, .btn-whatsapp-header { padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 700; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; cursor: pointer; }
-    .btn-assistant-header { background-color: transparent; color: var(--color-accent); border: 2px solid var(--color-accent); }
-    .btn-assistant-header:hover:not(:disabled) { background-color: var(--color-accent); color: white; }
+    .btn-header { padding: 0.6rem 1.2rem; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; cursor: pointer; font-size: 0.9rem; }
+    .btn-header svg { width: 20px; height: 20px; }
+    #btn-assistant-header { background-color: transparent; color: var(--color-accent); border: 2px solid var(--color-accent); }
+    #btn-assistant-header:hover { background-color: var(--color-accent); color: var(--color-background); }
     .btn-whatsapp-header { background-color: #25D366; color: white; border: 2px solid #25D366; }
     .btn-whatsapp-header:hover { background-color: #1DAE51; border-color: #1DAE51; transform: translateY(-2px); }
-    .btn-assistant-header svg, .btn-whatsapp-header svg { width: 24px; height: 24px; }
-    .hero { text-align: center; padding: 5rem 2rem 4rem; }
-    .hero-logo { height: 160px; margin-bottom: 1.5rem; }
-    .hero h1 { font-size: clamp(2.5rem, 5vw, 3.5rem); margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; }
-    .hero p { font-size: 1.5rem; color: #ccc; max-width: 800px; margin: auto; }
+    
+    .hero { text-align: center; padding: 6rem 2rem 5rem; }
+    .hero h1 { font-size: clamp(2.5rem, 5vw, 3.8rem); margin-bottom: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; line-height: 1.2; }
+    .hero p { font-size: 1.3rem; color: var(--color-text-secondary); max-width: 800px; margin: auto; }
+    
     main { position: relative; max-width: 1400px; margin: 2rem auto; padding: 0 2rem; z-index: 2; }
     .form-container { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: flex-start; }
     #sparePartsForm { background: var(--color-surface); border-radius: 16px; padding: 2.5rem; border: 1px solid var(--color-border); }
@@ -53,85 +58,82 @@
     .form-section-header p { color: var(--color-text-secondary); font-weight: 400; }
     label { display: block; margin-top: 1.5rem; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
     input, select, textarea { width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-background); color: var(--color-text-primary); font-size: 1rem; font-family: var(--font-family); transition: all 0.3s ease; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-    #logos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 1rem; padding: 1.5rem 0; }
-    .logo-wrapper { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 0.75rem; border-radius: 12px; background: var(--color-background); border: 2px solid var(--color-border); height: 110px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2); }
+    
+    #logos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 1rem; padding: 1rem 0; }
+    .logo-wrapper { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 0.75rem; border-radius: 12px; background: var(--color-background); border: 2px solid var(--color-border); height: 95px; }
     .logo-wrapper:hover { transform: translateY(-5px); border-color: var(--color-accent); }
-    .logo-wrapper img { width: 100%; max-width: 60px; height: 50px; object-fit: contain; transition: all 0.3s ease; z-index: 5; filter: grayscale(1); opacity: 0.6; }
-    .logo-wrapper.selected img { filter: none; opacity: 1; transform: scale(1.5); }
-    .logo-wrapper span { font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
-    .logo-wrapper.selected { border-color: var(--color-accent); box-shadow: 0 0 25px rgba(59, 130, 246, 0.2); }
-    .logo-wrapper::after { content: ''; position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 70%; background-image: var(--logo-glow-url); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(10px) brightness(1.5); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
-    .logo-wrapper.selected::after { opacity: 1; }
-    #selected-brand-display { background-color: var(--color-surface); border-radius: 16px; padding: 2rem; position: sticky; top: 120px; border: 2px solid transparent; text-align: center; transition: all 0.4s ease; }
-    #selected-brand-display.visible { border-color: var(--color-accent); box-shadow: 0 0 30px rgba(59, 130, 246, 0.15); }
-    .display-logo-container { position: relative; height: 120px; margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; }
-    #selected-brand-display-logo { width: 100%; height: 100%; object-fit: contain; z-index: 5; transition: opacity 0.3s ease; opacity: 0; }
+    .logo-wrapper img { width: 100%; max-width: 45px; height: 45px; object-fit: contain; transition: all 0.3s ease; filter: grayscale(1); opacity: 0.6; margin-bottom: 0.5rem; }
+    .logo-wrapper.selected img { filter: none; opacity: 1; transform: scale(1.4); }
+    .logo-wrapper span { font-size: 0.7rem; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
+    
+    #selected-brand-display { background-color: var(--color-surface); border-radius: 16px; padding: 2rem; position: sticky; top: 120px; border: 1px solid var(--color-border); text-align: center; transition: all 0.4s ease; }
+    .display-logo-container { height: 90px; margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; }
+    #selected-brand-display-logo { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 0; }
     #selected-brand-display-logo.visible { opacity: 1; }
-    .display-logo-container::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background-image: var(--logo-glow-url-display); background-size: contain; background-position: center; background-repeat: no-repeat; filter: blur(15px) brightness(1.5); opacity: 0; transition: opacity 0.4s ease; z-index: 4; }
-    #selected-brand-display.visible .display-logo-container::after { opacity: 1; }
-    #selected-brand-display h3 { font-size: 1.5rem; color: white; text-transform: uppercase; transition: color 0.3s; }
+    #selected-brand-display h3 { font-size: 1.5rem; color: white; text-transform: uppercase; }
     #live-data-display { margin-top: 1.5rem; text-align: left; color: var(--color-text-secondary); }
-    #live-data-display p { margin-bottom: 0.5rem; font-size: 0.9rem; word-break: break-word; }
-    #live-data-display span { color: var(--color-text-primary); font-weight: 500; }
-    .otro-input-container { display: none; margin-top: 1rem; }
-    .btn-submit { margin-top: 2rem; width: 100%; background: var(--color-cta); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; }
-    .btn-submit:hover:not(:disabled) { background: var(--color-cta-dark); transform: translateY(-3px); }
-    .btn-submit:disabled { background-color: var(--color-border); color: var(--color-text-secondary); cursor: not-allowed; }
+    #live-data-display p { margin-bottom: 0.75rem; font-size: 0.9rem; word-break: break-word; line-height: 1.5; }
+    #live-data-display strong { color: var(--color-text-primary); font-weight: 600; }
+    #live-data-display span { display: block; color: var(--color-text-secondary); white-space: pre-wrap; }
+    
+    .btn-form-action { width: 100%; background: var(--color-accent); color: var(--color-background); border: none; padding: 0.8rem 1rem; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.7rem; }
+    .btn-form-action:hover:not(:disabled) { background: var(--color-accent-dark); transform: translateY(-2px); }
+    .btn-form-action svg { width: 20px; height: 20px; }
+    #btn-assistant-form { margin-top: 1.5rem; background: transparent; border: 2px solid var(--color-accent); color: var(--color-accent); }
+    #submit-button-whatsapp { margin-top: 2rem; background-color: #25D366; color: white; }
+    #submit-button-whatsapp:hover:not(:disabled) { background-color: #1DAE51; }
+    #submit-button-whatsapp:disabled { background-color: var(--color-border); color: var(--color-text-secondary); cursor: not-allowed; }
     .form-notice { font-size: 0.8rem; text-align: center; color: var(--color-text-secondary); margin-top: 1rem; }
-    .content-section { max-width: 1400px; margin: 4rem auto; padding: 4rem 2rem; border-top: 1px solid var(--color-border); }
-    .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-    .content-item { background: var(--color-surface); padding: 2rem; border-radius: 16px; }
-    .content-item h3 { font-size: 1.5rem; color: var(--color-accent); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;}
-    .content-item svg { width: 28px; height: 28px; }
-    .content-item p, .content-item li { color: var(--color-text-secondary); }
-    .content-item ul { list-style-position: inside; padding-left: 0.5rem; }
-    footer { margin-top: 4rem; text-align: center; padding: 3rem 2rem; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); padding-bottom: 2rem; }
+
+    .validation-popup { position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background-color: var(--color-accent); color: var(--color-background); padding: 1rem 1.5rem; border-radius: 8px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: top 0.5s ease; text-align: left; }
+    .validation-popup.show { top: 2rem; }
+    .validation-popup h4 { margin-bottom: 0.5rem; text-transform: uppercase; font-size: 1rem; }
+    .validation-popup ul { list-style-type: none; padding-left: 0; }
+    .validation-popup li { font-weight: 500; }
+
     .chat-widget { position: fixed; bottom: 20px; right: 20px; width: 350px; max-width: 90%; height: 500px; max-height: 80vh; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: translateY(0); transition: transform 0.3s ease, opacity 0.3s ease; z-index: 10001; opacity: 1; }
     .chat-widget.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
-    .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--color-border); background-color: rgba(0,0,0,0.2); border-top-left-radius: 16px; border-top-right-radius: 16px; }
+    .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--color-border); background-color: rgba(13,17,23,0.5); border-top-left-radius: 16px; border-top-right-radius: 16px; }
     .chat-header h4 { margin: 0; color: var(--color-text-primary); font-weight: 700; }
     .chat-close-btn { background: none; border: none; color: var(--color-text-secondary); font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0; transition: color 0.2s ease; }
     .chat-close-btn:hover { color: var(--color-accent); }
     .chat-messages { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
     .chat-message { padding: 0.75rem 1rem; border-radius: 12px; max-width: 80%; line-height: 1.4; word-wrap: break-word; }
-    .user-message { background-color: var(--color-accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .user-message { background-color: var(--color-accent); color: var(--color-background); align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500; }
     .assistant-message { background-color: var(--color-background); color: var(--color-text-primary); align-self: flex-start; border-bottom-left-radius: 4px; }
     .chat-input-container { display: flex; padding: 1rem; border-top: 1px solid var(--color-border); }
     #chat-input { flex-grow: 1; border-right: none; border-top-right-radius: 0; border-bottom-right-radius: 0; }
     #chat-input:focus { z-index: 2; }
-    #chat-send-btn { background-color: var(--color-accent); color: white; border: 1px solid var(--color-accent); border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s ease; }
+    #chat-send-btn { background-color: var(--color-accent); color: var(--color-background); border: 1px solid var(--color-accent); border-top-left-radius: 0; border-bottom-left-radius: 0; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s ease; }
     #chat-send-btn:hover { background-color: var(--color-accent-dark); }
     #chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .thinking-dots span { display: inline-block; animation: bounce 1.4s infinite ease-in-out both; } .thinking-dots span:nth-of-type(1) { animation-delay: -0.32s; } .thinking-dots span:nth-of-type(2) { animation-delay: -0.16s; } @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
-    .validation-popup { position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background-color: var(--color-cta); color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: top 0.5s ease; text-align: left; }
-    .validation-popup.show { top: 2rem; }
-    .validation-popup h4 { margin-bottom: 0.5rem; text-transform: uppercase; font-size: 1rem; }
-    .validation-popup ul { list-style-type: none; padding-left: 0; }
-    .validation-popup li { font-weight: 500; }
+    .thinking-dots span { display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
+    .thinking-dots span:nth-of-type(1) { animation-delay: -0.32s; }
+    .thinking-dots span:nth-of-type(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
     @media (max-width: 992px) {
       header { padding: 1rem 1.5rem; }
       .header-title .main-title { font-size: 1rem; }
       .header-title .subtitle-text { display: none; }
-      .btn-assistant-header span, .btn-whatsapp-header span { display: none; }
-      .btn-assistant-header, .btn-whatsapp-header { padding: 0.7rem; }
+      .btn-header span { display: none; } .btn-header { padding: 0.7rem; }
       .hero { padding: 3rem 1rem 2rem; }
-      .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
-      .hero p { font-size: 1.2rem; }
+      .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); } .hero p { font-size: 1.1rem; }
       main { padding: 0 1rem; }
       .form-container { grid-template-columns: 1fr; display: flex; flex-direction: column; }
       #sparePartsForm { padding: 1.5rem; order: 1; }
       #selected-brand-display { position: static; margin-top: 2rem; order: 2; }
-      .content-section { padding: 2rem 1rem; }
-      .form-section-header h2 { font-size: 1.5rem; }
-      #logos-container { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; }
-      .logo-wrapper { height: 95px; }
+      #logos-container { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 0.5rem; }
+      .logo-wrapper { height: 85px; }
+      .logo-wrapper img { max-width: 35px; height: 35px; }
+      .logo-wrapper span { font-size: 0.65rem; }
     }
   </style>
 </head>
 <body>
   
-  <div class="video-container"><video id="bg-video" autoplay muted playsinline><source src="images/videos/1.mp4" type="video/mp4"></video></div>
+  <div class="video-container"><video id="bg-video" autoplay muted playsinline loop><source src="images/videos/1.mp4" type="video/mp4"></video></div>
   <div class="video-overlay"></div>
   <div id="validation-popup" class="validation-popup"><h4>Por favor, completa los siguientes campos:</h4><ul id="error-list"></ul></div>
 
@@ -139,26 +141,25 @@
     <a href="#" class="logo-container">
       <img src="reeccaja.png" alt="Autopartes Express Cuenca Logo" class="logo" />
       <span class="header-title">
-        <span class="main-title">AutopartesExpress - Cuenca.Ec.</span>
-        <span class="subtitle-text">Cotiza con nuestro asistente o usa el formulario.</span>
+        <span class="main-title">AutopartesExpress</span>
+        <span class="subtitle-text">Cuenca, Ecuador</span>
       </span>
     </a>
     <div class="header-buttons">
-      <button id="btn-assistant-header" class="btn-assistant-header">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM17.155 5.564a.75.75 0 0 1 .19 1.045l-2.45 4.244a.75.75 0 0 1-1.235-.71l2.45-4.244a.75.75 0 0 1 1.045-.19ZM6.845 5.564a.75.75 0 0 1 1.045.19l2.45 4.244a.75.75 0 0 1-1.235.71L6.655 6.609a.75.75 0 0 1 .19-1.045ZM18 12.75a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5ZM12 11.25a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75ZM6 12.75a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5Z"/></svg>
+      <button id="btn-assistant-header" class="btn-header">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
         <span>Asistente IA</span>
       </button>
-      <a href="https://wa.me/593999115626" class="btn-whatsapp-header" target="_blank">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-10 10c0 5.52 4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm3.17 14.42c-.2-.11-1.18-.58-1.36-.65-.18-.07-.31-.11-.44.11-.13.22-.51.65-.63.78-.12.13-.24.15-.44.04-.2-.11-.85-.31-1.62-.99-.6-.53-.99-1.19-1.12-1.39-.12-.2 0-.31.1-.41.09-.09.2-.24.3-.32.1-.08.13-.13.2-.22s.01-.18-.04-.29c-.05-.11-.44-1.07-.6-1.47-.16-.4-.32-.34-.44-.35h-.22c-.12 0-.31.04-.47.22-.16.18-.62.61-.62 1.49s.64 1.73.72 1.85c.08.12 1.24 1.89 3.01 2.64.43.18.77.29 1.04.37.52.16 1.01.14 1.38.08.42-.06 1.18-.48 1.35-1.04.16-.56.16-1.04.11-1.15-.04-.11-.18-.18-.38-.29z"/></svg>
+      <a href="https://wa.me/593999115626" class="btn-header btn-whatsapp-header" target="_blank">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM17.47 15.9c-.22-.11-1.3-.65-1.5- .72-.21-.08-.36-.11-.52.11-.16.22-.58.72-.71.87-.13.14-.26.16-.48.05-.22-.11-.93-.34-1.77-1.09-.65-.59-1.09-1.32-1.25-1.54-.16-.22-.02-.34.1-.45.11-.1.24-.26.36-.39.12-.13.16-.21.24-.36.08-.14.04-.26-.02-.37-.06-.11-.52-1.25-.71-1.71-.19-.46-.39-.39-.52-.4-.13-.01-.28-.01-.42-.01s-.36.05-.55.24c-.19.19-.74.72-.74 1.75 0 1.03.76 2.02.86 2.17.11.14 1.48 2.3 3.59 3.17.51.21.92.33 1.24.43.51.16 1.02.13 1.41.08.43-.06 1.3-.53 1.48-1.04.18-.51.18-.95.13-1.04-.05-.09-.19-.15-.4-.26z"/></svg>
         <span>WhatsApp</span>
       </a>
     </div>
   </header>
 
   <section class="hero">
-    <img src="reecwhite.png" alt="Autopartes Express Cuenca Icon" class="hero-logo" />
-    <h1>Cotización Inteligente. Soluciones Reales.</h1>
-    <p>Usa nuestro asistente IA o llena el formulario para una cotización detallada de un experto.</p>
+    <h1>Importamos el repuesto que necesitas a los mejores precios y condiciones. ¡Cotiza con nosotros!</h1>
+    <p>Usa nuestro asistente IA o llena el formulario para una cotización detallada con un experto.</p>
   </section>
 
   <main>
@@ -166,9 +167,13 @@
       <form id="sparePartsForm" novalidate>
         <div class="form-section-header">
           <h2>1. Datos del Vehículo</h2>
-          <p>Selecciona la marca, modelo y año de tu vehículo.</p>
+          <p>Selecciona la marca, modelo y año para empezar.</p>
         </div>
-        <label>MARCA:</label>
+        <button type="button" id="btn-assistant-form" class="btn-form-action">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
+          Acceder al Asistente IA
+        </button>
+        <label style="margin-top: 2rem;">MARCA:</label>
         <div id="logos-container"></div>
         <input type="hidden" id="marca" name="marca" required>
         <div id="otra-marca-container" class="otro-input-container"><label for="otra-marca">Por favor, especifica la marca:</label><input type="text" id="otra-marca" name="otra-marca" required></div>
@@ -184,7 +189,7 @@
           <p>Describe la pieza que necesitas. Sé lo más específico posible.</p>
         </div>
         <label for="descripcion">DESCRIPCIÓN DEL REPUESTO Y OBSERVACIONES:</label>
-        <textarea id="descripcion" name="descripcion" required rows="5" placeholder="Ej: Amortiguadores delanteros, pastillas de freno cerámicas, faro derecho..."></textarea>
+        <textarea id="descripcion" name="descripcion" required rows="6" placeholder="Ej: Amortiguadores delanteros, pastillas de freno cerámicas, faro derecho..."></textarea>
         <label for="vin">VIN (OPCIONAL, PERO RECOMENDADO):</label>
         <input type="text" id="vin" name="vin" placeholder="Número de 17 dígitos en tu matrícula" />
         <hr style="border-color: var(--color-border); margin: 3rem 0;">
@@ -198,40 +203,39 @@
         <input type="tel" id="telefono" name="telefono" required placeholder="0991234567" />
         <label for="ubicacion">CIUDAD / DIRECCIÓN (OPCIONAL):</label>
         <input type="text" id="ubicacion" name="ubicacion" placeholder="Cuenca, Ecuador">
-        <button type="submit" class="btn-submit" id="submit-button" disabled>Completa los datos para enviar</button>
-        <p class="form-notice">Al enviar, tus datos serán registrados en nuestra base de datos para un seguimiento personalizado.</p>
       </form>
       
       <div id="selected-brand-display">
         <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
-        <h3 id="selected-brand-name">SELECCIONA UNA MARCA</h3>
+        <h3 id="selected-brand-name">TU COTIZACIÓN</h3>
         <div id="live-data-display">
             <p id="display-modelo" style="display:none;"><strong>Modelo:</strong> <span></span></p>
             <p id="display-anio" style="display:none;"><strong>Año:</strong> <span></span></p>
-            <p id="display-descripcion" style="display:none;"><strong>Repuesto:</strong> <span></span></p>
-            <hr style="border-color: var(--color-border); margin: 1rem 0; display: none;" id="live-data-separator">
             <p id="display-nombre" style="display:none;"><strong>Cliente:</strong> <span></span></p>
             <p id="display-telefono" style="display:none;"><strong>Teléfono:</strong> <span></span></p>
             <p id="display-vin" style="display:none;"><strong>VIN:</strong> <span></span></p>
+            <p id="display-descripcion" style="display:none;"><strong>Solicitud:</strong> <span></span></p>
         </div>
-      </div>
-    </div>
-    
-    <div class="content-section">
-      <div class="content-grid">
-          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Acerca de Nosotros</h3><p>Somos una empresa ecuatoriana dedicada a la importación bajo pedido de repuestos de autos y motos. Conseguimos repuestos originales y alternativos para todas las marcas. Atención humana, trato directo y soluciones reales.</p></div>
-          <div class="content-item"><h3><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/></svg>Nuestro Objetivo</h3><p>Facilitar la importación de repuestos de vehículos, con confianza, seguridad y compromiso, para que tú solo te preocupes por conducir.</p></div>
+        <button type="button" id="submit-button-whatsapp" class="btn-form-action" disabled>
+           <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM17.47 15.9c-.22-.11-1.3-.65-1.5- .72-.21-.08-.36-.11-.52.11-.16.22-.58.72-.71.87-.13.14-.26.16-.48.05-.22-.11-.93-.34-1.77-1.09-.65-.59-1.09-1.32-1.25-1.54-.16-.22-.02-.34.1-.45.11-.1.24-.26.36-.39.12-.13.16-.21.24-.36.08-.14.04-.26-.02-.37-.06-.11-.52-1.25-.71-1.71-.19-.46-.39-.39-.52-.4-.13-.01-.28-.01-.42-.01s-.36.05-.55.24c-.19.19-.74.72-.74 1.75 0 1.03.76 2.02.86 2.17.11.14 1.48 2.3 3.59 3.17.51.21.92.33 1.24.43.51.16 1.02.13 1.41.08.43-.06 1.3-.53 1.48-1.04.18-.51.18-.95.13-1.04-.05-.09-.19-.15-.4-.26z"/></svg>
+           Enviar por WhatsApp
+        </button>
+        <p class="form-notice">Al enviar, tus datos serán registrados para un seguimiento personalizado.</p>
       </div>
     </div>
   </main>
-
-  <footer><p>Repuestos originales o alternos de calidad. Tú eliges, nosotros cumplimos.</p></footer>
-
+  
   <div id="chat-widget" class="chat-widget hidden">
-    <div class="chat-header"><h4>Asistente de Autopartes</h4><button id="chat-close-btn" class="chat-close-btn">×</button></div>
+    <div class="chat-header">
+      <h4>Asistente de Autopartes</h4>
+      <button id="chat-close-btn" class="chat-close-btn">×</button>
+    </div>
     <div id="chat-messages" class="chat-messages"></div>
     <div class="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Escribe tu consulta aquí..."><button id="chat-send-btn"><svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg></button>
+      <input type="text" id="chat-input" placeholder="Escribe tu consulta aquí...">
+      <button id="chat-send-btn">
+        <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+      </button>
     </div>
   </div>
 
