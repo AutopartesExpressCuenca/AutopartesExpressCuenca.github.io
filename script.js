@@ -44,36 +44,16 @@ Vamos a actualizar la **REGLA DE2.  **Misión Principal:** Tu único objetivo es
 **Busca y reemplaza TODO el bloque `conversationHistory` con esta versión mejorada:**
 
 ```javascript
-// ==================================================================
-// == REEMPLAZA ESTE BLOQUE COMPLETO PARA UN Extraer (si el cliente los menciona):**
-          - Nombre del cliente.
-          - Ciudad y/o Provincia.
- PROMPT FINAL MEJORADO ==
-// ==================================================================
     let conversationHistory = [
         { role: "user", parts: [{ text: `
         REGLAS ESTRICTAS DEL SISTEMA:
-        1.  **Rol y Tono:** Eres "Alex", un asistente de "Autopartes Express Cuenca". Tu tono es profesional y siempre usas "usted".
-        2.  **Misión Principal:** Tu único objetivo es recopilar la información para una cotización. Eres un bot recolector de datos.
-        3.  **Datos Obligatorios a Recopilar:**
-            - Marca del vehículo.
-            - Modelo del vehículo.
-            - Año del vehículo.
-            - Repuesto necesitado.
-            - Número de teléfono del cliente.
-        4.  **Datos Adicionales a Extraer (si el cliente los menciona):**
-            - Nombre del cliente.
-            - Ciudad y Provincia.
-            - Número de parte del repuesto.
-        5.  **Regla de Salida de Emergencia:** Si el cliente quiere hablar con un humano, tu ÚNICA respuesta posible es: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626.". Después de eso, no digas nada más.
-        
-        6.  **REGLA DE ORO - ACCIÓN FINAL:**
+        1.  **Rol y Tono:** Eres "Alex", un asistente profesional de "Autopartes Express Cuenca".
+        2.  **Misión Principal:** Tu único objetivo es recopilar 5 datos obligatorios (Marca, Modelo, Año, Repuesto, Teléfono) y 3 datos opcionales (Nombre, Ciudad, Provincia) si el cliente los menciona.
+        3.  **REGLA DE ORO - ACCIÓN FINAL:**
             - **CUANDO TENGAS LOS 5 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
-            - **NO ESCRIBAS TEXTO INTRODUCTORIO NI DESPEDIDAS.** Tu respuesta debe empezar con "{" y terminar con "}".
-            - **Rellena los campos del JSON de la siguiente manera:**
-                - **nombre_cliente, ciudad, provincia, numero_de_parte:** Extrae la información si el cliente la dio. Si no, pon el texto "No proporcionado".
-                - **resumen_chat:** Crea un resumen MUY BREVE y profesional de la solicitud, ej: "Cliente solicita cotización para [repuesto] de [marca] [modelo] [año]".
-                - **texto_chat_completo:** Aquí debes reconstruir la conversación completa, uniendo todos los mensajes de usuario y asistente. Usa saltos de línea (\\n) para separar cada turno. Empieza con tu primer saludo. Por ejemplo: "Alex: ¡Hola! Soy Alex...\\nCliente: Necesito un repuesto...\\nAlex: Claro, dígame..."
+            - **NO ESCRIBAS NADA ANTES NI DESPUÉS DEL JSON.** Tu respuesta debe empezar con "{" y terminar con "}".
+            - **Rellena los campos del JSON así:**
+                - Para `nombre_cliente`, `ciudad`, y `provincia`, extrae la información si el cliente la dio. Si no, pon el texto "No proporcionado".
             - **La estructura del JSON debe ser EXACTAMENTE esta:**
                 {
                 "accion": "registrar_cotizacion",
@@ -87,11 +67,10 @@ Vamos a actualizar la **REGLA DE2.  **Misión Principal:** Tu único objetivo es
                     "numero_de_parte": "El número si lo dieron, o 'No proporcionado'",
                     "ciudad": "La ciudad si la dieron, o 'No proporcionado'",
                     "provincia": "La provincia si la dieron, o 'No proporcionado'",
-                    "resumen_chat": "Un resumen muy breve y profesional de la solicitud.",
-                    "texto_chat_completo": "Alex: ¡Entendido! Soy Alex...\\nCliente: Necesito...\\nAlex: Claro..."
+                    "resumen_chat": "Un resumen muy breve y profesional de la solicitud."
                 }
                 }
-            - **El mensaje de confirmación ("Excelente, he registrado...") NO lo generas tú. El sistema lo hará automáticamente.** Tu trabajo termina al enviar el JSON puro.
+            - **IMPORTANTE:** El sistema se encargará de añadir el historial completo del chat. Tú NO necesitas incluir un campo "texto_chat_completo".
         `}]},
         { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
@@ -175,7 +154,7 @@ Vamos a actualizar la **REGLA DE2.  **Misión Principal:** Tu único objetivo es
                             const confirmationMessage = "Excelente. He registrado su solicitud. Un experto le enviará la cotización a su número en breve.";
                             conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
                             typeMessage('assistant', confirmationMessage);
-                            await logDataToMake(responseObject.datos);
+                            await logDataToMake(responseObject.datos, conversationHistory); // <-- Le pasamos el historial
                             // El return es crucial para evitar duplicados
                             return; 
                         }
@@ -200,17 +179,31 @@ Vamos a actualizar la **REGLA DE2.  **Misión Principal:** Tu único objetivo es
         }, 1200);
     }
 
-    async function logDataToMake(data) {
+    async function logDataToMake(data, fullConversationHistory) { // <-- ¡Ahora recibe el historial!
         if (!makeWebhookLoggerUrl || makeWebhookLoggerUrl === 'PEGA_AQUI_TU_NUEVA_URL_DE_WEBHOOK_DE_MAKE') {
             console.error("URL del webhook de registro de Make.com no configurada.");
             return;
         }
         try {
+            // Formateamos el historial del chat en un solo string
+            const chatText = fullConversationHistory
+                .filter(msg => msg.role !== 'user' || !msg.parts[0].text.includes('REGLAS ESTRICTAS DEL SISTEMA')) // Filtra el prompt inicial
+                .map(msg => {
+                    const prefix = msg.role === 'user' ? 'Cliente:' : 'Alex:';
+                    return `${prefix} ${msg.parts[0].text}`;
+                })
+                .join('\n'); // Une cada mensaje con un salto de línea
+
             const now = new Date();
-            const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) };
+            const fullData = { 
+                ...data, 
+                texto_chat_completo: chatText, // <-- Añadimos el chat formateado
+                fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), 
+                hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) 
+            };
+
             await fetch(makeWebhookLoggerUrl, {
                 method: 'POST',
-               // mode: 'no-cors', //LO ESTA HACEINDO QUITAR POR QUE NO LLEGA DESEMPAQUETADO
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullData)
             });
