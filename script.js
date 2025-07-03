@@ -118,8 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
     const submitHelper = document.getElementById('submit-helper-text');
-    const validationPopup = document.getElementById('validation-popup');
-    const errorList = document.getElementById('error-list');
     const marcaInput = document.getElementById('marca');
     const modeloSelect = document.getElementById('modelo');
     const anioSelect = document.getElementById('anio');
@@ -135,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const nombreInput = document.getElementById('nombre');
     const telefonoInput = document.getElementById('telefono');
     const brandDisplay = document.getElementById('selected-brand-display');
-    const brandDisplayLogoContainer = document.querySelector('.display-logo-container');
     const brandDisplayLogo = document.getElementById('selected-brand-display-logo');
     const brandDisplayName = document.getElementById('selected-brand-name');
     
@@ -171,8 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateAnios() { if (!anioSelect) return; anioSelect.innerHTML = '<option value="">Selecciona el año</option>'; for (let y = new Date().getFullYear() + 1; y >= 1990; y--) anioSelect.add(new Option(y, y)); anioSelect.add(new Option("Otro", "Otro")); }
 
     function handleMarcaSelection(marca, wrapper) {
-        if (!brandDisplay || !modeloSelect || !anioSelect) return;
-        brandDisplay.classList.add('visible');
+        if (!brandDisplayLogo || !modeloSelect || !anioSelect) return;
         const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
         brandDisplayLogo.src = logoSrc;
         brandDisplayLogo.classList.add('visible');
@@ -180,19 +176,26 @@ document.addEventListener('DOMContentLoaded', function() {
         modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
         anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
         anioSelect.disabled = true;
-        otroMarcaContainer.style.display = 'none'; otraMarcaInput.required = false;
-        otroModeloContainer.style.display = 'none'; otroModeloInput.required = false;
+        const otroMarcaContainer = document.getElementById('otra-marca-container');
+        const otraMarcaInput = document.getElementById('otra-marca');
+        const otroModeloContainer = document.getElementById('otro-modelo-container');
+        const otroModeloInput = document.getElementById('otro-modelo');
+        if(otroMarcaContainer) { otroMarcaContainer.style.display = 'none'; otraMarcaInput.required = false; }
+        if(otroModeloContainer) { otroModeloContainer.style.display = 'none'; otroModeloInput.required = false; }
+
         updateLiveData('modelo', ''); updateLiveData('anio', '');
+        
         if (marca === "Otro") {
             marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios();
             modeloSelect.disabled = false; modeloSelect.innerHTML = '<option value="Otro" selected>Otro (Especifique)</option>';
-            otroMarcaContainer.style.display = 'block'; otraMarcaInput.required = true;
-            otroModeloContainer.style.display = 'block'; otroModeloInput.required = true;
+            if(otroMarcaContainer) { otroMarcaContainer.style.display = 'block'; otraMarcaInput.required = true; }
+            if(otroModeloContainer) { otroModeloContainer.style.display = 'block'; otroModeloInput.required = true; }
             brandDisplayName.textContent = 'OTRA MARCA';
         } else {
             marcaInput.value = marca;
             if (marcasFullList[marca]) { marcasFullList[marca].forEach(modelo => modeloSelect.add(new Option(modelo, modelo))); }
-            modeloSelect.add(new Option("Otro", "Otro")); modeloSelect.disabled = false;
+            modeloSelect.add(new Option("Otro", "Otro"));
+            modeloSelect.disabled = false;
         }
         checkFormCompleteness();
     }
@@ -200,16 +203,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateLogos() {
         if (!logosContainer) return;
         marcasOrdenadas.forEach(marca => {
-            const wrapper = document.createElement('div'); wrapper.className = 'logo-wrapper';
+            const wrapper = document.createElement('div'); wrapper.className = 'logo-wrapper fade-in';
             const img = document.createElement('img'); const span = document.createElement('span');
             const fileName = marca.toLowerCase().replace(/[\s-.'&]/g, '');
             img.src = `images/logos/${fileName}.png`; img.alt = marca;
-            img.onerror = () => { img.style.display = 'none'; span.style.marginTop = '20px'; };
+            img.onerror = () => { img.style.display = 'none'; span.style.marginTop = '10px'; };
             wrapper.appendChild(img); span.textContent = marca; wrapper.appendChild(span);
             logosContainer.appendChild(wrapper);
             wrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); wrapper.classList.add('selected'); handleMarcaSelection(marca, wrapper); };
         });
-        const otroWrapper = document.createElement('div'); otroWrapper.className = 'logo-wrapper';
+        const otroWrapper = document.createElement('div'); otroWrapper.className = 'logo-wrapper fade-in';
         otroWrapper.innerHTML = '<img src="images/logos/otra.png" alt="Otra Marca"><span>Otra</span>';
         logosContainer.appendChild(otroWrapper);
         otroWrapper.onclick = () => { document.querySelectorAll('.logo-wrapper.selected').forEach(w => w.classList.remove('selected')); otroWrapper.classList.add('selected'); handleMarcaSelection("Otro", otroWrapper); };
@@ -223,10 +226,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (brandWrapper) { brandWrapper.click(); } else { const otroWrapper = Array.from(logoWrappers).find(w => w.querySelector('span')?.textContent.toLowerCase() === 'otra'); if (otroWrapper) { otroWrapper.click(); otraMarcaInput.value = marca; if(brandDisplayName) brandDisplayName.textContent = marca.toUpperCase(); } }
         setTimeout(() => {
             modeloSelect.value = data.modelo_vehiculo;
-            if (modeloSelect.value === data.modelo_vehiculo) { modeloSelect.dispatchEvent(new Event('change')); } else { modeloSelect.value = "Otro"; modeloSelect.dispatchEvent(new Event('change')); otroModeloInput.value = data.modelo_vehiculo; updateLiveData('modelo', data.modelo_vehiculo); }
+            if (modeloSelect.value === data.modelo_vehiculo) { modeloSelect.dispatchEvent(new Event('change')); } else { modeloSelect.value = "Otro"; modeloSelect.dispatchEvent(new Event('change')); document.getElementById('otro-modelo').value = data.modelo_vehiculo; updateLiveData('modelo', data.modelo_vehiculo); }
             setTimeout(() => {
                 anioSelect.value = data.año_vehiculo;
-                 if (anioSelect.value === data.año_vehiculo) { anioSelect.dispatchEvent(new Event('change')); } else { anioSelect.value = "Otro"; anioSelect.dispatchEvent(new Event('change')); otroAnioInput.value = data.año_vehiculo; updateLiveData('anio', data.año_vehiculo); }
+                 if (anioSelect.value === data.año_vehiculo) { anioSelect.dispatchEvent(new Event('change')); } else { anioSelect.value = "Otro"; anioSelect.dispatchEvent(new Event('change')); document.getElementById('otro-anio').value = data.año_vehiculo; updateLiveData('anio', data.año_vehiculo); }
             }, 300);
         }, 300);
         const fullDescription = `Repuesto solicitado: ${data.repuesto_solicitado}\n\nObservaciones/Resumen:\n${data.observaciones_resumen}`;
@@ -239,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkFormCompleteness();
     }
     
-    // --- EVENT LISTENERS ---
     function openChat() { if (!chatWidget) return; chatWidget.classList.remove('hidden'); addChatListeners(); if(chatInput) chatInput.focus(); }
     if (assistantButtonHeader) assistantButtonHeader.addEventListener('click', openChat);
     if (assistantButtonForm) assistantButtonForm.addEventListener('click', openChat);
@@ -274,14 +276,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if(nombreInput) nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
     if(telefonoInput) telefonoInput.addEventListener('input', () => updateLiveData('telefono', telefonoInput.value));
     
-    // --- INICIALIZACIÓN ---
-    populateLogos();
-    populateAnios();
-    checkFormCompleteness();
+    // --- NUEVAS FUNCIONES VISUALES Y DE INICIALIZACIÓN ---
+    function populateVerticalCarousel() {
+        const track = document.querySelector('#vertical-carousel .carousel-track');
+        if (!track) return;
+        const publiLogos = ['publi.png', 'publi2.png', 'publi3.png', 'publi4.png', 'publi5.png', 'publi6.png'];
+        const brandLogos = marcasOrdenadas.map(marca => `images/logos/${marca.toLowerCase().replace(/[\s-.'&]/g, '')}.png`);
+        const publiImagePaths = publiLogos.map(file => `images/publi/${file}`);
+        const allLogos = [...publiImagePaths, ...brandLogos];
+        for (let i = allLogos.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [allLogos[i], allLogos[j]] = [allLogos[j], allLogos[i]]; }
+        const fragment = document.createDocumentFragment();
+        allLogos.forEach(src => { const img = new Image(); img.src = src; img.loading = 'lazy'; fragment.appendChild(img); });
+        track.appendChild(fragment.cloneNode(true));
+        track.appendChild(fragment.cloneNode(true));
+    }
 
-    // ==================================================================
-    // == COMPORTAMIENTOS VISUALES 2025 (SIN ALTERAR LÓGICA) ==
-    // ==================================================================
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -289,25 +298,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 observer.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: 0.1
-    });
+    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.fade-in').forEach(element => {
-        observer.observe(element);
-    });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-    const spotlight = document.querySelector('.spotlight-effect-light');
-    if (spotlight) {
-        let frameId;
-        window.addEventListener('mousemove', (e) => {
-            if (frameId) {
-                cancelAnimationFrame(frameId);
+    const logoObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const logoWrappers = entry.target.querySelectorAll('.logo-wrapper');
+                logoWrappers.forEach((wrapper, index) => {
+                    wrapper.style.transitionDelay = `${index * 30}ms`;
+                    observer.observe(wrapper);
+                });
+                obs.unobserve(entry.target);
             }
-            frameId = requestAnimationFrame(() => {
-                spotlight.style.setProperty('--x', `${e.clientX}px`);
-                spotlight.style.setProperty('--y', `${e.clientY}px`);
-            });
-        }, { passive: true });
-    }
+        });
+    }, { threshold: 0.1 });
+    if(logosContainer) logoObserver.observe(logosContainer);
+
+    // --- INICIALIZACIÓN GENERAL ---
+    populateLogos();
+    populateAnios();
+    checkFormCompleteness();
+    populateVerticalCarousel();
 });
