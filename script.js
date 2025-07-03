@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // ==================================================================
+    // == LÓGICA CORE (FUNCIONALIDAD INTACTA) ==
+    // ==================================================================
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
     const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
@@ -171,7 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
         anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
         anioSelect.disabled = true;
         
-        // Esconder campos "otro" de modelo y año por defecto
         document.getElementById('otro-modelo-container').style.display = 'none';
         document.getElementById('otro-modelo').required = false;
         document.getElementById('otro-anio-container').style.display = 'none';
@@ -180,8 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateLiveData('modelo', ''); updateLiveData('anio', '');
         
         if (marca === "Otro") {
-            marcaInput.value = "Otro";
-            anioSelect.disabled = false; populateAnios();
+            marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios();
             modeloSelect.disabled = false; modeloSelect.innerHTML = '<option value="Otro" selected>Otro (Especifique)</option>';
             modeloSelect.dispatchEvent(new Event('change'));
         } else {
