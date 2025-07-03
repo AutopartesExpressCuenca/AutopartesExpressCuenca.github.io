@@ -13,47 +13,26 @@
 
   <style>
     :root {
-      --color-background: #F8F9FA;
-      --color-surface: #FFFFFF;
-      --color-border: #E9ECEF;
-      --color-text-primary: #181A1C;
-      --color-text-secondary: #5A6169;
-      --color-accent-blue: #3A5F8A;
-      --color-accent-blue-light: #6F8DAF;
-      --color-accent-warm: #8B5E3C;
-      --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.06);
+      --color-background: #F8F9FA; --color-surface: #FFFFFF; --color-border: #E9ECEF;
+      --color-text-primary: #181A1C; --color-text-secondary: #5A6169;
+      --color-accent-blue: #3A5F8A; --color-accent-blue-light: #6F8DAF;
+      --color-accent-warm: #8B5E3C; --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.06);
       --font-body: 'Inter', sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: var(--font-body);
-      background-color: var(--color-background);
-      color: var(--color-text-primary);
-      line-height: 1.45;
-      overflow-x: hidden;
+      font-family: var(--font-body); background-color: var(--color-background);
+      color: var(--color-text-primary); line-height: 1.45; overflow-x: hidden;
     }
-    
-    .video-container {
-        position: fixed; top: 0; right: 0; width: 50vw; height: 100vh; z-index: -2;
-        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%);
-        mask-image: linear-gradient(to right, transparent 0%, black 30%);
-    }
+    .video-container { position: fixed; top: 0; right: 0; width: 50vw; height: 100vh; z-index: -2; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%); mask-image: linear-gradient(to right, transparent 0%, black 30%); }
     .video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 0.25; }
-    
-    .left-gradient-overlay {
-        position: fixed; top: 0; left: 0; width: 40vw; height: 100vh; z-index: -2;
-        background: linear-gradient(to right, rgba(13, 17, 23, 0.1), transparent);
-        pointer-events: none;
-    }
-
-    .page-wrapper { max-width: 1280px; margin: 0 auto; } /* Centrado y con ancho máximo */
+    .left-gradient-overlay { position: fixed; top: 0; left: 0; width: 40vw; height: 100vh; z-index: -2; background: linear-gradient(to right, rgba(13, 17, 23, 0.05), transparent); pointer-events: none; }
+    .page-wrapper { max-width: 1280px; margin: 0 auto; }
 
     header {
-      background: rgba(248, 249, 250, 0.85);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--color-border);
-      padding: 0.75rem 2rem;
+      background: rgba(248, 249, 250, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--color-border); padding: 0.75rem 2rem;
       display: flex; justify-content: space-between; align-items: center;
       position: sticky; top: 0; z-index: 100;
     }
@@ -64,27 +43,25 @@
     
     .header-buttons { display: flex; align-items: center; gap: 0.75rem; }
     .btn-header {
-      background-color: var(--color-surface); border: 1px solid var(--color-border);
-      color: var(--color-text-primary);
-      width: 48px; height: 48px;
-      border-radius: 12px;
+      background-color: #e9ecef; /* Color gris oscuro */
+      border: 1px solid var(--color-border); color: var(--color-text-primary);
+      width: 48px; height: 48px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s ease-out;
-      text-decoration: none;
+      cursor: pointer; transition: all 0.2s ease-out; text-decoration: none;
     }
-    .btn-header:hover { transform: scale(0.95); background-color: var(--color-border); }
-    .btn-header svg { width: 24px; height: 24px; }
+    .btn-header:hover { transform: scale(0.95); background-color: #ced4da; }
+    .btn-header img { width: 26px; height: 26px; object-fit: contain; }
     
     .hero { text-align: center; padding: 4rem 2rem 3rem; }
+    .hero-title-wrapper { display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; }
     .hero h1 {
-      font-weight: 800;
-      font-size: clamp(2.2rem, 5vw, 3rem);
-      margin-bottom: 0.75rem;
-      letter-spacing: -0.04em; line-height: 1.1;
+      font-weight: 800; font-size: clamp(2.2rem, 5vw, 3rem);
+      margin-bottom: 0.75rem; letter-spacing: -0.04em; line-height: 1.1;
       color: var(--color-text-primary);
     }
     .hero h1 .highlight { color: var(--color-accent-warm); }
-    .hero p { font-size: 1.05rem; color: var(--color-text-secondary); max-width: 650px; margin: auto; font-weight: 400; }
+    .hero .title-logo { height: 50px; }
+    .hero p { font-size: 1.05rem; color: var(--color-text-secondary); max-width: 650px; margin: 0.5rem auto 0 auto; font-weight: 400; }
     
     main { padding: 0 2rem 2rem 2rem; }
     .main-content-wrapper { position: relative; }
@@ -95,8 +72,8 @@
     .fade-in.is-visible { opacity: 1; transform: translateY(0); }
     
     .form-section-header { border-left: 3px solid var(--color-accent-blue); padding-left: 1rem; margin-bottom: 1.25rem; }
-    .form-section-header h2 { font-size: 1.2rem; font-weight: 700; }
-    .form-section-header p { font-size: 0.85rem; color: var(--color-text-secondary); }
+    .form-section-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .form-section-header p { font-size: 0.8rem; color: var(--color-text-secondary); }
     
     .two-column-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
     
@@ -109,21 +86,22 @@
     .logo-wrapper:hover { background-color: #f1f3f5; }
     .logo-wrapper.selected { background-color: var(--color-surface); border-color: var(--color-accent-blue-light); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     .logo-wrapper img { width: 100%; max-width: 40px; height: 40px; object-fit: contain; transition: all 0.3s ease; filter: grayscale(1); opacity: 0.6; margin-bottom: 0.3rem; }
-    .logo-wrapper.selected img { transform: scale(1.5); filter: none; opacity: 1; }
+    .logo-wrapper.selected img { transform: scale(2); filter: none; opacity: 1; }
     .logo-wrapper span { font-size: 0.7rem; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
     
     #selected-brand-display { position: sticky; top: 95px; text-align: center; padding: 1.5rem; }
-    .display-logo-container { height: 65px; margin-bottom: 0.5rem; display:flex; justify-content:center; align-items:center; }
-    #selected-brand-display-logo { max-height: 65px; width: 100%; object-fit: contain; transition: opacity 0.3s ease; }
+    .display-logo-container { height: 95px; margin-bottom: 0.5rem; display:flex; justify-content:center; align-items:center; }
+    #selected-brand-display-logo { max-height: 95px; width: 100%; object-fit: contain; transition: opacity 0.3s ease; }
     #selected-brand-display h3 { font-size: 1.1rem; margin-top: 0.5rem; font-weight: 700; color:var(--color-text-primary); text-transform:uppercase; }
-    #live-data-display { margin: 1.25rem 0; text-align: left; }
+    #live-data-display { margin: 1.25rem 0; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; }
     #live-data-display p { margin-bottom: 0.5rem; font-size: 0.8rem; line-height: 1.4; word-break: break-word; }
     #live-data-display strong { font-weight: 600; color: var(--color-text-primary); }
     #live-data-display span { display: block; color: var(--color-text-secondary); margin-top: 2px; white-space: pre-wrap; }
+    #display-descripcion, #display-vin { grid-column: 1 / -1; } /* Hacer que estos ocupen todo el ancho */
     
     .btn-form-action { width: fit-content; border: none; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
     .btn-form-action:hover:not(:disabled) { transform: translateY(-2px); }
-    .btn-form-action svg { width: 16px; height: 16px; }
+    .btn-form-action img { width: 16px; height: 16px; object-fit: contain;}
     #btn-assistant-form { margin-top: 1rem; background-color: var(--color-surface); border: 1px solid var(--color-accent-blue); color: var(--color-accent-blue); }
     #btn-assistant-form:hover { background-color: var(--color-accent-blue); color: white; }
     #submit-button-whatsapp { margin-top: 1rem; background-color: #25D366; color: white; width:100%; }
@@ -144,7 +122,7 @@
     .chat-widget.hidden { opacity: 0; transform: translateY(20px) scale(0.95); pointer-events: none; }
     .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); flex-shrink: 0; }
     .chat-header .title-group { display: flex; align-items: center; gap: 0.75rem; }
-    .chat-header .title-group svg { color: var(--color-accent-blue-light); }
+    .chat-header .title-group img { width: 24px; height: 24px; }
     .chat-header h4 { margin: 0; color: var(--color-text-primary); font-weight: 600; font-size: 1rem; }
     .chat-close-btn { background: none; border: none; color: var(--color-text-secondary); font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0; transition: color 0.2s ease; }
     .chat-close-btn:hover { color: var(--color-text-primary); }
@@ -162,9 +140,8 @@
 
     @media (max-width: 1350px) { #vertical-carousel { display: none; } }
     @media (max-width: 992px) {
-      .video-container { display: none; }
+      .video-container, .left-gradient-overlay { display: none; }
       header { padding: 0.75rem 1rem; }
-      .header-title { display: none; }
       .hero { padding: 3rem 1rem 2rem; }
       .hero h1 { font-size: clamp(2rem, 8vw, 2.5rem); } .hero p { font-size: 1rem; }
       main { padding: 0 1rem; }
@@ -175,8 +152,10 @@
       .two-column-grid { grid-template-columns: 1fr; gap: 0; }
     }
     @media (max-width: 768px) {
+      .header-title { display: block; } /* Mostrar título en móvil */
+      .header-buttons { gap: 0.5rem; }
       .btn-header { width: 40px; height: 40px; }
-      .btn-header svg { width: 20px; height: 20px; }
+      .btn-header img { width: 20px; height: 20px; }
       #logos-container { grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
       .logo-wrapper { height: 70px; padding: 0.25rem; }
       .logo-wrapper img { max-width: 30px; height: 30px; }
@@ -198,10 +177,10 @@
         </a>
         <div class="header-buttons">
           <button id="btn-assistant-header" class="btn-header" aria-label="Abrir Asistente IA">
-            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
+            <img src="images/logoalex.png" alt="Asistente IA">
           </button>
           <a href="https://wa.me/593999115626" class="btn-header" target="_blank" aria-label="Contactar por WhatsApp">
-            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM17.47 15.9c-.22-.11-1.3-.65-1.5- .72-.21-.08-.36-.11-.52.11-.16.22-.58.72-.71.87-.13.14-.26.16-.48.05-.22-.11-.93-.34-1.77-1.09-.65-.59-1.09-1.32-1.25-1.54-.16-.22-.02-.34.1-.45.11-.1.24-.26.36-.39.12-.13.16-.21.24-.36.08-.14.04-.26-.02-.37-.06-.11-.52-1.25-.71-1.71-.19-.46-.39-.39-.52-.4-.13-.01-.28-.01-.42-.01s-.36.05-.55.24c-.19.19-.74.72-.74 1.75 0 1.03.76 2.02.86 2.17.11.14 1.48 2.3 3.59 3.17.51.21.92.33 1.24.43.51.16 1.02.13 1.41.08.43-.06 1.3-.53 1.48-1.04.18-.51.18-.95.13-1.04-.05-.09-.19-.15-.4-.26z"/></svg>
+            <img src="images/logowa.png" alt="WhatsApp">
           </a>
         </div>
       </header>
@@ -217,7 +196,10 @@
         </div>
 
         <section class="hero fade-in">
-          <h1>Importamos el repuesto <span class="highlight">que necesitas.</span></h1>
+          <div class="hero-title-wrapper">
+            <h1>Importamos el repuesto <span class="highlight">que necesitas.</span></h1>
+            <img src="images/arelogo.png" alt="Logo Are" class="title-logo">
+          </div>
           <p>Usa nuestro asistente IA o llena el formulario para una cotización detallada y precisa con un experto.</p>
         </section>
 
@@ -229,20 +211,29 @@
                 <p>Comienza con nuestro asistente o selecciona manualmente.</p>
               </div>
               <button type="button" id="btn-assistant-form" class="btn-form-action fade-in">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
+                <img src="images/logoalex.png" alt="Asistente IA">
                 Asistente IA
               </button>
               <label class="fade-in" style="margin-top: 1.5rem;">MARCA:</label>
               <div id="logos-container"></div>
               <input type="hidden" id="marca" name="marca" required>
               <div id="otra-marca-container" class="otro-input-container"><label for="otra-marca">Por favor, especifica la marca:</label><input type="text" id="otra-marca" name="otra-marca"></div>
-              <label for="modelo" class="fade-in">MODELO:</label>
-              <select id="modelo" name="modelo" required disabled class="fade-in"><option value="">Primero selecciona una marca</option></select>
-              <div id="otro-modelo-container" class="otro-input-container"><label for="otro-modelo">Por favor, especifica el modelo:</label><input type="text" id="otro-modelo" name="otro-modelo"></div>
-              <label for="anio" class="fade-in">AÑO:</label>
-              <select id="anio" name="anio" required disabled class="fade-in"><option value="">Primero selecciona un modelo</option></select>
-              <div id="otro-anio-container" class="otro-input-container"><label for="otro-anio">Por favor, especifica el año:</label><input type="text" id="otro-anio" name="otro-anio"></div>
+              
+              <div class="two-column-grid">
+                  <div>
+                    <label for="modelo" class="fade-in">MODELO:</label>
+                    <select id="modelo" name="modelo" required disabled class="fade-in"><option value="">Primero selecciona una marca</option></select>
+                    <div id="otro-modelo-container" class="otro-input-container"><label for="otro-modelo">Por favor, especifica el modelo:</label><input type="text" id="otro-modelo" name="otro-modelo"></div>
+                  </div>
+                  <div>
+                    <label for="anio" class="fade-in">AÑO:</label>
+                    <select id="anio" name="anio" required disabled class="fade-in"><option value="">Primero selecciona un modelo</option></select>
+                    <div id="otro-anio-container" class="otro-input-container"><label for="otro-anio">Por favor, especifica el año:</label><input type="text" id="otro-anio" name="otro-anio"></div>
+                  </div>
+              </div>
+
               <hr style="border-color: var(--color-border); margin: 2rem 0;" class="fade-in">
+              
               <div class="two-column-grid">
                 <div class="form-column">
                   <div class="form-section-header fade-in"><h2>2. Datos del Repuesto</h2></div>
@@ -275,7 +266,7 @@
                   <p id="display-descripcion" style="display:none;"><strong>Solicitud:</strong> <span></span></p>
               </div>
               <button type="button" id="submit-button-whatsapp" class="btn-form-action" disabled>
-                 <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM17.47 15.9c-.22-.11-1.3-.65-1.5- .72-.21-.08-.36-.11-.52.11-.16.22-.58.72-.71.87-.13.14-.26.16-.48.05-.22-.11-.93-.34-1.77-1.09-.65-.59-1.09-1.32-1.25-1.54-.16-.22-.02-.34.1-.45.11-.1.24-.26.36-.39.12-.13.16-.21.24-.36.08-.14.04-.26-.02-.37-.06-.11-.52-1.25-.71-1.71-.19-.46-.39-.39-.52-.4-.13-.01-.28-.01-.42-.01s-.36.05-.55.24c-.19.19-.74.72-.74 1.75 0 1.03.76 2.02.86 2.17.11.14 1.48 2.3 3.59 3.17.51.21.92.33 1.24.43.51.16 1.02.13 1.41.08.43-.06 1.3-.53 1.48-1.04.18-.51.18-.95.13-1.04-.05-.09-.19-.15-.4-.26z"/></svg>
+                 <img src="images/logowa.png" alt="WhatsApp">
                  Enviar por WhatsApp
               </button>
               <p id="submit-helper-text" class="form-notice"></p>
@@ -288,7 +279,7 @@
   <div id="chat-widget" class="chat-widget hidden">
     <div class="chat-header">
       <div class="title-group">
-        <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
+        <img src="images/logoalex.png" alt="Asistente IA">
         <h4>Asistente de Autopartes</h4>
       </div>
       <button id="chat-close-btn" class="chat-close-btn" aria-label="Cerrar chat">×</button>
@@ -304,4 +295,4 @@
 
   <script src="script.js" defer></script>
 </body>
-</html>s
+</html>
