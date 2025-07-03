@@ -164,17 +164,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!brandDisplayLogo || !modeloSelect || !anioSelect) return;
         const logoSrc = wrapper.querySelector('img')?.src || 'images/logos/otra.png';
         brandDisplayLogo.src = logoSrc;
-        brandDisplayLogo.classList.add('visible');
         brandDisplayName.textContent = marca.toUpperCase();
-        modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
-        anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
-        anioSelect.disabled = true;
+        
         const otroMarcaContainer = document.getElementById('otra-marca-container');
         const otraMarcaInput = document.getElementById('otra-marca');
         const otroModeloContainer = document.getElementById('otro-modelo-container');
         const otroModeloInput = document.getElementById('otro-modelo');
         if(otroMarcaContainer) { otroMarcaContainer.style.display = 'none'; if(otraMarcaInput) otraMarcaInput.required = false; }
         if(otroModeloContainer) { otroModeloContainer.style.display = 'none'; if(otroModeloInput) otroModeloInput.required = false; }
+        
+        modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
+        anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
+        anioSelect.disabled = true;
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
         
@@ -301,11 +302,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, { threshold: 0.1 });
+    if(logosContainer) logoObserver.observe(logosContainer);
 
-    if(logosContainer) {
-        logoObserver.observe(logosContainer);
+    const bgVideo = document.getElementById('bg-video');
+    if (bgVideo) {
+        const videos = ['images/videos/1.mp4', 'images/videos/2.mp4', 'images/videos/3.mp4', 'images/videos/4.mp4'];
+        let currentVideoIndex = 0;
+        bgVideo.playbackRate = 0.7;
+        const playNextVideo = () => {
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            const source = bgVideo.querySelector('source');
+            if(source) {
+                source.src = videos[currentVideoIndex];
+                bgVideo.load();
+                bgVideo.play().catch(error => console.log('Autoplay para el siguiente video fue prevenido:', error));
+            }
+        };
+        bgVideo.addEventListener('ended', playNextVideo);
     }
-    
+
     populateLogos();
     populateAnios();
     checkFormCompleteness();

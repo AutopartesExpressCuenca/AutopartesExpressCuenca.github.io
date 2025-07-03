@@ -13,12 +13,11 @@
 
   <style>
     :root {
-      /* Paleta Clara, Profesional y Compacta */
       --color-background: #F8F9FA;
       --color-surface: #FFFFFF;
       --color-border: #E9ECEF;
-      --color-text-primary: #212529; /* Contraste mejorado */
-      --color-text-secondary: #5A6169; /* Contraste mejorado */
+      --color-text-primary: #181A1C;
+      --color-text-secondary: #5A6169;
       --color-accent-blue: #3A5F8A;
       --color-accent-blue-light: #6F8DAF;
       --color-accent-warm: #8B5E3C;
@@ -31,21 +30,24 @@
       font-family: var(--font-body);
       background-color: var(--color-background);
       color: var(--color-text-primary);
-      line-height: 1.45; /* Más compacto */
+      line-height: 1.45;
       overflow-x: hidden;
     }
     
     .video-container {
-        position: fixed; top: 0; right: 0;
-        width: 50vw; height: 100vh;
-        z-index: -1;
+        position: fixed; top: 0; right: 0; width: 50vw; height: 100vh; z-index: -2;
         -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%);
         mask-image: linear-gradient(to right, transparent 0%, black 30%);
     }
     .video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 0.25; }
+    
+    .left-gradient-overlay {
+        position: fixed; top: 0; left: 0; width: 40vw; height: 100vh; z-index: -2;
+        background: linear-gradient(to right, rgba(13, 17, 23, 0.1), transparent);
+        pointer-events: none;
+    }
 
-    .page-wrapper { display: flex; justify-content: flex-end; }
-    .content-column { width: 100%; max-width: 1280px; }
+    .page-wrapper { max-width: 1280px; margin: 0 auto; } /* Centrado y con ancho máximo */
 
     header {
       background: rgba(248, 249, 250, 0.85);
@@ -87,12 +89,8 @@
     main { padding: 0 2rem 2rem 2rem; }
     .main-content-wrapper { position: relative; }
     .form-container { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: flex-start; }
-    #sparePartsForm, #selected-brand-display {
-      background: var(--color-surface);
-      border-radius: 16px; padding: 2rem;
-      border: 1px solid var(--color-border);
-      box-shadow: var(--shadow-soft);
-    }
+    #sparePartsForm, #selected-brand-display { background: var(--color-surface); border-radius: 16px; padding: 2rem; border: 1px solid var(--color-border); box-shadow: var(--shadow-soft); }
+    
     .fade-in { opacity: 0; transform: translateY(15px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
     .fade-in.is-visible { opacity: 1; transform: translateY(0); }
     
@@ -102,43 +100,46 @@
     
     .two-column-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
     
-    label { display: block; margin-top: 0.75rem; font-weight: 500; font-size: 0.85rem; margin-bottom: 0.4rem; }
+    label { display: block; margin-top: 0.75rem; font-weight: 500; font-size: 0.8rem; margin-bottom: 0.4rem; }
     input, select, textarea { padding: 0.8rem; border-radius: 8px; font-size: 0.9rem; border: 1px solid var(--color-border); background: var(--color-background); color: var(--color-text-primary); font-family: var(--font-body); transition: all 0.3s ease; width: 100%; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent-blue); box-shadow: 0 0 0 3px rgba(58, 95, 138, 0.15); }
     
     #logos-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 0.75rem; padding: 0.5rem 0; }
     .logo-wrapper { height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 0.5rem; border-radius: 8px; border: 1px solid transparent; }
     .logo-wrapper:hover { background-color: #f1f3f5; }
-    .logo-wrapper.selected { background-color: var(--color-surface); border-color: var(--color-accent-blue-light); box-shadow: 0 4px 15px rgba(0,0,0,0.05); transform: scale(1.05); }
+    .logo-wrapper.selected { background-color: var(--color-surface); border-color: var(--color-accent-blue-light); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     .logo-wrapper img { width: 100%; max-width: 40px; height: 40px; object-fit: contain; transition: all 0.3s ease; filter: grayscale(1); opacity: 0.6; margin-bottom: 0.3rem; }
-    .logo-wrapper:hover img, .logo-wrapper.selected img { filter: none; opacity: 1; }
+    .logo-wrapper.selected img { transform: scale(1.5); filter: none; opacity: 1; }
     .logo-wrapper span { font-size: 0.7rem; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
     
     #selected-brand-display { position: sticky; top: 95px; text-align: center; padding: 1.5rem; }
-    #selected-brand-display-logo { max-height: 65px; width: 100%; object-fit: contain; transition: opacity 0.3s ease; opacity: 0; }
-    #selected-brand-display-logo.visible { opacity: 1; }
+    .display-logo-container { height: 65px; margin-bottom: 0.5rem; display:flex; justify-content:center; align-items:center; }
+    #selected-brand-display-logo { max-height: 65px; width: 100%; object-fit: contain; transition: opacity 0.3s ease; }
     #selected-brand-display h3 { font-size: 1.1rem; margin-top: 0.5rem; font-weight: 700; color:var(--color-text-primary); text-transform:uppercase; }
     #live-data-display { margin: 1.25rem 0; text-align: left; }
     #live-data-display p { margin-bottom: 0.5rem; font-size: 0.8rem; line-height: 1.4; word-break: break-word; }
     #live-data-display strong { font-weight: 600; color: var(--color-text-primary); }
     #live-data-display span { display: block; color: var(--color-text-secondary); margin-top: 2px; white-space: pre-wrap; }
     
-    .btn-form-action { width: 100%; border: none; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+    .btn-form-action { width: fit-content; border: none; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
     .btn-form-action:hover:not(:disabled) { transform: translateY(-2px); }
     .btn-form-action svg { width: 16px; height: 16px; }
     #btn-assistant-form { margin-top: 1rem; background-color: var(--color-surface); border: 1px solid var(--color-accent-blue); color: var(--color-accent-blue); }
     #btn-assistant-form:hover { background-color: var(--color-accent-blue); color: white; }
-    #submit-button-whatsapp { margin-top: 1rem; background-color: #25D366; color: white; }
+    #submit-button-whatsapp { margin-top: 1rem; background-color: #25D366; color: white; width:100%; }
     #submit-button-whatsapp:hover:not(:disabled) { background-color: #1DAE51; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2); }
     #submit-button-whatsapp:disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; }
     #submit-helper-text { font-size: 0.75rem; text-align: center; color: var(--color-accent-warm); margin-top: 0.5rem; font-weight: 500; height: 1em; }
 
-    #vertical-carousel { position: absolute; left: -120px; top: 0; width: 80px; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); }
+    #vertical-carousel { position: fixed; left: 1.5rem; top: 0; width: 80px; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%); }
     .carousel-track { width: 100%; display: flex; flex-direction: column; align-items: center; animation: scroll-vertical 40s linear infinite; }
     .carousel-track img { width: 100%; max-width: 60px; height: auto; margin-bottom: 2rem; opacity: 0.7; transition: opacity 0.3s ease; }
     .carousel-track:hover img { opacity: 1; }
     @keyframes scroll-vertical { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
 
+    .otro-input-container { display: none; margin-top: 0.5rem; }
+
+    /* Estilos de chat y responsive... */
     .chat-widget { position: fixed; bottom: 2rem; right: 2rem; width: 370px; max-width: calc(100% - 2rem); height: 600px; max-height: calc(100vh - 4rem); background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); transform: translateY(0); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; z-index: 10001; opacity: 1; overflow: hidden; }
     .chat-widget.hidden { opacity: 0; transform: translateY(20px) scale(0.95); pointer-events: none; }
     .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); flex-shrink: 0; }
@@ -159,11 +160,8 @@
     #chat-send-btn svg { width: 20px; height: 20px; }
     .thinking-dots span { display: inline-block; animation: bounce 1.4s infinite ease-in-out both; } .thinking-dots span:nth-of-type(1) { animation-delay: -0.32s; } .thinking-dots span:nth-of-type(2) { animation-delay: -0.16s; } @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
-    @media (max-width: 1350px) { /* Límite para el carrusel */
-      #vertical-carousel { display: none; }
-    }
+    @media (max-width: 1350px) { #vertical-carousel { display: none; } }
     @media (max-width: 992px) {
-      .page-wrapper { justify-content: center; }
       .video-container { display: none; }
       header { padding: 0.75rem 1rem; }
       .header-title { display: none; }
@@ -209,8 +207,9 @@
       </header>
       
       <div class="video-container">
-        <video id="bg-video" autoplay muted playsinline loop><source src="images/videos/1.mp4" type="video/mp4"></video>
+        <video id="bg-video" autoplay muted playsinline><source src="images/videos/1.mp4" type="video/mp4"></video>
       </div>
+      <div class="left-gradient-overlay"></div>
 
       <div class="main-content-wrapper">
         <div id="vertical-carousel">
@@ -243,9 +242,7 @@
               <label for="anio" class="fade-in">AÑO:</label>
               <select id="anio" name="anio" required disabled class="fade-in"><option value="">Primero selecciona un modelo</option></select>
               <div id="otro-anio-container" class="otro-input-container"><label for="otro-anio">Por favor, especifica el año:</label><input type="text" id="otro-anio" name="otro-anio"></div>
-              
               <hr style="border-color: var(--color-border); margin: 2rem 0;" class="fade-in">
-              
               <div class="two-column-grid">
                 <div class="form-column">
                   <div class="form-section-header fade-in"><h2>2. Datos del Repuesto</h2></div>
@@ -267,7 +264,7 @@
             </form>
             
             <div id="selected-brand-display" class="fade-in">
-              <div class="display-logo-container"><img id="selected-brand-display-logo" src="" alt="Marca Seleccionada"></div>
+              <div class="display-logo-container"><img id="selected-brand-display-logo" src="reeccaja.png" alt="Logo por defecto"></div>
               <h3 id="selected-brand-name">RESUMEN DE COTIZACIÓN</h3>
               <div id="live-data-display">
                   <p id="display-modelo" style="display:none;"><strong>Modelo:</strong> <span></span></p>
@@ -307,4 +304,4 @@
 
   <script src="script.js" defer></script>
 </body>
-</html>
+</html>s
