@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ==================================================================
-    // == LÓGICA CORE (FUNCIONALIDAD INTACTA) ==
-    // ==================================================================
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
     const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
@@ -168,23 +165,25 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const otroMarcaContainer = document.getElementById('otra-marca-container');
         const otraMarcaInput = document.getElementById('otra-marca');
-        const otroModeloContainer = document.getElementById('otro-modelo-container');
-        const otroModeloInput = document.getElementById('otro-modelo');
         if(otroMarcaContainer) { otroMarcaContainer.style.display = 'none'; if(otraMarcaInput) otraMarcaInput.required = false; }
-        if(otroModeloContainer) { otroModeloContainer.style.display = 'none'; if(otroModeloInput) otroModeloInput.required = false; }
         
         modeloSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
         anioSelect.innerHTML = '<option value="">Primero selecciona un modelo</option>';
         anioSelect.disabled = true;
+        
+        // Esconder campos "otro" de modelo y año por defecto
+        document.getElementById('otro-modelo-container').style.display = 'none';
+        document.getElementById('otro-modelo').required = false;
+        document.getElementById('otro-anio-container').style.display = 'none';
+        document.getElementById('otro-anio').required = false;
 
         updateLiveData('modelo', ''); updateLiveData('anio', '');
         
         if (marca === "Otro") {
-            marcaInput.value = "Otro"; anioSelect.disabled = false; populateAnios();
+            marcaInput.value = "Otro";
+            anioSelect.disabled = false; populateAnios();
             modeloSelect.disabled = false; modeloSelect.innerHTML = '<option value="Otro" selected>Otro (Especifique)</option>';
-            if(otroMarcaContainer) { otroMarcaContainer.style.display = 'block'; if(otraMarcaInput) otraMarcaInput.required = true; }
-            if(otroModeloContainer) { otroModeloContainer.style.display = 'block'; if(otroModeloInput) otroModeloInput.required = true; }
-            brandDisplayName.textContent = 'OTRA MARCA';
+            modeloSelect.dispatchEvent(new Event('change'));
         } else {
             marcaInput.value = marca;
             if (marcasFullList[marca]) { marcasFullList[marca].forEach(modelo => modeloSelect.add(new Option(modelo, modelo))); }
@@ -260,11 +259,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open(whatsappURL, '_blank');
         });
     }
+    
     if(modeloSelect) modeloSelect.addEventListener('change', () => { const otroModeloContainer = document.getElementById('otro-modelo-container'); const otroModeloInput = document.getElementById('otro-modelo'); if (modeloSelect.value === "Otro") { if(otroModeloContainer) { otroModeloContainer.style.display = 'block'; if(otroModeloInput) otroModeloInput.required = true; } updateLiveData('modelo', otroModeloInput.value); } else { if(otroModeloContainer) { otroModeloContainer.style.display = 'none'; if(otroModeloInput) otroModeloInput.required = false; } updateLiveData('modelo', modeloSelect.value); } anioSelect.disabled = false; populateAnios(); });
     if(anioSelect) anioSelect.addEventListener('change', () => { const otroAnioContainer = document.getElementById('otro-anio-container'); const otroAnioInput = document.getElementById('otro-anio'); if (anioSelect.value === "Otro") { if(otroAnioContainer){ otroAnioContainer.style.display = 'block'; if(otroAnioInput) otroAnioInput.required = true; } updateLiveData('anio', otroAnioInput.value); } else { if(otroAnioContainer) { otroAnioContainer.style.display = 'none'; if(otroAnioInput) otroAnioInput.required = false; } updateLiveData('anio', anioSelect.value); } });
+    
     const otraMarcaInput = document.getElementById('otra-marca'); if(otraMarcaInput) otraMarcaInput.addEventListener('input', () => { if(brandDisplayName) brandDisplayName.textContent = (otraMarcaInput.value || 'OTRA MARCA').toUpperCase(); });
     const otroModeloInput = document.getElementById('otro-modelo'); if(otroModeloInput) otroModeloInput.addEventListener('input', () => updateLiveData('modelo', otroModeloInput.value));
     const otroAnioInput = document.getElementById('otro-anio'); if(otroAnioInput) otroAnioInput.addEventListener('input', () => updateLiveData('anio', otroAnioInput.value));
+    
     if(descripcionTextarea) descripcionTextarea.addEventListener('input', () => updateLiveData('descripcion', descripcionTextarea.value));
     if(vinInput) vinInput.addEventListener('input', () => updateLiveData('vin', vinInput.value));
     if(nombreInput) nombreInput.addEventListener('input', () => updateLiveData('nombre', nombreInput.value));
