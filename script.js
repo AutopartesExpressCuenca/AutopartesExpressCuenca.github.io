@@ -154,11 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!input.value) allValid = false;
         });
         submitButton.disabled = !allValid;
-        
-        // UX Improvement: Show or hide helper text for the button
         if(submitHelper) {
             submitHelper.textContent = allValid ? "" : "Complete los campos requeridos para enviar.";
-            submitHelper.style.opacity = allValid ? "0" : "1";
         }
     }
 
@@ -285,24 +282,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================================================================
     // == COMPORTAMIENTOS VISUALES 2025 (SIN ALTERAR LÓGICA) ==
     // ==================================================================
-
-    // TREND 2025: Animaciones de aparición en scroll con Intersection Observer.
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); // Animar solo una vez
+                observer.unobserve(entry.target);
             }
         });
     }, {
-        threshold: 0.1 // Activar cuando el 10% del elemento es visible
+        threshold: 0.1
     });
 
     document.querySelectorAll('.fade-in').forEach(element => {
         observer.observe(element);
     });
 
-    // TREND 2025: Fondo dinámico que sigue al cursor, optimizado con requestAnimationFrame.
     const spotlight = document.querySelector('.spotlight-effect-light');
     if (spotlight) {
         let frameId;

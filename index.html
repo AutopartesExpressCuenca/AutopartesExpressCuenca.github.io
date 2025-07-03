@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Autopartes Express Cuenca - Cotización Inteligente</title>
   <meta name="description" content="Importamos el repuesto que necesitas a los mejores precios y condiciones. ¡Cotiza con nosotros! Originales y alternativos para todas las marcas.">
-  <meta property="og:title" content="Autopartes Express Cuenca - Cotización Inteligente">
-  <meta property="og:description" content="Usa nuestro asistente IA o llena el formulario para una cotización detallada con un experto.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://repuestosexpresscuenca.github.io/reeccaja.png">
-  <meta property="og:url" content="https://repuestosexpresscuenca.github.io/">
   <link rel="icon" href="reeccaja.png" type="image/png">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,16 +13,15 @@
 
   <style>
     :root {
-      /* Paleta de Colores Clara - Inspirada en la imagen de referencia */
-      --color-background: #F8F9FA;      /* Gris muy claro */
-      --color-surface: #FFFFFF;         /* Blanco puro para tarjetas */
-      --color-border: #DEE2E6;          /* Borde gris claro */
-      --color-text-primary: #1D2B48;    /* Azul oscuro para texto principal */
-      --color-text-secondary: #6C757D;   /* Gris medio para texto secundario */
-      --color-accent-blue: #3A5F8A;      /* Azul principal */
-      --color-accent-blue-light: #6F8DAF;/* Azul claro para hover/focos */
-      --color-accent-warm: #8B5E3C;      /* Acento marrón topo (de la imagen) */
-      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+      --color-background: #F8F9FA;
+      --color-surface: #FFFFFF;
+      --color-border: #E9ECEF;
+      --color-text-primary: #212529;
+      --color-text-secondary: #6C757D;
+      --color-accent-blue: #3A5F8A;
+      --color-accent-blue-light: #6F8DAF;
+      --color-accent-warm: #8B5E3C;
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.07);
       --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,19 +34,16 @@
       overflow-x: hidden;
     }
     .spotlight-effect-light {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle 800px at var(--x, 50%) var(--y, 50%), rgba(0, 0, 0, 0.03), transparent 80%);
-      z-index: -1;
-      pointer-events: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle 800px at var(--x, 50%) var(--y, 50%), rgba(0, 0, 0, 0.02), transparent 80%);
+      z-index: -1; pointer-events: none;
     }
     header {
-      background: rgba(248, 249, 250, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(248, 249, 250, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--color-border);
-      padding: 1rem 3rem;
-      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center;
       position: sticky; top: 0; z-index: 100;
     }
     .logo-container { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
@@ -76,18 +67,15 @@
     
     .hero { text-align: center; padding: 7rem 2rem 6rem; }
     .hero h1 {
-      font-family: var(--font-body);
-      font-weight: 800; /* Fuente más audaz y moderna */
-      font-size: clamp(2.8rem, 6vw, 4.5rem);
-      margin-bottom: 1rem;
-      letter-spacing: -0.04em; /* Tracking apretado, muy moderno */
-      color: var(--color-text-primary);
-      line-height: 1.1;
+      font-family: var(--font-body); font-weight: 800;
+      font-size: clamp(2.8rem, 6vw, 4.2rem);
+      margin-bottom: 1rem; letter-spacing: -0.03em;
+      color: var(--color-text-primary); line-height: 1.15;
     }
-    .hero h1 .highlight { color: var(--color-accent-warm); /* Acento cálido en una palabra */ }
+    .hero h1 .highlight { color: var(--color-accent-warm); }
     .hero p { font-size: 1.25rem; color: var(--color-text-secondary); max-width: 750px; margin: auto; font-weight: 400; }
     
-    main { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+    main { max-width: 1280px; margin: 2rem auto; padding: 0 2rem; }
     .form-container { display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; align-items: flex-start; }
     #sparePartsForm, #selected-brand-display {
       background: var(--color-surface);
@@ -112,8 +100,7 @@
       transition: all 0.3s ease;
     }
     input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--color-accent-blue);
+      outline: none; border-color: var(--color-accent-blue);
       box-shadow: 0 0 0 3px rgba(58, 95, 138, 0.2);
     }
     
@@ -126,7 +113,7 @@
       border: 1px solid transparent; height: 95px;
     }
     .logo-wrapper:hover { background-color: var(--color-surface); border-color: var(--color-border); }
-    .logo-wrapper.selected { background-color: var(--color-surface); border-color: var(--color-accent-blue-light); box-shadow: var(--shadow-soft); }
+    .logo-wrapper.selected { background-color: var(--color-surface); border-color: var(--color-accent-blue-light); box-shadow: var(--shadow-soft); transform: scale(1.05); }
     .logo-wrapper img { width: 100%; max-width: 45px; height: 45px; object-fit: contain; transition: all 0.3s ease; filter: grayscale(1); opacity: 0.7; margin-bottom: 0.5rem; }
     .logo-wrapper:hover img, .logo-wrapper.selected img { filter: none; opacity: 1; }
     .logo-wrapper span { font-size: 0.75rem; color: var(--color-text-secondary); font-weight: 500; text-align: center; }
@@ -147,8 +134,86 @@
     #btn-assistant-form:hover { background-color: var(--color-accent-blue); color: white; }
     #submit-button-whatsapp { background-color: #25D366; color: white; }
     #submit-button-whatsapp:hover:not(:disabled) { background-color: #1DAE51; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2); }
-    #submit-button-whatsapp:disabled { background-color: var(--color-border); color: var(--color-text-secondary); cursor: not-allowed; opacity: 0.6; }
+    #submit-button-whatsapp:disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; }
     #submit-helper-text { font-size: 0.8rem; text-align: center; color: var(--color-accent-warm); margin-top: 0.75rem; font-weight: 500; height: 1em; transition: opacity 0.3s; }
+
+    /* === CHAT WIDGET REDISEÑADO === */
+    .chat-widget {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 370px;
+        max-width: calc(100% - 2rem);
+        height: 600px;
+        max-height: calc(100vh - 4rem);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        transform: translateY(0);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        z-index: 10001;
+        opacity: 1;
+        overflow: hidden;
+    }
+    .chat-widget.hidden {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        pointer-events: none;
+    }
+    .chat-header {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+        flex-shrink: 0;
+    }
+    .chat-header .title-group { display: flex; align-items: center; gap: 0.75rem; }
+    .chat-header .title-group svg { color: var(--color-accent-blue-light); }
+    .chat-header h4 { margin: 0; color: var(--color-text-primary); font-weight: 600; }
+    .chat-close-btn { background: none; border: none; color: var(--color-text-secondary); font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0; transition: color 0.2s ease; }
+    .chat-close-btn:hover { color: var(--color-text-primary); }
+
+    .chat-messages {
+        flex-grow: 1; overflow-y: auto;
+        padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;
+    }
+    .chat-message { padding: 0.75rem 1.25rem; border-radius: 18px; max-width: 85%; line-height: 1.5; word-wrap: break-word; }
+    .user-message {
+        background-color: var(--color-accent-blue);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 6px;
+    }
+    .assistant-message {
+        background-color: var(--color-border);
+        color: var(--color-text-primary);
+        align-self: flex-start;
+        border-bottom-left-radius: 6px;
+    }
+    
+    .chat-input-container {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 1rem 1.5rem; border-top: 1px solid var(--color-border);
+        background-color: var(--color-surface);
+        flex-shrink: 0;
+    }
+    #chat-input {
+        flex-grow: 1; background: var(--color-background);
+        border-color: var(--color-border);
+    }
+    #chat-send-btn {
+        background-color: var(--color-accent-blue);
+        border: none; border-radius: 10px;
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background-color 0.2s ease;
+        color: white; flex-shrink: 0;
+    }
+    #chat-send-btn:hover { background-color: var(--color-accent-blue-light); }
+    #chat-send-btn:disabled { background-color: var(--color-border); cursor: not-allowed; }
+    #chat-send-btn svg { width: 20px; height: 20px; }
 
     @media (max-width: 992px) {
       header { padding: 1rem 1.5rem; }
@@ -163,7 +228,6 @@
     }
     @media (max-width: 768px) {
       .btn-header span { display: none; } .btn-header { padding: 0.8rem; }
-      /* Logos más pequeños en móvil para que quepan 5 en una fila */
       #logos-container { grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
       .logo-wrapper { height: 75px; padding: 0.25rem; }
       .logo-wrapper img { max-width: 32px; height: 32px; }
@@ -263,10 +327,19 @@
   </main>
   
   <div id="chat-widget" class="chat-widget hidden">
-    <div class="chat-header"><h4>Asistente de Autopartes</h4><button id="chat-close-btn" class="chat-close-btn">×</button></div>
+    <div class="chat-header">
+      <div class="title-group">
+        <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.324H21.08a.563.563 0 01.324.948l-4.249 3.573a.563.563 0 00-.192.528l1.638 4.999a.563.563 0 01-.84.623l-4.133-3.04a.563.563 0 00-.65 0L6.44 19.622a.563.563 0 01-.84-.623l1.638-4.999a.563.563 0 00-.192-.528L2.999 9.882a.563.563 0 01.324-.948h6.116a.563.563 0 00.475-.324L11.48 3.5z"/></svg>
+        <h4>Asistente de Autopartes</h4>
+      </div>
+      <button id="chat-close-btn" class="chat-close-btn" aria-label="Cerrar chat">×</button>
+    </div>
     <div id="chat-messages" class="chat-messages"></div>
     <div class="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Escribe tu consulta aquí..."><button id="chat-send-btn"><svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg></button>
+      <input type="text" id="chat-input" placeholder="Escribe aquí...">
+      <button id="chat-send-btn" aria-label="Enviar mensaje">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+      </button>
     </div>
   </div>
 
