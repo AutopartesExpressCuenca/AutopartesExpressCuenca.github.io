@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA CORE (FUNCIONALIDAD INTACTA) ==
+    // == LÓGICA DE VOZ Y CHAT ==
     // ==================================================================
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
@@ -9,12 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const chatWidget = document.getElementById('chat-widget');
     const chatCloseBtn = document.getElementById('chat-close-btn');
+    const chatMuteBtn = document.getElementById('chat-mute-btn');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
+    const chatMicBtn = document.getElementById('chat-mic-btn');
     const assistantButtonHeader = document.getElementById('btn-assistant-header');
     const assistantButtonForm = document.getElementById('btn-assistant-form');
 
+    let isMuted = false;
     let conversationHistory = [
         { role: "user", parts: [{ text: `
           REGLAS ESTRICTAS DEL SISTEMA:
@@ -61,8 +64,15 @@ document.addEventListener('DOMContentLoaded', function() {
         { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
 
+    function speak(text) {
+        if (isMuted || !('speechSynthesis' in window)) return;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        window.speechSynthesis.speak(utterance);
+    }
+    
     function addMessage(sender, text, isThinking = false) { if (!chatMessages) return; const existingThinkingMessage = document.getElementById('thinking-message'); if (existingThinkingMessage) existingThinkingMessage.remove(); const messageElement = document.createElement('div'); messageElement.classList.add('chat-message', `${sender}-message`); if (isThinking) { messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>'; messageElement.id = 'thinking-message'; } else { messageElement.textContent = text; } chatMessages.appendChild(messageElement); chatMessages.scrollTop = chatMessages.scrollHeight; return messageElement; }
-    function typeMessage(sender, text) { const messageElement = addMessage(sender, ''); let i = 0; const speed = 30; function type() { if (i < text.length) { messageElement.textContent += text.charAt(i); i++; chatMessages.scrollTop = chatMessages.scrollHeight; setTimeout(type, speed); } } type(); }
+    function typeMessage(sender, text) { const messageElement = addMessage(sender, ''); let i = 0; const speed = 30; function type() { if (i < text.length) { messageElement.textContent += text.charAt(i); i++; chatMessages.scrollTop = chatMessages.scrollHeight; setTimeout(type, speed); } else { speak(text); } } type(); }
     
     async function handleSendMessage() {
         if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) return;
@@ -111,10 +121,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 1200);
     }
-
-    async function logDataToMake(data) { if (!makeWebhookLoggerUrl) { console.error("URL del webhook de Make.com no configurada."); return; } try { const now = new Date(); const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) }; await fetch(makeWebhookLoggerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fullData) }); console.log("Datos enviados a Make.com."); } catch (error) { console.error("Error al enviar datos a Make.com:", error); } }
-    let chatListenersAdded = false; function addChatListeners() { if (chatListenersAdded || !chatSendBtn || !chatInput) return; chatSendBtn.addEventListener('click', handleSendMessage); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } }); chatListenersAdded = true; }
     
+    // --- LÓGICA DE FORMULARIO ---
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
     const submitHelper = document.getElementById('submit-helper-text');
@@ -323,7 +331,59 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         bgVideo.addEventListener('ended', playNextVideo);
     }
+    
+    // --- LÓGICA DE VOZ ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition && chatMicBtn) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'es-ES';
+        recognition.interimResults = false;
 
+        chatMicBtn.style.display = 'flex'; // Mostrar si es compatible
+        chatMicBtn.onclick = () => {
+            recognition.start();
+            chatMicBtn.classList.add('is-listening');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim();
+            chatInput.value = transcript;
+            handleSendMessage();
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Error en reconocimiento de voz:", event.error);
+            chatMicBtn.classList.remove('is-listening');
+        };
+
+        recognition.onend = () => {
+            chatMicBtn.classList.remove('is-listening');
+        };
+    } else {
+        if(chatMicBtn) chatMicBtn.style.display = 'none'; // Ocultar si no es compatible
+    }
+
+    if (chatMuteBtn) {
+        chatMuteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            const iconMuted = document.getElementById('icon-muted');
+            const iconUnmuted = document.getElementById('icon-unmuted');
+            if(iconMuted && iconUnmuted) {
+                iconMuted.style.display = isMuted ? 'block' : 'none';
+                iconUnmuted.style.display = isMuted ? 'none' : 'block';
+            }
+            if (!isMuted) {
+                chatMuteBtn.setAttribute('aria-label', 'Silenciar asistente');
+            } else {
+                window.speechSynthesis.cancel();
+                chatMuteBtn.setAttribute('aria-label', 'Activar sonido del asistente');
+            }
+        });
+    }
+
+
+    // --- INICIALIZACIÓN GENERAL ---
     populateLogos();
     populateAnios();
     checkFormCompleteness();
