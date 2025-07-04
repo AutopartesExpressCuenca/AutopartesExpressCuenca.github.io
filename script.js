@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ==================================================================
-    // == LÓGICA DE VOZ Y CHAT ==
+    // == LÓGICA CORE (CON LÓGICA DE VOZ REFINADA) ==
     // ==================================================================
     const GOOGLE_API_KEY = 'AIzaSyCoSJrU2POi_8pFHzgro5XlCIIPsa1lt5M';
     const AI_MODEL = 'gemini-1.5-flash-latest';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatMicBtn = document.getElementById('chat-mic-btn');
     const assistantButtonHeader = document.getElementById('btn-assistant-header');
     const assistantButtonForm = document.getElementById('btn-assistant-form');
-
+    
     let isMuted = false;
     let conversationHistory = [
         { role: "user", parts: [{ text: `
@@ -66,63 +66,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function speak(text) {
         if (isMuted || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel(); // Cancelar cualquier audio pendiente para evitar solapamientos
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-ES';
         window.speechSynthesis.speak(utterance);
     }
     
     function addMessage(sender, text, isThinking = false) { if (!chatMessages) return; const existingThinkingMessage = document.getElementById('thinking-message'); if (existingThinkingMessage) existingThinkingMessage.remove(); const messageElement = document.createElement('div'); messageElement.classList.add('chat-message', `${sender}-message`); if (isThinking) { messageElement.innerHTML = '<span class="thinking-dots"><span>.</span><span>.</span><span>.</span></span>'; messageElement.id = 'thinking-message'; } else { messageElement.textContent = text; } chatMessages.appendChild(messageElement); chatMessages.scrollTop = chatMessages.scrollHeight; return messageElement; }
-    function typeMessage(sender, text) { const messageElement = addMessage(sender, ''); let i = 0; const speed = 30; function type() { if (i < text.length) { messageElement.textContent += text.charAt(i); i++; chatMessages.scrollTop = chatMessages.scrollHeight; setTimeout(type, speed); } else { speak(text); } } type(); }
     
     async function handleSendMessage() {
-        if (!chatInput || chatInput.value.trim() === '' || chatSendBtn.disabled) return;
-        if (GOOGLE_API_KEY.includes('PEGA_AQUI')) { addMessage('assistant', 'Error: La clave de API de Google no ha sido configurada.'); return; }
         const messageText = chatInput.value.trim();
+        if (!messageText || chatSendBtn.disabled) return;
+        if (GOOGLE_API_KEY.includes('PEGA_AQUI')) { addMessage('assistant', 'Error: La clave de API de Google no ha sido configurada.'); return; }
+        
         addMessage('user', messageText);
         conversationHistory.push({ role: 'user', parts: [{ text: messageText }] });
         chatInput.value = '';
         chatSendBtn.disabled = true;
         addMessage('assistant', '', true);
         
-        setTimeout(async () => {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: conversationHistory }), });
+            const existingThinkingMessage = document.getElementById('thinking-message');
+            if (existingThinkingMessage) existingThinkingMessage.remove();
+            if (!response.ok) throw new Error(`Error de API: ${response.statusText}`);
+            const data = await response.json();
+            if (!data.candidates || data.candidates.length === 0) throw new Error("Respuesta de API inválida.");
+            const aiResponseText = data.candidates[0].content.parts[0].text;
+            
+            // LÓGICA CORREGIDA: Primero intentar procesar como JSON
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: conversationHistory }), });
-                const existingThinkingMessage = document.getElementById('thinking-message');
-                if (existingThinkingMessage) existingThinkingMessage.remove();
-                if (!response.ok) throw new Error(`Error de API: ${response.statusText}`);
-                const data = await response.json();
-                if (!data.candidates || data.candidates.length === 0) throw new Error("Respuesta de API inválida.");
-                const aiResponseText = data.candidates[0].content.parts[0].text;
-                try {
-                    const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
-                    if (jsonMatch) {
-                        const responseObject = JSON.parse(jsonMatch[0]);
-                        if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
-                            const confirmationMessage = "¡Excelente! He rellenado los datos en el formulario principal. Por favor, revísalos, completa tu nombre si falta, y presiona el botón de WhatsApp para finalizar.";
-                            await logDataToMake(responseObject.datos);
-                            populateFormFromAI(responseObject.datos);
-                            conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
-                            typeMessage('assistant', confirmationMessage);
-                            setTimeout(() => chatWidget.classList.add('hidden'), 6000);
-                            return;
-                        }
-                    }
-                } catch (e) { console.warn("Respuesta no era JSON. Tratando como texto normal.", e); }
+                const responseObject = JSON.parse(aiResponseText);
+                if (responseObject.accion === 'registrar_cotizacion' && responseObject.datos) {
+                    const confirmationMessage = "¡Excelente! He rellenado los datos en el formulario. Por favor, revísalos, completa los campos faltantes y presiona el botón de WhatsApp para finalizar.";
+                    await logDataToMake(responseObject.datos);
+                    populateFormFromAI(responseObject.datos);
+                    addMessage('assistant', confirmationMessage); // Mostrar mensaje amigable
+                    speak(confirmationMessage); // Leer en voz alta el mensaje amigable
+                    conversationHistory.push({ role: 'model', parts: [{ text: confirmationMessage }] });
+                    setTimeout(() => chatWidget.classList.add('hidden'), 8000);
+                    return;
+                }
+            } catch (e) {
+                // Si falla el parseo, es un mensaje de texto normal
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponseText }] });
-                typeMessage('assistant', aiResponseText);
-            } catch (error) {
-                console.error('Error al llamar a la API de Gemini:', error);
-                const existingThinkingMessage = document.getElementById('thinking-message');
-                if (existingThinkingMessage) existingThinkingMessage.remove();
-                typeMessage('assistant', 'Lo siento, no puedo responder en este momento.');
-            } finally {
-                chatSendBtn.disabled = false;
-                if(chatInput) chatInput.focus();
+                addMessage('assistant', aiResponseText);
+                speak(aiResponseText); // Leer en voz alta el mensaje normal
             }
-        }, 1200);
+        } catch (error) {
+            console.error('Error al llamar a la API de Gemini:', error);
+            const errorMsg = 'Lo siento, no puedo responder en este momento. Hubo un problema de conexión.';
+            addMessage('assistant', errorMsg);
+            speak(errorMsg);
+        } finally {
+            chatSendBtn.disabled = false;
+            if(chatInput) chatInput.focus();
+        }
     }
     
-    // --- LÓGICA DE FORMULARIO ---
+    // --- LÓGICA DE VOZ REFINADA ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition && chatMicBtn) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'es-ES';
+        recognition.interimResults = false;
+
+        chatMicBtn.style.display = 'flex';
+        chatMicBtn.onclick = () => {
+            try {
+                recognition.start();
+                chatMicBtn.classList.add('is-listening');
+            } catch (e) {
+                console.error("Error al iniciar el reconocimiento de voz:", e);
+                chatMicBtn.classList.remove('is-listening');
+            }
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim();
+            chatInput.value = transcript;
+            chatSendBtn.click(); // Simular clic en el botón de enviar para un flujo unificado
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Error en reconocimiento de voz:", event.error);
+            chatMicBtn.classList.remove('is-listening');
+        };
+
+        recognition.onend = () => {
+            chatMicBtn.classList.remove('is-listening');
+        };
+    } else {
+        if(chatMicBtn) chatMicBtn.style.display = 'none';
+    }
+    
+    // El resto del código del formulario, listeners y funciones de inicialización no ha cambiado
+    // y se incluye aquí para asegurar que el archivo es completo.
+    
+    async function logDataToMake(data) { if (!makeWebhookLoggerUrl) { console.error("URL del webhook de Make.com no configurada."); return; } try { const now = new Date(); const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) }; await fetch(makeWebhookLoggerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fullData) }); console.log("Datos enviados a Make.com."); } catch (error) { console.error("Error al enviar datos a Make.com:", error); } }
+    let chatListenersAdded = false; function addChatListeners() { if (chatListenersAdded || !chatSendBtn || !chatInput) return; chatSendBtn.addEventListener('click', handleSendMessage); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } }); chatListenersAdded = true; }
+    
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
     const submitHelper = document.getElementById('submit-helper-text');
@@ -332,38 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
         bgVideo.addEventListener('ended', playNextVideo);
     }
     
-    // --- LÓGICA DE VOZ ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition && chatMicBtn) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.lang = 'es-ES';
-        recognition.interimResults = false;
-
-        chatMicBtn.style.display = 'flex'; // Mostrar si es compatible
-        chatMicBtn.onclick = () => {
-            recognition.start();
-            chatMicBtn.classList.add('is-listening');
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript.trim();
-            chatInput.value = transcript;
-            handleSendMessage();
-        };
-
-        recognition.onerror = (event) => {
-            console.error("Error en reconocimiento de voz:", event.error);
-            chatMicBtn.classList.remove('is-listening');
-        };
-
-        recognition.onend = () => {
-            chatMicBtn.classList.remove('is-listening');
-        };
-    } else {
-        if(chatMicBtn) chatMicBtn.style.display = 'none'; // Ocultar si no es compatible
-    }
-
     if (chatMuteBtn) {
         chatMuteBtn.addEventListener('click', () => {
             isMuted = !isMuted;
@@ -373,17 +385,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 iconMuted.style.display = isMuted ? 'block' : 'none';
                 iconUnmuted.style.display = isMuted ? 'none' : 'block';
             }
-            if (!isMuted) {
-                chatMuteBtn.setAttribute('aria-label', 'Silenciar asistente');
-            } else {
+            if (isMuted) {
                 window.speechSynthesis.cancel();
                 chatMuteBtn.setAttribute('aria-label', 'Activar sonido del asistente');
+            } else {
+                chatMuteBtn.setAttribute('aria-label', 'Silenciar asistente');
             }
         });
     }
 
-
-    // --- INICIALIZACIÓN GENERAL ---
     populateLogos();
     populateAnios();
     checkFormCompleteness();
