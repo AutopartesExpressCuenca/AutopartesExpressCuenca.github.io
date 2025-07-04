@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
 
     // ==================================================================
-    // == 2. CLASE ROBUSTA PARA MANEJO DE VOZ ==
+    // == 2. CLASE ROBUSTA PARA MANEJO DE VOZ (CON SELECCIÓN DE GÉNERO) ==
     // ==================================================================
     class VoiceAssistant {
         constructor() {
@@ -122,11 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         loadVoices() {
             this.voices = this.synth.getVoices().filter(voice => voice.lang.startsWith('es'));
+            console.log(`Se encontraron ${this.voices.length} voces en español.`);
         }
 
         speak(text, onEndCallback = null) {
             if (this.isMuted || !text || !this.synth) {
-                if (onEndCallback) onEndCallback();
+                if(onEndCallback) onEndCallback();
                 return;
             }
             if (this.synth.speaking) {
@@ -134,13 +135,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'es-ES';
-            const selectedVoice = this.voices.find(voice => voice.name.includes('Google') && voice.name.includes('español')) || this.voices.find(voice => voice.lang === 'es-ES') || this.voices[0];
-            if (selectedVoice) utterance.voice = selectedVoice;
+
+            let selectedVoice = this.voices.find(voice => voice.name.includes('Google') && voice.name.includes('español') && !voice.name.includes('Female'));
+            if (!selectedVoice) {
+                selectedVoice = this.voices.find(voice => (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('hombre')));
+            }
+            if (!selectedVoice) {
+                const maleNames = ['jorge', 'diego', 'pablo', 'carlos'];
+                selectedVoice = this.voices.find(voice => maleNames.some(name => voice.name.toLowerCase().includes(name)));
+            }
+            if (!selectedVoice) {
+                selectedVoice = this.voices.find(voice => voice.lang === 'es-ES') || this.voices[0];
+            }
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                console.warn("No se encontró voz en español, usando voz por defecto.");
+            }
             
             utterance.onend = onEndCallback;
             utterance.onerror = (e) => {
                 console.error("Error en la síntesis de voz:", e.error);
-                if (onEndCallback) onEndCallback();
+                if(onEndCallback) onEndCallback();
             };
             this.synth.speak(utterance);
         }
@@ -276,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function logDataToMake(data) { if (!makeWebhookLoggerUrl) { console.error("URL del webhook de Make.com no configurada."); return; } try { const now = new Date(); const fullData = { ...data, fecha: now.toLocaleDateString('es-EC', { timeZone: 'America/Guayaquil' }), hora: now.toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil' }) }; await fetch(makeWebhookLoggerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(fullData) }); console.log("Datos enviados a Make.com."); } catch (error) { console.error("Error al enviar datos a Make.com:", error); } }
     let chatListenersAdded = false; function addChatListeners() { if (chatListenersAdded || !chatSendBtn || !chatInput) return; chatSendBtn.addEventListener('click', handleSendMessage); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } }); chatListenersAdded = true; }
-
+    
     function checkFormCompleteness() {
         if (!form || !submitButton) return;
         const requiredFields = form.querySelectorAll('[required]');
