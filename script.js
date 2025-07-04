@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const AI_MODEL = 'gemini-1.5-flash-latest';
     const makeWebhookLoggerUrl = 'https://hook.us2.make.com/2jlo910w1h103zmelro36zbqeqadvg10';
 
-    // Elementos del DOM del Chat
     const chatWidget = document.getElementById('chat-widget');
     const chatCloseBtn = document.getElementById('chat-close-btn');
     const chatMuteBtn = document.getElementById('chat-mute-btn');
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const assistantButtonHeader = document.getElementById('btn-assistant-header');
     const assistantButtonForm = document.getElementById('btn-assistant-form');
     
-    // Elementos del DOM del Formulario
     const form = document.getElementById('sparePartsForm');
     const submitButton = document.getElementById('submit-button-whatsapp');
     const submitHelper = document.getElementById('submit-helper-text');
@@ -39,45 +37,37 @@ document.addEventListener('DOMContentLoaded', function() {
           REGLAS ESTRICTAS DEL SISTEMA:
           1.  **Rol y Tono:** Eres "Alex", un asistente de "Autopartes Express Cuenca". Tu tono es profesional y siempre usas "usted".
           2.  **Misión Principal:** Tu único objetivo es recopilar la información para una cotización. Eres un bot recolector de datos.
-          3.  **Datos Obligatorios:** Debes conseguir sí o sí:
-              - Marca del vehículo.
-              - Modelo del vehículo.
-              - Año del vehículo.
-              - Repuesto necesitado.
-              - Número de teléfono del cliente.
-          4.  **Datos Opcionales pero importantes:** Intenta obtener de forma conversacional si el cliente los menciona:
-              - Nombre del cliente.
-              - Ciudad y Provincia del cliente.
+          3.  **Datos Obligatorios:** Debes conseguir sí o sí: Nombre del cliente, Marca del vehículo, Modelo del vehículo, Año del vehículo, Repuesto necesitado y Número de teléfono.
+          4.  **Datos Opcionales:** Intenta obtener de forma conversacional si el cliente los menciona: Ciudad, Provincia.
           5.  **Flujo de Conversación:**
-              - Saluda cortamente y pregunta inmediatamente por la información del vehículo y el repuesto.
-              - A medida que conversas, intenta obtener los datos opcionales.
-              - Una vez tengas los 5 datos obligatorios, tu trabajo está hecho.
+              - Saluda cortamente y pregunta por la información del vehículo y el repuesto.
+              - A medida que conversas, si no obtienes todos los datos obligatorios, en tu siguiente respuesta, DEBES volver a preguntar amablemente por la información que falta. Por ejemplo: "Entendido, es un Chevrolet Spark. ¿Podría indicarme el año y su número de teléfono para completar la cotización?". Sé persistente pero amable.
+              - Una vez tengas los 6 datos obligatorios, tu trabajo está hecho.
           6.  **Regla de Salida de Emergencia:** Si el cliente quiere hablar con un humano, tu ÚNICA respuesta posible es: "Con mucho gusto. Para atención personalizada, puede contactar directamente a nuestro gerente, Pedro, al número 0999115626.". Después de eso, no digas nada más.
           
           7.  **REGLA DE ORO - ACCIÓN FINAL:**
-              - **CUANDO TENGAS LOS 5 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
+              - **CUANDO TENGAS LOS 6 DATOS OBLIGATORIOS**, tu siguiente y ÚLTIMA respuesta debe ser NADA MÁS QUE EL OBJETO JSON.
               - **NO ESCRIBAS TEXTO INTRODUCTORIO NI USES BLOQUES DE CÓDIGO.**
               - Tu respuesta debe empezar con "{" y terminar con "}".
               - **Utiliza la siguiente estructura EXACTA para el JSON:**
                 {
                   "accion": "registrar_cotizacion",
                   "datos": {
-                    "nombre_cliente": "El nombre que recopilaste, o 'No proporcionado'",
+                    "nombre_cliente": "El nombre que recopilaste",
                     "contacto_cliente": "El teléfono que recopilaste",
                     "marca_vehiculo": "La marca que recopilaste",
                     "modelo_vehiculo": "El modelo que recopilaste",
                     "año_vehiculo": "El año que recopilaste",
-                    "repuesto_solicitado": "El nombre específico de la pieza que el cliente necesita (Ej: 'Faro delantero derecho')",
+                    "repuesto_solicitado": "El nombre específico de la pieza que el cliente necesita",
                     "numero_de_parte": "El número si lo dieron, o 'No proporcionado'",
                     "ciudad": "La ciudad si la mencionaron, o 'No proporcionado'",
                     "provincia": "La provincia si la mencionaron, o 'No proporcionado'",
-                    "observaciones_resumen": "Un resumen muy breve y profesional de la solicitud completa del cliente, incluyendo detalles adicionales que haya mencionado. Ej: 'Cliente busca pastillas de freno cerámicas para el eje delantero, mencionó que prefiere marca Brembo si es posible.'",
+                    "observaciones_resumen": "Un resumen muy breve y profesional de la solicitud completa del cliente.",
                     "texto_chat_completo": "TODO el historial de la conversación entre el usuario y tú, formateado como un solo bloque de texto con saltos de línea \\n."
                   }
                 }
-              - **El mensaje de "Excelente, he registrado su solicitud..." NO lo generas tú. El sistema lo hará automáticamente.** Tu trabajo termina al enviar el JSON puro.
         `}]},
-        { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
+        { role: "model", parts: [{ text: "Entendido. Soy Alex. Para iniciar su cotización, por favor, indíqueme su nombre, la marca, modelo y año de su vehículo, y el repuesto que necesita." }]}
     ];
     
     const marcasPopulares = ["Chevrolet", "Kia", "Toyota", "Hyundai", "Suzuki", "Renault", "Great Wall", "Mazda", "Nissan", "Ford", "Volkswagen", "Mitsubishi"];
@@ -86,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const marcasOrdenadas = [...marcasPopulares, ...marcasOtras];
 
     // ==================================================================
-    // == 2. CLASE ROBUSTA PARA MANEJO DE VOZ (CON SELECCIÓN DE GÉNERO) ==
+    // == 2. CLASE ROBUSTA PARA MANEJO DE VOZ (PUSH-TO-TALK) ==
     // ==================================================================
     class VoiceAssistant {
         constructor() {
@@ -122,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         loadVoices() {
             this.voices = this.synth.getVoices().filter(voice => voice.lang.startsWith('es'));
-            console.log(`Se encontraron ${this.voices.length} voces en español.`);
         }
 
         speak(text, onEndCallback = null) {
@@ -130,29 +119,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(onEndCallback) onEndCallback();
                 return;
             }
-            if (this.synth.speaking) {
-                this.synth.cancel();
-            }
+            if (this.synth.speaking) this.synth.cancel();
+
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'es-ES';
 
-            let selectedVoice = this.voices.find(voice => voice.name.includes('Google') && voice.name.includes('español') && !voice.name.includes('Female'));
+            let selectedVoice;
+            const maleNames = ['jorge', 'diego', 'pablo', 'carlos', 'male', 'hombre'];
+            
+            // Prioridad 1: Voces masculinas de alta calidad
+            selectedVoice = this.voices.find(voice => voice.name.includes('Google') && maleNames.some(name => voice.name.toLowerCase().includes(name)));
+            
+            // Prioridad 2: Cualquier voz masculina
             if (!selectedVoice) {
-                selectedVoice = this.voices.find(voice => (voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('hombre')));
-            }
-            if (!selectedVoice) {
-                const maleNames = ['jorge', 'diego', 'pablo', 'carlos'];
                 selectedVoice = this.voices.find(voice => maleNames.some(name => voice.name.toLowerCase().includes(name)));
             }
+
+            // Prioridad 3: Fallback a la primera voz en español
             if (!selectedVoice) {
                 selectedVoice = this.voices.find(voice => voice.lang === 'es-ES') || this.voices[0];
             }
             
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            } else {
-                console.warn("No se encontró voz en español, usando voz por defecto.");
-            }
+            if (selectedVoice) utterance.voice = selectedVoice;
             
             utterance.onend = onEndCallback;
             utterance.onerror = (e) => {
@@ -168,44 +156,50 @@ document.addEventListener('DOMContentLoaded', function() {
             this.recognition.interimResults = false;
 
             if(chatMicBtn) {
-                chatMicBtn.onclick = () => {
+                // Implementación Push-to-Talk
+                chatMicBtn.addEventListener('mousedown', () => {
                     try {
+                        this.synth.cancel(); // Silencia al asistente al presionar
                         this.recognition.start();
-                    } catch(e) {
-                        console.error("Error al iniciar reconocimiento:", e);
-                    }
-                };
+                    } catch(e) { console.error("Error al iniciar reconocimiento:", e); }
+                });
+                chatMicBtn.addEventListener('mouseup', () => {
+                    try {
+                        this.recognition.stop();
+                    } catch(e) { console.error("Error al detener reconocimiento:", e); }
+                });
+                // Soporte táctil para móvil
+                chatMicBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    try {
+                        this.synth.cancel();
+                        this.recognition.start();
+                    } catch(e) { console.error("Error al iniciar reconocimiento táctil:", e); }
+                });
+                chatMicBtn.addEventListener('touchend', () => {
+                    try {
+                        this.recognition.stop();
+                    } catch(e) { console.error("Error al detener reconocimiento táctil:", e); }
+                });
             }
 
-            this.recognition.onstart = () => {
-                chatMicBtn.classList.add('is-listening');
-                addMessage('assistant', 'Escuchando...');
-            };
-
-            this.recognition.onend = () => {
-                chatMicBtn.classList.remove('is-listening');
-                const listeningMessage = Array.from(chatMessages.children).find(child => child.textContent === 'Escuchando...');
-                if (listeningMessage) listeningMessage.remove();
-            };
-
+            this.recognition.onstart = () => chatMicBtn.classList.add('is-listening');
+            this.recognition.onend = () => chatMicBtn.classList.remove('is-listening');
             this.recognition.onerror = (e) => {
                 console.error("Error de reconocimiento de voz:", e.error);
-                let errorMessage;
-                if (e.error === 'no-speech') {
-                    errorMessage = "No pude escucharte. Por favor, intenta hablar más claro o en un lugar más silencioso.";
-                } else if (e.error === 'not-allowed') {
-                    errorMessage = "El permiso para usar el micrófono fue denegado. Debes habilitarlo en la configuración de tu navegador.";
-                } else {
-                    errorMessage = "Ocurrió un error con el reconocimiento de voz. Por favor, intenta de nuevo.";
-                }
+                let errorMessage = "Ocurrió un error con el reconocimiento de voz.";
+                if (e.error === 'no-speech') errorMessage = "No pude escucharte. Por favor, mantén presionado y habla.";
+                if (e.error === 'not-allowed') errorMessage = "Permiso al micrófono denegado.";
                 addMessage('assistant', errorMessage);
                 this.speak(errorMessage);
             };
 
             this.recognition.onresult = (event) => {
                 const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                chatInput.value = transcript;
-                chatSendBtn.click();
+                if(transcript) {
+                    chatInput.value = transcript;
+                    chatSendBtn.click();
+                }
             };
         }
 
@@ -217,12 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 iconMuted.style.display = this.isMuted ? 'block' : 'none';
                 iconUnmuted.style.display = this.isMuted ? 'none' : 'block';
             }
-            if (this.isMuted) {
-                this.synth.cancel();
-                chatMuteBtn.setAttribute('aria-label', 'Activar sonido del asistente');
-            } else {
-                chatMuteBtn.setAttribute('aria-label', 'Silenciar asistente');
-            }
+            if (this.isMuted) this.synth.cancel();
+            chatMuteBtn.setAttribute('aria-label', this.isMuted ? 'Activar sonido' : 'Silenciar');
         }
     }
 
